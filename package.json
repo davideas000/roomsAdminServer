@@ -1,0 +1,25 @@
+{
+  "name": "rooms-admin-server",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node lib/server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "'david endrew'",
+  "license": "MIT",
+  "devDependencies": {
+    "morgan": "^1.9.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "@types/express": "^4.16.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.2.8",
+    "rand-token": "^0.4.0"
+  }
+}
