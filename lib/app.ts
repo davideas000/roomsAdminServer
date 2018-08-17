@@ -29,6 +29,15 @@ class App {
   mongoSetup(): void {
     mongoose.Promise = global.Promise;
     mongoose.connect(config.mongoUrl, {useNewUrlParser: true});
+    const db = mongoose.connection;
+    
+    db.on('error', () => {
+      console.error("mongo connection error, make sure that mongo service is running");
+    });
+    
+    db.once('open', () => {
+      console.log("mongo connection successfull");
+    });
   }
 }
 
