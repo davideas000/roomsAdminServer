@@ -72,10 +72,11 @@ export class Routes {
         return res.status(401).send(err.message);
       }
       next(err);
-    })
+    });
     
     app.use((req: Request, res: Response) => {
       res.sendStatus(404);
-    })
+    });
   }
+  
 }
