@@ -2,11 +2,15 @@ import { Request, Response, NextFunction, Application } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as expressJwt from 'express-jwt';
 
-import { UserModel } from './../models/user.model';
 import { config } from './../../config/config';
+import { UserModel } from './../models/user.model';
 import { ReservationModel } from '../models/reservation.model';
 
+import { ReservationController } from '../controllers/reservation.controller';
+
 export class Routes {
+
+  private reservationController = new ReservationController();
   
   routes(app: Application): void {
     
@@ -67,14 +71,8 @@ export class Routes {
     });
 
     app.route('/reserv-a')
-      .get(authGuard, (req: Request, res: Response) => {
-        ReservationModel.find({userId: (req as any).user.sub, status: "aproved"}, (err, reservations: any[]) => {
-          if (err) {
-            return res.send({success: false, message: err.message});
-          }
-          res.send(reservations);
-        });
-      });
+      .get(authGuard, this.reservationController.getCurrentUserApprovedReservations);
+    
 
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
