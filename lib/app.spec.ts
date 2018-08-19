@@ -136,16 +136,16 @@ describe("app", () => {
     expect(res.statusCode).toBe(404);
   });
 
-  describe("/reserv-a", () => {
+  describe("/reservation", () => {
     
     it("GET, sould return '401 authorized' for not logged user", async () => {
-      const res = await request(app).get('/reserv-a').set('Accept', 'application/json');
+      const res = await request(app).get('/reservation').set('Accept', 'application/json');
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('No authorization token was found');
     });
 
     it("GET, sould return reservations list for logged in user", async () => {
-      const res = await request(app).get('/reserv-a')
+      const res = await request(app).get('/reservation?status=aproved')
         .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 

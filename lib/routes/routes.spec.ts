@@ -24,7 +24,7 @@ describe("Routes", () => {
     expect(appMock.post).toHaveBeenCalledWith('/login', expect.any(Function));
 
     expect(appMock.route).toHaveBeenCalledTimes(1);
-    expect(appMock.route).toHaveBeenCalledWith('/reserv-a');
+    expect(appMock.route).toHaveBeenCalledWith('/reservation');
 
     expect(appMock.use).toHaveBeenCalledTimes(2);
   });

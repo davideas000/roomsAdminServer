@@ -70,8 +70,8 @@ export class Routes {
         });
     });
 
-    app.route('/reserv-a')
-      .get(authGuard, this.reservationController.getCurrentUserApprovedReservations);
+    app.route('/reservation')
+      .get(authGuard, this.reservationController.getReservations);
     
 
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
