@@ -1,4 +1,7 @@
-import app from './app';
+import { App } from './app';
+import { config } from '../config/config';
+
+const app = new App(config.mongoUrl).app;
 
 const PORT = process.env.PORT || 3000;
 

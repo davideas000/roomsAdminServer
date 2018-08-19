@@ -8,12 +8,12 @@ import { Application } from 'express';
 import { Routes } from './routes/routes';
 import { config } from '../config/config';
 
-class App {
+export class App {
   
   app: Application;
   routes: Routes;
   
-  constructor() {
+  constructor(private mongoURL: string) {
     this.app = express();
     this.config();
     this.routes = new Routes();
@@ -28,7 +28,7 @@ class App {
 
   mongoSetup(): void {
     mongoose.Promise = global.Promise;
-    mongoose.connect(config.mongoUrl, {useNewUrlParser: true});
+    mongoose.connect(this.mongoURL, {useNewUrlParser: true});
     const db = mongoose.connection;
     
     db.on('error', () => {
@@ -40,5 +40,3 @@ class App {
     });
   }
 }
-
-export default new App().app;
