@@ -4,6 +4,7 @@ import * as expressJwt from 'express-jwt';
 
 import { UserModel } from './../models/user.model';
 import { config } from './../../config/config';
+import { ReservationModel } from '../models/reservation.model';
 
 export class Routes {
   
@@ -65,13 +66,14 @@ export class Routes {
         });
     });
 
-    app.route('/reservation')
+    app.route('/reserv-a')
       .get(authGuard, (req: Request, res: Response) => {
-        res.send([
-          {id: '1', userId: 'fkldsajç'},
-          {id: '2', userId: 'kkkkkkk'},
-          {id: '2', userId: 'kkkkkkk'}
-        ]);
+        ReservationModel.find({userId: (req as any).user.sub, status: "aproved"}, (err, reservations: any[]) => {
+          if (err) {
+            return res.send({success: false, message: err.message});
+          }
+          res.send(reservations);
+        });
       });
 
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {

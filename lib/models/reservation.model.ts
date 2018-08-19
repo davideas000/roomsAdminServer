@@ -23,6 +23,7 @@ const reservationSchema = new Schema({
 reservationSchema.pre('save', function (done) {
   let user = this;
   user.updatedAt = Date.now();
+  done();
 });
 
 export const ReservationModel = mongoose.model("ReservationModel", reservationSchema);

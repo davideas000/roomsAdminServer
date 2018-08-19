@@ -2,6 +2,7 @@ import MongodbMemoryServer from 'mongodb-memory-server';
 import * as request from 'supertest';
 import { App } from './app'
 import { UserModel } from './models/user.model';
+import { ReservationModel } from './models/reservation.model';
 
 describe("app", () => {
   let mongodb;
@@ -22,6 +23,93 @@ describe("app", () => {
     });
 
     await user.save();
+
+    const reservationsStub = [
+      {
+        reason: "por alguma coisa razão",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 10,
+        sequence: 1,
+        status: 'aproved',
+        userId: user._id,
+        roomId: 'blabal100'
+      },
+      {
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 19,
+        status: 'aproved',
+        userId: user._id,
+        roomId: 'fkdsjf000'
+      },
+      {
+        reason: "por alguma outra coisa razão razão",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        sequence: 4,
+        status: 'pending',
+        userId: user._id,
+        roomId: 'sula0001'
+      },
+      {
+        reason: "por alguma coisa razão. razão etc. etc.",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 10,
+        sequence: 1,
+        status: 'aproved',
+        userId: user._id,
+        roomId: 'blabal100'
+      },
+      {
+        reason: "por alguma outra coisa razão. balu, balu",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 19,
+        sequence: 2,
+        status: 'aproved',
+        userId: "dkjsçf",
+        roomId: 'fkdsjf000'
+      },
+      {
+        reason: "por alguma outra coisa razão razão. etc sabe como é",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 9,
+        sequence: 4,
+        status: 'pending',
+        userId: "92929kkkkk",
+        roomId: 'sula0002'
+      },
+      {
+        reason: "por alguma........... coisa razão. razão etc. etc.",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 11,
+        sequence: 8,
+        status: 'removed',
+        userId: user._id,
+        roomId: 'blabal100999'
+      },
+    ];
+
+    await ReservationModel.insertMany(reservationsStub);
+    
     const res = await request(app).post("/login")
       .send({email: "test@email.com", password: "super secret password"})
       .set("Accept", "application/json");
@@ -48,16 +136,16 @@ describe("app", () => {
     expect(res.statusCode).toBe(404);
   });
 
-  describe("/reservation", () => {
+  describe("/reserv-a", () => {
     
     it("GET, sould return '401 authorized' for not logged user", async () => {
-      const res = await request(app).get('/reservation').set('Accept', 'application/json');
+      const res = await request(app).get('/reserv-a').set('Accept', 'application/json');
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('No authorization token was found');
     });
 
     it("GET, sould return reservations list for logged in user", async () => {
-      const res = await request(app).get('/reservation')
+      const res = await request(app).get('/reserv-a')
         .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 
@@ -66,7 +154,11 @@ describe("app", () => {
       
       for(let v of res.body) {
         expect(v.userId).toBe(userProfile.id);
+        expect(v.status).toBe("aproved");
       }
+      
+      expect(res.body[1].reason).toBeFalsy();
+      
     });
     
   });
