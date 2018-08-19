@@ -2,7 +2,7 @@ import { Request, Response, NextFunction, Application } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as expressJwt from 'express-jwt';
 
-import UserModel from './../models/user.model';
+import { UserModel } from './../models/user.model';
 import { config } from './../../config/config';
 
 export class Routes {

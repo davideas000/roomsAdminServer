@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import { Schema } from 'mongoose';
-import * as bcrypt from 'bcrypt';
 
 const userSchema = new Schema({
   name: {type: String, required: true},
@@ -48,14 +47,5 @@ userSchema.pre('save', function (done) {
     });
 });
 
-userSchema.methods.checkPassword = function(guess, done) {
-  bcrypt.compare(guess, this.password)
-    .then((res) => done(res)).catch( e => {
-      console.log("error", e);
-      done(e);
-    });
-}
-
-
-export const UserModel = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);
 

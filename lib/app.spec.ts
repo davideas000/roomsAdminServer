@@ -1,7 +1,7 @@
 import MongodbMemoryServer from 'mongodb-memory-server';
 import * as request from 'supertest';
 import { App } from './app'
-import UserModel from './models/user.model';
+import { UserModel } from './models/user.model';
 
 describe("app", () => {
   let mongodb;
@@ -26,7 +26,6 @@ describe("app", () => {
       .send({email: "test@email.com", password: "super secret password"})
       .set("Accept", "application/json");
     authToken = res.body.token;
-    console.log("userkjçdas", res.body);
     userProfile = res.body.profile;
   });
 
@@ -62,7 +61,6 @@ describe("app", () => {
         .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 
-      console.log("body", res.body);
       expect(res.statusCode).toBe(200);
       expect(res.body.length).toBe(3);
       

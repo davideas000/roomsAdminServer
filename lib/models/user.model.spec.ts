@@ -1,7 +1,7 @@
 import * as mongoose from "mongoose";
 import * as bcrypt from 'bcrypt';
 
-import UserModel from "./user.model";
+import { UserModel } from "./user.model";
 
 describe("user", () => {
   
