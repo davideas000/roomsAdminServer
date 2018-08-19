@@ -56,7 +56,7 @@ describe("app", () => {
         sequence: 4,
         status: 'pending',
         userId: user._id,
-        roomId: 'sula0001'
+        roomId: 'uniqueroomid'
       },
       {
         reason: "por alguma coisa razão. razão etc. etc.",
@@ -104,8 +104,20 @@ describe("app", () => {
         sequence: 8,
         status: 'removed',
         userId: user._id,
-        roomId: 'blabal100999'
+        roomId: 'uniqueroomid3'
       },
+      {
+        reason: "por alguma........... pessoas tem razões para fazer as coisas.",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 11,
+        sequence: 8,
+        status: 'pending',
+        userId: user._id,
+        roomId: 'uniqueroomid2'
+      }
     ];
 
     await ReservationModel.insertMany(reservationsStub);
@@ -144,7 +156,7 @@ describe("app", () => {
       expect(res.body.message).toBe('No authorization token was found');
     });
 
-    it("GET, sould return reservations list for logged in user", async () => {
+    it("GET ?status=aproved, should return list of approved reservations of the current user", async () => {
       const res = await request(app).get('/reservation?status=aproved')
         .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
@@ -159,6 +171,39 @@ describe("app", () => {
       
       expect(res.body[1].reason).toBeFalsy();
       
+    });
+    
+    it("GET ?status=peding, should return list of pending reservations of the current user", async () => {
+      const res = await request(app).get('/reservation?status=pending')
+        .set('Accept', 'application/json')
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.length).toBe(2);
+      
+      for(let v of res.body) {
+        expect(v.userId).toBe(userProfile.id);
+        expect(v.status).toBe("pending");
+      }
+
+      expect(res.body[0].roomId).toBe("uniqueroomid");
+      expect(res.body[1].roomId).toBe("uniqueroomid2");
+    });
+
+    it("GET ?status=removed, should return list of removed reservations of the current user", async () => {
+      const res = await request(app).get('/reservation?status=removed')
+        .set('Accept', 'application/json')
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.length).toBe(1);
+      
+      for(let v of res.body) {
+        expect(v.userId).toBe(userProfile.id);
+        expect(v.status).toBe("removed");
+      }
+
+      expect(res.body[0].roomId).toBe("uniqueroomid3");
     });
     
   });

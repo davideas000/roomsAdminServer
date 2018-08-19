@@ -63,12 +63,12 @@ describe("ReservationController", () => {
   it("#getReservations?status=pending should run", () => {
     let req = new Req();
     let res = new Res();
-    req.query = {status: "pending"};
+    req.query = {status: "removed"};
     
     instance.getReservations(req, res);
     
     expect(ReservationModel.find).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.find).toHaveBeenCalledWith({userId: "userid", status: "pending"},
+    expect(ReservationModel.find).toHaveBeenCalledWith({userId: "userid", status: "removed"},
                                                        expect.any(Function));
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith(["dumb value"]);

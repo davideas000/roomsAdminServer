@@ -72,7 +72,6 @@ export class Routes {
 
     app.route('/reservation')
       .get(authGuard, this.reservationController.getReservations);
-    
 
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
@@ -85,5 +84,5 @@ export class Routes {
       res.sendStatus(404);
     });
   }
-  
+
 }
