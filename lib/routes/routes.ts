@@ -69,9 +69,14 @@ export class Routes {
           });
         });
     });
-
-    app.route('/reservation')
+    
+    app.route("/reservations")
       .get(authGuard, this.reservationController.getReservations);
+
+    app.post("/reservation", authGuard, this.reservationController.newReservation);
+    
+    app.route("/reservation/:id")
+      .delete(authGuard, this.reservationController.deleteReservation);
 
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {

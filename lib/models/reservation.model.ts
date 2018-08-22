@@ -11,7 +11,7 @@ const reservationSchema = new Schema({
   sequence: Number,
   status: {
     type: String,
-    enum: ["pending", "aproved", "removed"],
+    enum: ["pending", "approved", "removed"],
     required: true
   },
   userId: {type: String, required: true},

@@ -9,6 +9,7 @@ describe("app", () => {
   let app;
   let authToken;
   let userProfile;
+  let reservSamples: any[];
   
   beforeAll(async () => {
     mongodb = new MongodbMemoryServer();
@@ -33,7 +34,7 @@ describe("app", () => {
         endTime: Date.now(),
         code: 10,
         sequence: 1,
-        status: 'aproved',
+        status: 'approved',
         userId: user._id,
         roomId: 'blabal100'
       },
@@ -43,7 +44,7 @@ describe("app", () => {
         startTime: Date.now(),
         endTime: Date.now(),
         code: 19,
-        status: 'aproved',
+        status: 'approved',
         userId: user._id,
         roomId: 'fkdsjf000'
       },
@@ -66,7 +67,7 @@ describe("app", () => {
         endTime: Date.now(),
         code: 10,
         sequence: 1,
-        status: 'aproved',
+        status: 'approved',
         userId: user._id,
         roomId: 'blabal100'
       },
@@ -78,7 +79,7 @@ describe("app", () => {
         endTime: Date.now(),
         code: 19,
         sequence: 2,
-        status: 'aproved',
+        status: 'approved',
         userId: "dkjsçf",
         roomId: 'fkdsjf000'
       },
@@ -120,8 +121,8 @@ describe("app", () => {
       }
     ];
 
-    await ReservationModel.insertMany(reservationsStub);
-    
+    reservSamples = await ReservationModel.insertMany(reservationsStub);
+
     const res = await request(app).post("/login")
       .send({email: "test@email.com", password: "super secret password"})
       .set("Accept", "application/json");
@@ -148,16 +149,16 @@ describe("app", () => {
     expect(res.statusCode).toBe(404);
   });
 
-  describe("/reservation", () => {
+  describe("/reservations", () => {
     
     it("GET, sould return '401 authorized' for not logged user", async () => {
-      const res = await request(app).get('/reservation').set('Accept', 'application/json');
+      const res = await request(app).get('/reservations').set('Accept', 'application/json');
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('No authorization token was found');
     });
 
-    it("GET ?status=aproved, should return list of approved reservations of the current user", async () => {
-      const res = await request(app).get('/reservation?status=aproved')
+    it("GET ?status=approved, should return list of approved reservations of the current user", async () => {
+      const res = await request(app).get('/reservations?status=approved')
         .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 
@@ -166,7 +167,7 @@ describe("app", () => {
       
       for(let v of res.body) {
         expect(v.userId).toBe(userProfile.id);
-        expect(v.status).toBe("aproved");
+        expect(v.status).toBe("approved");
       }
       
       expect(res.body[1].reason).toBeFalsy();
@@ -174,7 +175,7 @@ describe("app", () => {
     });
     
     it("GET ?status=peding, should return list of pending reservations of the current user", async () => {
-      const res = await request(app).get('/reservation?status=pending')
+      const res = await request(app).get('/reservations?status=pending')
         .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 
@@ -191,7 +192,7 @@ describe("app", () => {
     });
 
     it("GET ?status=removed, should return list of removed reservations of the current user", async () => {
-      const res = await request(app).get('/reservation?status=removed')
+      const res = await request(app).get('/reservations?status=removed')
         .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 
@@ -204,6 +205,80 @@ describe("app", () => {
       }
 
       expect(res.body[0].roomId).toBe("uniqueroomid3");
+    });
+
+  });
+  
+  describe("/reservation", () => {
+
+    it("POST, sould return a 401 status code for not logged user", async () => {
+      const res = await request(app).post('/reservation')
+        .send({
+          reason: "aula de alguma coisa",
+          startDate: Date.now(),
+          endDate: Date.now(),
+          startTime: Date.now(),
+          endTime: Date.now(),
+          code: 3,
+          roomId: 'roomId'
+        });
+      
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('No authorization token was found');
+    });
+    
+    it("POST, sould create a new pending reservation", async () => {
+      const res = await request(app).post("/reservation")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          msg: "its working"
+        })
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.msg).toBe("its working");
+    });
+
+    it("/:id, DELETE, sould return a 401 status code for not logged user", async () => {
+      const res = await request(app).delete('/reservation/1').set('Accept', 'application/json');
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('No authorization token was found');
+    });
+
+    it("/:id, DELETE, should return a message for not found reservation", async () => {
+      const res = await request(app).delete(`/reservation/fkldjsfç`)
+        .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("Reservation not found");
+    });
+
+    it("/:id, DELETE, should return a 403 status code when trying to delete a reservation marked as removed",
+       async () => {
+         const res = await request(app).delete(`/reservation/${reservSamples[6]._id}`)
+           .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+
+         expect(res.statusCode).toBe(403);
+       });
+    
+    it("DELETE, should remove 'pending' reservations from database", async () => {
+      const res = await request(app).delete(`/reservation/${reservSamples[7]._id}`)
+        .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.item._id).toBe(reservSamples[7]._id.toString());
+      expect(res.body.item.status).toBe("pending");
+    });
+    
+    test("DELETE, should mark 'approved' reservations as 'removed'", async () => {
+      const res = await request(app).delete(`/reservation/${reservSamples[3]._id}`)
+        .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+      
+      expect(reservSamples[3].status).toBe("approved");
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.item._id).toBe(reservSamples[3]._id.toString());
+      expect(res.body.item.status).toBe("removed");
     });
     
   });
