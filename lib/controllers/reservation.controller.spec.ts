@@ -74,7 +74,7 @@ describe("ReservationController", () => {
     expect(res.send).toHaveBeenCalledWith({status: "pending"});
   });
 
-  it("#deleteReservation#/:id should run", () => {
+  it("#deleteReservation#/:id should remove pending reservations from database", () => {
     let req = new Req();
     let res = new Res();
     req.params = {id: "ddd1"}
@@ -93,6 +93,27 @@ describe("ReservationController", () => {
                                                        expect.any(Function));
 
     expect(temp.remove).toHaveBeenCalledTimes(1);
+  });
+
+  it("#deleteReservation#/:id should mark aproved reservations as removed", () => {
+    let req = new Req();
+    let res = new Res();
+    req.params = {id: "ddd1"}
+
+    const temp = {
+      status: "aproved",
+      update: jest.fn()
+    };
+    
+    ReservationModel.find = jest.fn((query, callback) => callback(null, temp));
+    
+    instance.deleteReservation(req, res);
+    
+    expect(ReservationModel.find).toHaveBeenCalledTimes(1);
+    expect(ReservationModel.find).toHaveBeenCalledWith({_id: "ddd1", userId: "userid"},
+                                                       expect.any(Function));
+    expect(temp.update).toHaveBeenCalledTimes(1);
+    expect(temp.update).toBeCalledWith({status: "remove"}, expect.any(Function));
   });
   
 });
