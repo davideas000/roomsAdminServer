@@ -13,4 +13,15 @@ export class ReservationController {
     });
   }
   
+  deleteReservation(req: Request, res: Response) {
+    const id = req.params.id;
+    ReservationModel.find({_id: id, userId: (req as any).user.sub}, (err, reserv) => {
+      if (reserv.status === "pending") {
+        reserv.remove();
+      } else if (reserv.status === "aproved") {
+        reserv.update({status: "remove"}, (err) => { console.log(err)});
+      }
+    });
+  }
+  
 }
