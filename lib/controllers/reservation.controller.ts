@@ -1,5 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ReservationModel } from './../models/reservation.model';
+
+import { ObjectId } from 'mongoose';
+import { body, validationResult, Result } from 'express-validator/check';
+import { sanitizeBody } from 'express-validator/filter';
 
 export class ReservationController {
   
@@ -15,7 +19,6 @@ export class ReservationController {
 
   newReservation(req: Request, res: Response) {
     const temp = req.body;
-    console.log("body", temp);  // $$$$dddd
     res.send(temp);
   }
   
@@ -46,5 +49,37 @@ export class ReservationController {
       }
     });
   }
-  
+
+  validateReservation(): any[] {
+    return [
+      body("reason").optional().isString().not().isEmpty().trim().escape(),
+      body("code").optional().isInt({min: 0}),
+      body("sequence").optional().isInt({min: 0}),
+      body("startDate").isISO8601(),
+      body("endDate").isISO8601(),
+      body("startTime").isISO8601(),
+      body("endTime").isISO8601(),
+      body("roomId").isString().custom((value, ot) => {
+        console.log("dd", ot.req.body.roomId);
+        return new Promise((accept, reject) => {
+          ReservationModel.countDocuments({_id: ot.req.body.roomId}, (err, result) => {
+            if (err) {
+              return reject("roomId not found");
+            }
+            if (result === 1) {
+              return accept(true);
+            }
+            reject("roomId not found")
+          });
+        });
+      }),
+      (req: Request, res: Response, next: NextFunction) => {
+        const errors: Result = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(422).send({success: false, errors: errors.array()});
+        }
+        next();
+      }
+    ]
+  }
 }

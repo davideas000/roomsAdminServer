@@ -121,6 +121,8 @@ describe("app", () => {
       }
     ];
 
+    const roomsStbub = await RoomModel;
+
     reservSamples = await ReservationModel.insertMany(reservationsStub);
 
     const res = await request(app).post("/login")

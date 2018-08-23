@@ -8,6 +8,8 @@ import { ReservationModel } from '../models/reservation.model';
 
 import { ReservationController } from '../controllers/reservation.controller';
 
+
+
 export class Routes {
 
   private reservationController = new ReservationController();
@@ -73,7 +75,11 @@ export class Routes {
     app.route("/reservations")
       .get(authGuard, this.reservationController.getReservations);
 
-    app.post("/reservation", authGuard, this.reservationController.newReservation);
+    app.post(
+      "/reservation",
+      authGuard,
+      this.reservationController.validateReservation(),
+      this.reservationController.newReservation);
     
     app.route("/reservation/:id")
       .delete(authGuard, this.reservationController.deleteReservation);
