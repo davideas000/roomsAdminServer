@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { ReservationModel } from './../models/reservation.model';
 
 import { ObjectId } from 'mongoose';
 import { body, validationResult, Result } from 'express-validator/check';
 import { sanitizeBody } from 'express-validator/filter';
+
+import { ReservationModel } from './../models/reservation.model';
+import { RoomModel } from './../models/room.model';
 
 export class ReservationController {
   
@@ -53,23 +55,22 @@ export class ReservationController {
   validateReservation(): any[] {
     return [
       body("reason").optional().isString().not().isEmpty().trim().escape(),
-      body("code").optional().isInt({min: 0}),
-      body("sequence").optional().isInt({min: 0}),
       body("startDate").isISO8601(),
       body("endDate").isISO8601(),
       body("startTime").isISO8601(),
       body("endTime").isISO8601(),
+      body("code").optional().isInt({min: 0}),
+      body("sequence").optional().isInt({min: 0}),
       body("roomId").isString().custom((value, ot) => {
-        console.log("dd", ot.req.body.roomId);
         return new Promise((accept, reject) => {
-          ReservationModel.countDocuments({_id: ot.req.body.roomId}, (err, result) => {
+          RoomModel.countDocuments({_id: ot.req.body.roomId}, (err, result) => {
             if (err) {
-              return reject("roomId not found");
+              return reject(`Room with id ${ot.req.body.roomId} not found`);
             }
             if (result === 1) {
               return accept(true);
             }
-            reject("roomId not found")
+            reject(`Room with id ${ot.req.body.roomId} not found`)
           });
         });
       }),

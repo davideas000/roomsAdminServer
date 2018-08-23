@@ -8,8 +8,6 @@ import { ReservationModel } from '../models/reservation.model';
 
 import { ReservationController } from '../controllers/reservation.controller';
 
-
-
 export class Routes {
 
   private reservationController = new ReservationController();

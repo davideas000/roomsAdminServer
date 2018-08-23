@@ -3,6 +3,7 @@ import * as request from 'supertest';
 import { App } from './app'
 import { UserModel } from './models/user.model';
 import { ReservationModel } from './models/reservation.model';
+import { RoomModel } from './models/room.model';
 
 describe("app", () => {
   let mongodb;
@@ -10,6 +11,7 @@ describe("app", () => {
   let authToken;
   let userProfile;
   let reservSamples: any[];
+  let roomsSamples: any[];
   
   beforeAll(async () => {
     mongodb = new MongodbMemoryServer();
@@ -121,6 +123,43 @@ describe("app", () => {
       }
     ];
 
+    const roomsStbub = [
+      {
+        name: "sala 01",
+        description: "sala grande, sem arcondicionado",
+        width: 10,
+        length: 100,
+        capacity: 10,
+        location: {
+          lat: 10,
+          long: 30
+        },
+        type: "sala",
+        departmentId: "dep0003",
+      },
+      {
+        name: "auditorio 19",
+        description: "aditorion pequena, cabo so uma pessoa",
+        width: 1,
+        length: 1,
+        capacity: 1,
+        type: "auditorio",
+        departmentId: "iced99",
+      },
+      {
+        name: "laboratorio 102",
+        description: "laboratorio de informatica sem computador :-(",
+        width: 100,
+        length: 1000,
+        capacity: 300,
+        type: "laboratorio",
+        departmentId: "other888",
+      }
+    ];
+    
+    roomsSamples = await RoomModel.insertMany(roomsStbub);
+    // console.log("rooms samples", roomsSamples); // $$$$dddd
+
     reservSamples = await ReservationModel.insertMany(reservationsStub);
 
     const res = await request(app).post("/login")
@@ -227,7 +266,7 @@ describe("app", () => {
       expect(res.body.message).toBe('No authorization token was found');
     });
     
-    it("POST, sould create a new pending reservation", async () => {
+    it("POST, should create a new pending reservation", async () => {
       const temp =   {
         reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
         code: 3,
@@ -236,7 +275,7 @@ describe("app", () => {
         endDate: new Date(),
         startTime: new Date(),
         endTime: new Date(),
-        roomId: roomsSample[3]._id
+        roomId: roomsSamples[2]._id
       };
       
       const res = await request(app).post("/reservation")
@@ -245,10 +284,10 @@ describe("app", () => {
 
       // console.log("kkkkkkkkk", res.body);
       expect(res.statusCode).toBe(200);
-      expect(res.body.roomId).toEqual(roomsSample[3]._id);
+      expect(res.body.roomId).toEqual(roomsSamples[2]._id.toString());
     });
 
-    it("POST, sould not create a new reservation with invalid data", async () => {
+    it("POST, should not create new reservation with invalid data", async () => {
       const temp =   {
         // reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
         reason: 444,
@@ -258,23 +297,32 @@ describe("app", () => {
         endDate: Date.now(),
         startTime: 243124,
         endTime: "10-33",
-        // roomId: "rrfldças"
+        roomId: "rrfldças"
       };
       
-      const res = await request(app).post("/reservation")
+      let res = await request(app).post("/reservation")
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
       // console.log("kkkkkkkkk", res.body); // $$$$dddd
       expect(res.statusCode).toBe(422);
       expect(res.body.errors[0].param).toEqual("reason");
-      expect(res.body.errors[1].param).toEqual("code");
-      expect(res.body.errors[2].param).toEqual("sequence");
-      expect(res.body.errors[3].param).toEqual("startDate");
-      expect(res.body.errors[4].param).toEqual("endDate");
-      expect(res.body.errors[5].param).toEqual("startTime");
-      expect(res.body.errors[6].param).toEqual("endTime");
+      expect(res.body.errors[1].param).toEqual("startDate");
+      expect(res.body.errors[2].param).toEqual("endDate");
+      expect(res.body.errors[3].param).toEqual("startTime");
+      expect(res.body.errors[4].param).toEqual("endTime");
+      expect(res.body.errors[5].param).toEqual("code");
+      expect(res.body.errors[6].param).toEqual("sequence");
       expect(res.body.errors[7].param).toEqual("roomId");
+      expect(res.body.errors[7].msg).toEqual("Room with id rrfldças not found");
+
+      delete temp.roomId;
+      res = await request(app).post("/reservation")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(temp);
+
+      expect(res.body.errors[7].param).toEqual("roomId");
+      expect(res.body.errors[7].msg).toEqual("Invalid value");
     });
 
     it("/:id, DELETE, sould return a 401 status code for not logged user", async () => {
