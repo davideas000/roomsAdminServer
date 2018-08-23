@@ -52,7 +52,7 @@ export class ReservationController {
     });
   }
 
-  validateReservation(): any[] {
+  validateNewReservation(): any[] {
     return [
       body("reason").optional().isString().not().isEmpty().trim().escape(),
       body("startDate").isISO8601(),
@@ -83,4 +83,5 @@ export class ReservationController {
       }
     ]
   }
+
 }

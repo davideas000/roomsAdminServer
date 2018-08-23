@@ -76,7 +76,7 @@ export class Routes {
     app.post(
       "/reservation",
       authGuard,
-      this.reservationController.validateReservation(),
+      this.reservationController.validateNewReservation(),
       this.reservationController.newReservation);
     
     app.route("/reservation/:id")

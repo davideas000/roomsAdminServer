@@ -196,9 +196,18 @@ describe("app", () => {
       expect(res.body.message).toBe('No authorization token was found');
     });
 
+    it("GET, should return an empty array when not find reservation with the passed status",
+       async () => {
+         const res = await request(app).get('/reservations?status=kkkd')
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.length).toBe(0);
+         expect(res.body).toEqual([]);
+       });
+
     it("GET ?status=approved, should return list of approved reservations of the current user", async () => {
       const res = await request(app).get('/reservations?status=approved')
-        .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
@@ -215,7 +224,6 @@ describe("app", () => {
     
     it("GET ?status=peding, should return list of pending reservations of the current user", async () => {
       const res = await request(app).get('/reservations?status=pending')
-        .set('Accept', 'application/json')
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
@@ -265,7 +273,7 @@ describe("app", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('No authorization token was found');
     });
-    
+
     it("POST, should create a new pending reservation", async () => {
       const temp =   {
         reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
