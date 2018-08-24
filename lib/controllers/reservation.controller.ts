@@ -20,7 +20,19 @@ export class ReservationController {
   }
 
   newReservation(req: Request, res: Response) {
-    const temp = req.body;
+    const temp = {
+      reason: req.body.reason,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
+      code: req.body.code,
+      sequence: req.body.sequence,
+      status: "pending",
+      userId: (req as any).user.sub,
+      roomId: req.body.roomId,
+    };
+    
     const newReserv = new ReservationModel(temp);
     
     newReserv.findOverlappingReservations((err: any, result: any[]) => {
@@ -31,7 +43,15 @@ export class ReservationController {
       if (result.length !== 0) {
         return res.send({success: false, message: "overlapping-reservation"})
       }
-      res.send({success: true, item: newReserv});
+
+      newReserv.save((err) => {
+        if (err) {
+          return res.status(500).send("internal-server-error");
+        }
+        res.send({success: true, item: newReserv});
+      })
+      
+      
     });
   }
   

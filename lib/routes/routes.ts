@@ -48,7 +48,7 @@ export class Routes {
               });
               
               const tempUser = {
-                id: user._id,
+                _id: user._id,
                 name: user.name,
                 displayName: user.displayName,
                 email: user.email,

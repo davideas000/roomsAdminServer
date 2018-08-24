@@ -13,9 +13,7 @@ describe("ReservationModel", () => {
       roomId: "kjçjçjççj"
     });
     const e = reserv.validateSync();
-    expect(e).toBeFalsy();
-    expect(reserv.updatedAt).toBeTruthy();
-    expect(reserv.createdAt).toBeTruthy();
+    expect(e).toBeUndefined();
   });
 
   it("should not be possible to create a empty reservation", () => {
@@ -46,7 +44,6 @@ describe("ReservationModel", () => {
     const e = reserv.validateSync();
     expect(e).toBeTruthy();
     expect(e.errors.status.message).toBe('`kpending` is not a valid enum value for path `status`.');
-    expect(reserv.updatedAt).toBeTruthy();
   });
   
 });

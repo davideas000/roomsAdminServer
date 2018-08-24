@@ -15,16 +15,18 @@ const reservationSchema = new Schema({
     required: true
   },
   userId: {type: String, required: true},
-  roomId: {type: String, required: true},
-  createdAt: {type: Date, default: Date.now()},
-  updatedAt: {type: Date, default: Date.now()}
-});
+  roomId: {type: String, required: true}
+  // createdAt: {type: Date, default: Date.now()}, // $$$$dddd
+  // updatedAt: {type: Date, default: Date.now()} // $$$$dddd
+}, {timestamps: true});
 
-reservationSchema.pre('save', function (done) {
-  let user = this;
-  user.updatedAt = Date.now();
-  done();
-});
+// testb
+// reservationSchema.pre('save', function (done) {
+//   let user = this;
+//   user.updatedAt = Date.now();
+//   done();
+// });
+// teste
 
 reservationSchema.methods.findOverlappingReservations = function (callback: any) {
   return this.model("Reservation").find(

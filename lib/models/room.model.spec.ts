@@ -12,9 +12,7 @@ describe("RoomModel", () => {
       departmentId: "dep991"
     });
     const result = instance.validateSync();
-    expect(result).toBeFalsy();
-    expect(instance.createdAt).toBeTruthy();
-    expect(instance.updatedAt).toBeTruthy();
+    expect(result).toBeUndefined();
     expect(instance.location.type).toBe("Point");
     expect(instance.location.coordinates[0]).toBe(0);
     expect(instance.location.coordinates[1]).toBe(0);

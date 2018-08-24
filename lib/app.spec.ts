@@ -213,7 +213,7 @@ describe("app", () => {
       expect(res.body.length).toBe(3);
       
       for(let v of res.body) {
-        expect(v.userId).toBe(userProfile.id);
+        expect(v.userId).toBe(userProfile._id);
         expect(v.status).toBe("approved");
       }
       
@@ -229,7 +229,7 @@ describe("app", () => {
       expect(res.body.length).toBe(2);
       
       for(let v of res.body) {
-        expect(v.userId).toBe(userProfile.id);
+        expect(v.userId).toBe(userProfile._id);
         expect(v.status).toBe("pending");
       }
 
@@ -246,7 +246,7 @@ describe("app", () => {
       expect(res.body.length).toBe(1);
       
       for(let v of res.body) {
-        expect(v.userId).toBe(userProfile.id);
+        expect(v.userId).toBe(userProfile._id);
         expect(v.status).toBe("removed");
       }
 
@@ -311,75 +311,145 @@ describe("app", () => {
       expect(res.body.errors[7].msg).toEqual("Invalid value");
     });
 
-    it("POST, should not create a new reservation that time/date overlaps time/date of an existing reservation", async () => {
-      const temp =   {
-        reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
+    it(
+      "POST, should not create a new reservation that time/date overlaps time/date of an existing reservation",
+      async () => {
+        const temp =   {
+          reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
+          code: 3,
+          sequence: 4,
+          startDate: new Date("2018-07-23T00:00:00"),
+          endDate: new Date("2018-11-30T00:00:00"),
+          startTime: new Date("2018-01-01T11:00:00"),
+          endTime: new Date("2018-01-01T18:00:00"),
+          roomId: roomsSamples[0]._id
+        };
+
+        // first test
+        
+        // temp:
+        //     startDate: 2018-07-23, AAAA-MM-DD
+        //     endDate: 2018-11-30
+        //     startTime: 11:00:00
+        //     endTime: 18:00:00
+        
+        // overlaps,
+        
+        // reservSamples[0]:
+        //     startDate: 2018-08-23, AAAA-MM-DD
+        //     endDate: 2018-08-30
+        //     startTime: 08:15:00
+        //     endTime: 12:00:00
+
+        let res = await request(app).post("/reservation")
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(temp);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("overlapping-reservation");
+
+        // second test
+        
+        temp.startDate = new Date("2018-08-23T00:00:00");
+        temp.endDate = new Date("2018-08-30T00:00:00");
+        temp.startTime = new Date("2018-01-01T17:00:00");
+        temp.endTime = new Date("2018-01-01T18:00:00");
+        temp.roomId = roomsSamples[2]._id;
+
+        res = await request(app).post("/reservation")
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(temp);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("overlapping-reservation");
+
+        // third test
+
+        temp.startDate = new Date("2018-10-30T00:00:00");
+        temp.endDate = new Date("2018-10-30T00:00:00");
+        temp.startTime = new Date("2018-01-01T08:00:00");
+        temp.endTime = new Date("2018-01-01T18:00:00");
+        temp.roomId = roomsSamples[1]._id;
+
+        res = await request(app).post("/reservation")
+          .set("Authorization", `Bearer ${authToken}`)
+          .send(temp);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("overlapping-reservation");
+      });
+
+    it("POST, should create a new reservation", async () => {
+      
+      const temp = {
+        reason: "aula de alguma coisa",
         code: 3,
         sequence: 4,
-        startDate: new Date("2018-07-23T00:00:00"),
-        endDate: new Date("2018-11-30T00:00:00"),
-        startTime: new Date("2018-01-01T11:00:00"),
-        endTime: new Date("2018-01-01T18:00:00"),
-        roomId: roomsSamples[0]._id
+        startDate: new Date("2018-08-23T00:00:00"),
+        endDate: new Date("2018-09-30T00:00:00"),
+        startTime: new Date("2018-01-01T18:00:00"),
+        endTime: new Date("2018-01-01T22:00:00"),
+        roomId: roomsSamples[1]._id
       };
 
       // first test
-      
-      // temp:
-      //     startDate: 2018-07-23, AAAA-MM-DD
-      //     endDate: 2018-11-30
-      //     startTime: 11:00:00
-      //     endTime: 18:00:00
-      
-      // overlaps,
-      
-      // reservSamples[0]:
-      //     startDate: 2018-08-23, AAAA-MM-DD
-      //     endDate: 2018-08-30
-      //     startTime: 08:15:00
-      //     endTime: 12:00:00
-
       let res = await request(app).post("/reservation")
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe("overlapping-reservation");
+      let r = res.body.item;
+
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true);
+      expect(r.reason).toBe(temp.reason);
+      expect(new Date(r.startDate)).toEqual(temp.startDate);
+      expect(new Date(r.endDate)).toEqual(temp.endDate);
+      expect(new Date(r.startTime)).toEqual(temp.startTime);
+      expect(new Date(r.endTime)).toEqual(temp.endTime);
+      expect(r.code).toBe(temp.code);
+      expect(r.sequence).toBe(temp.sequence);
+      expect(r.status).toBe("pending");
+      expect(r.userId).toBe(userProfile._id);
+      expect(r.roomId).toBe(temp.roomId.toString());
+      expect(r.createdAt).toBeTruthy();
+      expect(r.updatedAt).toBeTruthy();
 
       // second test
-      
-      temp.startDate = new Date("2018-08-23T00:00:00");
-      temp.endDate = new Date("2018-08-30T00:00:00");
-      temp.startTime = new Date("2018-01-01T17:00:00");
-      temp.endTime = new Date("2018-01-01T18:00:00");
+      delete temp.code;
+      delete temp.sequence;
+      delete temp.reason;
       temp.roomId = roomsSamples[2]._id;
 
+      temp.startDate = new Date("2019-01-12T00:00:00");
+      temp.endDate = new Date("2018-05-30T00:00:00");
+      temp.startTime = new Date("2018-01-01T14:00:00");
+      temp.endTime = new Date("2018-01-01T15:30:00");
+      
       res = await request(app).post("/reservation")
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe("overlapping-reservation");
+      r = res.body.item;
 
-      // third test
-
-      temp.startDate = new Date("2018-10-30T00:00:00");
-      temp.endDate = new Date("2018-10-30T00:00:00");
-      temp.startTime = new Date("2018-01-01T08:00:00");
-      temp.endTime = new Date("2018-01-01T18:00:00");
-      temp.roomId = roomsSamples[1]._id;
-
-      res = await request(app).post("/reservation")
-        .set("Authorization", `Bearer ${authToken}`)
-        .send(temp);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe("overlapping-reservation");
+      expect(res.status).toBe(200)
+      expect(res.body.success).toBe(true);
+      expect(r.reason).toBeUndefined();
+      expect(new Date(r.startDate)).toEqual(temp.startDate);
+      expect(new Date(r.endDate)).toEqual(temp.endDate);
+      expect(new Date(r.startTime)).toEqual(temp.startTime);
+      expect(new Date(r.endTime)).toEqual(temp.endTime);
+      expect(r.code).toBeUndefined();
+      expect(r.sequence).toBeUndefined(temp.sequence);
+      expect(r.status).toBe("pending");
+      expect(r.userId).toBe(userProfile._id);
+      expect(r.roomId).toBe(temp.roomId.toString());
+      expect(r.createdAt).toBeTruthy();
+      expect(r.updatedAt).toBeTruthy();
     });
-
+    
     it("/:id, DELETE, should return a 401 status code for not logged user", async () => {
       const res = await request(app).delete('/reservation/1').set('Accept', 'application/json');
       expect(res.statusCode).toBe(401);
