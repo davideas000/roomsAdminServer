@@ -26,7 +26,7 @@ describe("user", () => {
     
     let user = new UserModel(temp);
     let e = user.validateSync();
-    expect(e.message).toBe("UserModel validation failed: role: `dddd` is not a valid enum value for path `role`.")
+    expect(e.message).toBe("User validation failed: role: `dddd` is not a valid enum value for path `role`.")
 
     temp.role = "auth";
     user = new UserModel(temp);

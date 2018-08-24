@@ -122,4 +122,8 @@ describe("ReservationController", () => {
     // TODO
   });
   
+  it("#validateNewReservation() should validate incoming reservation data", () => {
+    // TODO
+  });
+  
 });

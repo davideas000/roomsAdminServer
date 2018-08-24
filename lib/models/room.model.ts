@@ -16,4 +16,4 @@ const roomSchema = new Schema({
   updatedAt: {type: Date, default: new Date()}
 });
 
-export const RoomModel = model("RoomModel", roomSchema);
+export const RoomModel = model("Room", roomSchema);

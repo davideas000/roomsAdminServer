@@ -27,103 +27,7 @@ describe("app", () => {
 
     await user.save();
 
-    const reservationsStub = [
-      {
-        reason: "por alguma coisa razão",
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        code: 10,
-        sequence: 1,
-        status: 'approved',
-        userId: user._id,
-        roomId: 'blabal100'
-      },
-      {
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        code: 19,
-        status: 'approved',
-        userId: user._id,
-        roomId: 'fkdsjf000'
-      },
-      {
-        reason: "por alguma outra coisa razão razão",
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        sequence: 4,
-        status: 'pending',
-        userId: user._id,
-        roomId: 'uniqueroomid'
-      },
-      {
-        reason: "por alguma coisa razão. razão etc. etc.",
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        code: 10,
-        sequence: 1,
-        status: 'approved',
-        userId: user._id,
-        roomId: 'blabal100'
-      },
-      {
-        reason: "por alguma outra coisa razão. balu, balu",
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        code: 19,
-        sequence: 2,
-        status: 'approved',
-        userId: "dkjsçf",
-        roomId: 'fkdsjf000'
-      },
-      {
-        reason: "por alguma outra coisa razão razão. etc sabe como é",
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        code: 9,
-        sequence: 4,
-        status: 'pending',
-        userId: "92929kkkkk",
-        roomId: 'sula0002'
-      },
-      {
-        reason: "por alguma........... coisa razão. razão etc. etc.",
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        code: 11,
-        sequence: 8,
-        status: 'removed',
-        userId: user._id,
-        roomId: 'uniqueroomid3'
-      },
-      {
-        reason: "por alguma........... pessoas tem razões para fazer as coisas.",
-        startDate: Date.now(),
-        endDate: Date.now(),
-        startTime: Date.now(),
-        endTime: Date.now(),
-        code: 11,
-        sequence: 8,
-        status: 'pending',
-        userId: user._id,
-        roomId: 'uniqueroomid2'
-      }
-    ];
-
-    const roomsStbub = [
+    const roomsStbub: any[] = [
       {
         name: "sala 01",
         description: "sala grande, sem arcondicionado",
@@ -158,7 +62,102 @@ describe("app", () => {
     ];
     
     roomsSamples = await RoomModel.insertMany(roomsStbub);
-    // console.log("rooms samples", roomsSamples); // $$$$dddd
+
+    const reservationsStub: any[] = [
+      {
+        reason: "por alguma coisa razão",
+        startDate: new Date("2018-08-23T00:00:00"),
+        endDate: new Date("2018-08-30T00:00:00"),
+        startTime: new Date("2018-01-01T08:15:00"),
+        endTime: new Date("2018-01-01T12:00:00"),
+        code: 10,
+        sequence: 1,
+        status: 'approved',
+        userId: user._id,
+        roomId: roomsSamples[0]._id
+      },
+      {
+        startDate: new Date("2018-08-23T00:00:00"),
+        endDate: new Date("2018-09-30T00:00:00"),
+        startTime: new Date("2018-01-01T12:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 19,
+        status: 'approved',
+        userId: user._id,
+        roomId: roomsSamples[1]._id
+      },
+      {
+        reason: "por alguma outra coisa razão razão",
+        startDate: new Date("2018-08-27T00:00:00"),
+        endDate: new Date("2018-08-31T00:00:00"),
+        startTime: new Date("2018-01-01T08:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        sequence: 4,
+        status: 'pending',
+        userId: user._id,
+        roomId: roomsSamples[2]._id
+      },
+      {
+        reason: "por alguma coisa razão. razão etc. etc.",
+        startDate: new Date("2018-08-27T00:00:00"),
+        endDate: new Date("2018-08-31T00:00:00"),
+        startTime: new Date("2018-01-01T08:00:00"),
+        endTime: new Date("2018-01-01T12:00:00"),
+        code: 10,
+        sequence: 1,
+        status: 'approved',
+        userId: user._id,
+        roomId: roomsSamples[1]._id
+      },
+      {
+        reason: "por alguma outra coisa razão. balu, balu",
+        startDate: new Date("2018-09-01T00:00:00"),
+        endDate: new Date("2018-09-30T00:00:00"),
+        startTime: new Date("2018-01-01T08:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 19,
+        sequence: 2,
+        status: 'approved',
+        userId: "dkjsçf",
+        roomId: roomsSamples[2]._id
+      },
+      {
+        reason: "por alguma outra coisa razão razão. etc sabe como é",
+        startDate: new Date("2018-10-01T00:00:00"),
+        endDate: new Date("2018-10-30T00:00:00"),
+        startTime: new Date("2018-01-01T08:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 9,
+        sequence: 4,
+        status: 'pending',
+        userId: "92929kkkkk",
+        roomId: roomsSamples[1]._id
+      },
+      {
+        reason: "por alguma........... coisa razão. razão etc. etc.",
+        startDate: Date.now(),
+        endDate: Date.now(),
+        startTime: Date.now(),
+        endTime: Date.now(),
+        code: 11,
+        sequence: 8,
+        status: 'removed',
+        userId: user._id,
+        roomId: 'uniqueroomid3'
+      },
+      {
+        reason: "por alguma........... pessoas tem razões para fazer as coisas.",
+        startDate: new Date("2018-12-23T12:00:00"),
+        endDate: new Date("2019-06-20T12:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'pending',
+        userId: user._id,
+        roomId: 'uniqueroomid2'
+      }
+    ];
 
     reservSamples = await ReservationModel.insertMany(reservationsStub);
 
@@ -198,7 +197,7 @@ describe("app", () => {
 
     it("GET, should return an empty array when not find reservation with the passed status",
        async () => {
-         const res = await request(app).get('/reservations?status=kkkd')
+         const res = await request(app).get('/reservations?sukitos=kkkd')
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
@@ -234,7 +233,7 @@ describe("app", () => {
         expect(v.status).toBe("pending");
       }
 
-      expect(res.body[0].roomId).toBe("uniqueroomid");
+      expect(res.body[0].roomId).toBe(roomsSamples[2]._id.toString());
       expect(res.body[1].roomId).toBe("uniqueroomid2");
     });
 
@@ -273,29 +272,8 @@ describe("app", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('No authorization token was found');
     });
-
-    it("POST, should create a new pending reservation", async () => {
-      const temp =   {
-        reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
-        code: 3,
-        sequence: 4,
-        startDate: new Date(),
-        endDate: new Date(),
-        startTime: new Date(),
-        endTime: new Date(),
-        roomId: roomsSamples[2]._id
-      };
-      
-      const res = await request(app).post("/reservation")
-        .set("Authorization", `Bearer ${authToken}`)
-        .send(temp);
-
-      // console.log("kkkkkkkkk", res.body);
-      expect(res.statusCode).toBe(200);
-      expect(res.body.roomId).toEqual(roomsSamples[2]._id.toString());
-    });
-
-    it("POST, should not create new reservation with invalid data", async () => {
+    
+    it("POST, should not create a new reservation with invalid data", async () => {
       const temp =   {
         // reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
         reason: 444,
@@ -333,7 +311,76 @@ describe("app", () => {
       expect(res.body.errors[7].msg).toEqual("Invalid value");
     });
 
-    it("/:id, DELETE, sould return a 401 status code for not logged user", async () => {
+    it("POST, should not create a new reservation that time/date overlaps time/date of an existing reservation", async () => {
+      const temp =   {
+        reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
+        code: 3,
+        sequence: 4,
+        startDate: new Date("2018-07-23T00:00:00"),
+        endDate: new Date("2018-11-30T00:00:00"),
+        startTime: new Date("2018-01-01T11:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        roomId: roomsSamples[0]._id
+      };
+
+      // first test
+      
+      // temp:
+      //     startDate: 2018-07-23, AAAA-MM-DD
+      //     endDate: 2018-11-30
+      //     startTime: 11:00:00
+      //     endTime: 18:00:00
+      
+      // overlaps,
+      
+      // reservSamples[0]:
+      //     startDate: 2018-08-23, AAAA-MM-DD
+      //     endDate: 2018-08-30
+      //     startTime: 08:15:00
+      //     endTime: 12:00:00
+
+      let res = await request(app).post("/reservation")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(temp);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("overlapping-reservation");
+
+      // second test
+      
+      temp.startDate = new Date("2018-08-23T00:00:00");
+      temp.endDate = new Date("2018-08-30T00:00:00");
+      temp.startTime = new Date("2018-01-01T17:00:00");
+      temp.endTime = new Date("2018-01-01T18:00:00");
+      temp.roomId = roomsSamples[2]._id;
+
+      res = await request(app).post("/reservation")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(temp);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("overlapping-reservation");
+
+      // third test
+
+      temp.startDate = new Date("2018-10-30T00:00:00");
+      temp.endDate = new Date("2018-10-30T00:00:00");
+      temp.startTime = new Date("2018-01-01T08:00:00");
+      temp.endTime = new Date("2018-01-01T18:00:00");
+      temp.roomId = roomsSamples[1]._id;
+
+      res = await request(app).post("/reservation")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(temp);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("overlapping-reservation");
+    });
+
+    it("/:id, DELETE, should return a 401 status code for not logged user", async () => {
       const res = await request(app).delete('/reservation/1').set('Accept', 'application/json');
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('No authorization token was found');

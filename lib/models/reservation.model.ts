@@ -26,5 +26,18 @@ reservationSchema.pre('save', function (done) {
   done();
 });
 
-export const ReservationModel = mongoose.model("ReservationModel", reservationSchema);
+reservationSchema.methods.findOverlappingReservations = function (callback: any) {
+  return this.model("Reservation").find(
+    {
+      roomId: this.roomId,
+      startDate: {$lte: this.endDate},
+      endDate: {$gte: this.startDate},
+      startTime: {$lt: this.endTime},
+      endTime: {$gt: this.startTime}
+    },
+    callback
+  );
+}
+
+export const ReservationModel = mongoose.model("Reservation", reservationSchema);
 

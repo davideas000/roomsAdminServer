@@ -8,7 +8,7 @@ import { ReservationModel } from './../models/reservation.model';
 import { RoomModel } from './../models/room.model';
 
 export class ReservationController {
-  
+
   getReservations(req: Request, res: Response) {
     const status = req.query.status;
     ReservationModel.find({userId: (req as any).user.sub, status: status}, (err, reservations: any[]) => {
@@ -21,7 +21,18 @@ export class ReservationController {
 
   newReservation(req: Request, res: Response) {
     const temp = req.body;
-    res.send(temp);
+    const newReserv = new ReservationModel(temp);
+    
+    newReserv.findOverlappingReservations((err: any, result: any[]) => {
+      if (err) {
+        res.status(500).send("server-error");
+      }
+
+      if (result.length !== 0) {
+        return res.send({success: false, message: "overlapping-reservation"})
+      }
+      res.send({success: true, item: newReserv});
+    });
   }
   
   deleteReservation(req: Request, res: Response) {
