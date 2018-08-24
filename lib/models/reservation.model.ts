@@ -16,8 +16,6 @@ const reservationSchema = new Schema({
   },
   userId: {type: String, required: true},
   roomId: {type: String, required: true}
-  // createdAt: {type: Date, default: Date.now()}, // $$$$dddd
-  // updatedAt: {type: Date, default: Date.now()} // $$$$dddd
 }, {timestamps: true});
 
 // testb

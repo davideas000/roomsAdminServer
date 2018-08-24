@@ -26,8 +26,6 @@ const userSchema = new Schema({
     enum: ['admin', 'auth', 'responsible'],
     required: true
   },
-  // createdAt: {type: Date, default: Date.now()}, // $$$$dddd
-  // updatedAt: {type: Date, default: Date.now()}  // $$$$dddd
 }, {timestamps: true});
 
 const BCRYPT_SALT_ROUNDS = 12;

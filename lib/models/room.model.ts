@@ -12,8 +12,6 @@ const roomSchema = new Schema({
   },
   type: {type: String, required: true},
   departmentId: {type: String, required: true},
-  // createdAt: {type: Date, default: new Date()}, // $$$$dddd
-  // updatedAt: {type: Date, default: new Date()}  // $$$$dddd
 }, {timestamps: true});
 
 export const RoomModel = model("Room", roomSchema);
