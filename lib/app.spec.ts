@@ -382,7 +382,7 @@ describe("app", () => {
         expect(res.body.message).toBe("overlapping-reservation");
       });
 
-    it("POST, should create a new reservation", async () => {
+    it("POST, should create a new reservation if valid data", async () => {
       
       const temp = {
         reason: "aula de alguma coisa",
@@ -442,7 +442,7 @@ describe("app", () => {
       expect(new Date(r.startTime)).toEqual(temp.startTime);
       expect(new Date(r.endTime)).toEqual(temp.endTime);
       expect(r.code).toBeUndefined();
-      expect(r.sequence).toBeUndefined(temp.sequence);
+      expect(r.sequence).toBeUndefined();
       expect(r.status).toBe("pending");
       expect(r.userId).toBe(userProfile._id);
       expect(r.roomId).toBe(temp.roomId.toString());

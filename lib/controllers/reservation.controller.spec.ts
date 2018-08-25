@@ -5,11 +5,11 @@ import { ReservationModel } from './../models/reservation.model';
 
 jest.mock('./../models/reservation.model', () => {
   return {
-    ReservationModel: {
-      find: jest.fn((query, callback) => { callback(null, {status: "pending"})}),
-    }
-  };
+    ReservationModel: jest.fn()
+  }
 });
+
+ReservationModel.find = jest.fn((query, callback) => { callback(null, {status: "pending"})});
 
 describe("ReservationController", () => {
 
@@ -90,7 +90,7 @@ describe("ReservationController", () => {
     
     expect(ReservationModel.findOne).toHaveBeenCalledTimes(1);
     expect(ReservationModel.findOne).toHaveBeenCalledWith({_id: "ddd1", userId: "userid"},
-                                                       expect.any(Function));
+                                                          expect.any(Function));
 
     expect(temp.remove).toHaveBeenCalledTimes(1);
   });
@@ -118,9 +118,101 @@ describe("ReservationController", () => {
       {_id: "ddd1"}, {status: "removed"}, {new: true}, expect.any(Function));
   });
 
-  it("#newReservation() should create a new pending reservation on database", () => {
-    // TODO
+  it("#newReservation() should create a new pending reservation and save it in the database", () => {
+    let req = new Req();
+    let res = new Res();
+
+    const newReservStubData: any = {
+      reason: "alguma coisa",
+      startDate: new Date(),
+      endDate: new Date(),
+      startTime: new Date(),
+      endTime: new Date(),
+      code: 22,
+      sequence: 1,
+      roomId: "roomId01"
+    };
+    
+    req.body = newReservStubData;
+
+    const mockFindOverlappingReservation = jest.fn((callback) => {
+      callback(null, []);
+    });
+
+    const mockSave = jest.fn((callback) => {
+      callback(null, newReservStubData);
+    });
+    
+    ReservationModel.mockImplementation(() => {
+      return {
+        findOverlappingReservations: mockFindOverlappingReservation,
+        save: mockSave
+      };
+    });
+    
+    instance.newReservation(req, res);
+
+    newReservStubData.userId = (req as any).user.sub;
+    newReservStubData.status = "pending";
+    
+    expect(ReservationModel).toHaveBeenCalledTimes(1);
+    expect(ReservationModel).toHaveBeenCalledWith(newReservStubData);
+    expect(mockFindOverlappingReservation).toHaveBeenCalledTimes(1);
+    expect(mockFindOverlappingReservation).toHaveBeenCalledWith(expect.any(Function));
+
+    expect(mockSave).toHaveBeenCalledTimes(1);
+    expect(mockSave).toHaveBeenCalledWith(expect.any(Function));
+
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send).toHaveBeenCalledWith({success: true, item: newReservStubData});
   });
+
+  it(
+    "#newReservation() should not create a new reservation if it conflits with another reservation",
+    () => {
+
+      let req = new Req();
+      let res = new Res();
+
+      const newReservStubData: any = {
+        startDate: new Date(),
+        endDate: new Date(),
+        startTime: new Date(),
+        endTime: new Date(),
+        roomId: "roomId01"
+      };
+      
+      req.body = newReservStubData;
+
+      const mockFindOverlappingReservation = jest.fn((callback) => {
+        callback(null, [{roomId: "room11"}]);
+      });
+
+      const mockSave = jest.fn((callback) => {
+        callback(null, newReservStubData);
+      });
+      
+      ReservationModel.mockImplementation(() => {
+        return {
+          findOverlappingReservations: mockFindOverlappingReservation,
+          save: mockSave
+        };
+      });
+      
+      instance.newReservation(req, res);
+
+      newReservStubData.userId = (req as any).user.sub;
+      newReservStubData.status = "pending";
+      
+      expect(ReservationModel).toHaveBeenCalledTimes(1);
+      expect(ReservationModel).toHaveBeenCalledWith(newReservStubData);
+      expect(mockFindOverlappingReservation).toHaveBeenCalledTimes(1);
+      expect(mockFindOverlappingReservation).toHaveBeenCalledWith(expect.any(Function));
+
+      expect(res.send).toHaveBeenCalledTimes(1);
+      expect(res.send).toHaveBeenCalledWith({success: false, message: "overlapping-reservation"});
+    }
+  );
   
   it("#validateNewReservation() should validate incoming reservation data", () => {
     // TODO
