@@ -2,6 +2,7 @@ import { Response, Request } from 'express';
 
 import { ReservationController } from './reservation.controller';
 import { ReservationModel } from './../models/reservation.model';
+import { RoomModel } from './../models/room.model';
 
 jest.mock('./../models/reservation.model', () => {
   return {
@@ -9,7 +10,17 @@ jest.mock('./../models/reservation.model', () => {
   }
 });
 
+jest.mock('./../models/room.model', () => {
+  return {
+    RoomModel: jest.fn()
+  }
+});
+
 ReservationModel.find = jest.fn((query, callback) => { callback(null, {status: "pending"})});
+
+import * as validator from "express-validator/check";
+
+jest.mock("express-validator/check");
 
 describe("ReservationController", () => {
 
@@ -215,7 +226,98 @@ describe("ReservationController", () => {
   );
   
   it("#validateNewReservation() should validate incoming reservation data", () => {
-    // TODO
+    
+    const stubData = {
+      req: {
+        body: {
+          roomId: "roomid000"
+        }
+      }
+    };
+
+    RoomModel.countDocuments = jest.fn();
+    
+    const mockCustom = jest.fn((callback) => callback(true, stubData));
+    const mockEscape = jest.fn();
+    const mockTrim = jest.fn(() => {return{escape: mockEscape}});
+    const mockIsEmpty = jest.fn(() => {return{trim: mockTrim}});
+    const mockNot = jest.fn(() => {return{isEmpty: mockIsEmpty}});
+    const mockIsString = jest.fn(() => {return{not: mockNot, custom: mockCustom}});
+    const mockIsInt = jest.fn();
+    const mockOptional = jest.fn(() => {return{isString: mockIsString, isInt: mockIsInt}});
+    const mockIsISO8601 = jest.fn();
+    const mockBody = jest.fn(() => {return {optional: mockOptional, isISO8601: mockIsISO8601, isString: mockIsString}});
+    (validator as any).body = mockBody;
+    instance.validateNewReservation();
+
+    expect(RoomModel.countDocuments).toHaveBeenCalledTimes(1);
+    expect(RoomModel.countDocuments).toHaveBeenCalledWith({_id: stubData.req.body.roomId}, expect.any(Function));
+
+    expect(mockBody).toHaveBeenCalledTimes(8);
+    expect(mockBody).toHaveBeenCalledWith("reason");
+    expect(mockBody).toHaveBeenCalledWith("startDate");
+    expect(mockBody).toHaveBeenCalledWith("endDate");
+    expect(mockBody).toHaveBeenCalledWith("startTime");
+    expect(mockBody).toHaveBeenCalledWith("startTime");
+    expect(mockBody).toHaveBeenCalledWith("code");
+    expect(mockBody).toHaveBeenCalledWith("sequence");
+    expect(mockBody).toHaveBeenCalledWith("roomId");
+
+    expect(mockOptional).toHaveBeenCalledTimes(3);
+    expect(mockIsString).toHaveBeenCalledTimes(2);
+    expect(mockNot).toHaveBeenCalledTimes(1);
+    expect(mockIsEmpty).toHaveBeenCalledTimes(1);
+    expect(mockTrim).toHaveBeenCalledTimes(1);
+    expect(mockEscape).toHaveBeenCalledTimes(1);
+    expect(mockIsISO8601).toHaveBeenCalledTimes(4);
+    expect(mockIsInt).toHaveBeenCalledTimes(2);
+    expect(mockIsInt).toHaveBeenCalledWith({min: 0});
+    expect(mockCustom).toHaveBeenCalledTimes(1);
+    expect(mockCustom).toHaveBeenCalledWith(expect.any(Function));
+    
+  });
+
+  it("#checkRoomExistence() should resolve to true if the room is found", async () => {
+    
+    const stubData = {
+      req: {
+        body: {
+          roomId: "roomid001"
+        }
+      }
+    };
+
+    expect.assertions(3);
+
+    RoomModel.countDocuments = jest.fn((value, callback) => callback(null, 1));
+    
+    const result = await instance.checkRoomExistence(true, stubData);
+    expect(RoomModel.countDocuments).toHaveBeenCalledTimes(1);
+    expect(RoomModel.countDocuments).toHaveBeenCalledWith(
+      {_id: stubData.req.body.roomId}, expect.any(Function)
+    );
+    expect(result).toBe(true);
+  });
+  
+  it("#checkRoomExistence() should reject if the room is not found", async () => {
+    
+    const stubData = {
+      req: {
+        body: {
+          roomId: "roomid001"
+        }
+      }
+    };
+
+    expect.assertions(3);
+    RoomModel.countDocuments = jest.fn((value, callback) => callback(null, 0));
+
+    await expect(instance.checkRoomExistence(true, stubData))
+      .rejects.toBe(`Room with id ${stubData.req.body.roomId} not found`);
+    expect(RoomModel.countDocuments).toHaveBeenCalledTimes(1);
+    expect(RoomModel.countDocuments).toHaveBeenCalledWith(
+      {_id: stubData.req.body.roomId}, expect.any(Function)
+    );
   });
   
 });

@@ -91,19 +91,7 @@ export class ReservationController {
       body("endTime").isISO8601(),
       body("code").optional().isInt({min: 0}),
       body("sequence").optional().isInt({min: 0}),
-      body("roomId").isString().custom((value, ot) => {
-        return new Promise((accept, reject) => {
-          RoomModel.countDocuments({_id: ot.req.body.roomId}, (err, result) => {
-            if (err) {
-              return reject(`Room with id ${ot.req.body.roomId} not found`);
-            }
-            if (result === 1) {
-              return accept(true);
-            }
-            reject(`Room with id ${ot.req.body.roomId} not found`)
-          });
-        });
-      }),
+      body("roomId").isString().custom(this.checkRoomExistence),
       (req: Request, res: Response, next: NextFunction) => {
         const errors: Result = validationResult(req);
         if (!errors.isEmpty()) {
@@ -112,6 +100,21 @@ export class ReservationController {
         next();
       }
     ]
+  }
+
+  checkRoomExistence(value, obj): Promise<any> {
+    return new Promise((accept, reject) => {
+      RoomModel.countDocuments({_id: obj.req.body.roomId}, (err, result) => {
+
+        if (err) {
+          return reject(err.message);
+        }
+        if (result === 1) {
+          return accept(true);
+        }
+        reject(`Room with id ${obj.req.body.roomId} not found`)
+      });
+    });
   }
 
 }
