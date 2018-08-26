@@ -45,5 +45,37 @@ describe("ReservationModel", () => {
     expect(e).toBeTruthy();
     expect(e.errors.status.message).toBe('`kpending` is not a valid enum value for path `status`.');
   });
+
+  it("#findOverlappgigReservation() should search for conflicting reservations", done => {
+    const reserv = new ReservationModel({
+      startDate: Date.now(),
+      endDate: Date.now(),
+      startTime: Date.now(),
+      endTime: Date.now(),
+      status: "kpending",
+      userId: "flçdsjaçf",
+      roomId: "kjçjçjççj"
+    });
+
+    const mockFind = jest.fn((query, callback) => callback(null, {value: true}));
+    reserv.model = jest.fn(() => {return {find: mockFind}});
+
+    reserv.findOverlappingReservations((err, result) => {
+      expect(reserv.model).toHaveBeenCalledTimes(1);
+      expect(reserv.model).toHaveBeenCalledWith("Reservation");
+      expect(result).toEqual({value: true});
+      expect(err).toBeNull();
+      expect(mockFind).toHaveBeenCalledTimes(1);
+      expect(mockFind).toHaveBeenCalledWith(
+        {
+          roomId: reserv.roomId,
+          startDate: {$lte: reserv.endDate},
+          endDate: {$gte: reserv.startDate},
+          startTime: {$lt: reserv.endTime},
+          endTime: {$gt: reserv.startTime}
+        }, expect.any(Function));
+      done();
+    });
+  });
   
 });

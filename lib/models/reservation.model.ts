@@ -18,15 +18,7 @@ const reservationSchema = new Schema({
   roomId: {type: String, required: true}
 }, {timestamps: true});
 
-// testb
-// reservationSchema.pre('save', function (done) {
-//   let user = this;
-//   user.updatedAt = Date.now();
-//   done();
-// });
-// teste
-
-reservationSchema.methods.findOverlappingReservations = function (callback: any) {
+reservationSchema.methods.findOverlappingReservations = function (callback) {
   return this.model("Reservation").find(
     {
       roomId: this.roomId,
