@@ -40,7 +40,7 @@ describe("Routes", () => {
     expect(appMock.use).toHaveBeenCalledWith(expect.any(Function));
     
     expect(appMock.put).toHaveBeenCalledTimes(1);
-    expect(appMock.put).toHaveBeenCalledWith(expect.any(Function), expect.any(Function));
+    expect(appMock.put).toHaveBeenCalledWith(expect.any(Function), expect.any(Function), expect.any(Function));
     
     expect(appMock.delete).toHaveBeenCalledTimes(1);
     expect(appMock.delete).toHaveBeenCalledWith(expect.any(Function), expect.any(Function));

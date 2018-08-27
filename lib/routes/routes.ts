@@ -76,11 +76,13 @@ export class Routes {
     app.post(
       "/reservation",
       authGuard,
-      this.reservationController.validateNewReservation(),
+      this.reservationController.validateNew(),
       this.reservationController.newReservation);
     
     app.route("/reservation/:id")
-      .put(authGuard, this.reservationController.updateReservation)
+      .put(authGuard,
+           this.reservationController.validateUpdate,
+           this.reservationController.updateReservation)
       .delete(authGuard, this.reservationController.deleteReservation);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {

@@ -248,7 +248,7 @@ describe("ReservationController", () => {
     const mockIsISO8601 = jest.fn();
     const mockBody = jest.fn(() => {return {optional: mockOptional, isISO8601: mockIsISO8601, isString: mockIsString}});
     (validator as any).body = mockBody;
-    instance.validateNewReservation();
+    instance.validateNew();
 
     expect(RoomModel.countDocuments).toHaveBeenCalledTimes(1);
     expect(RoomModel.countDocuments).toHaveBeenCalledWith({_id: stubData.req.body.roomId}, expect.any(Function));

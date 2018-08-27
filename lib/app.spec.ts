@@ -4,14 +4,19 @@ import { App } from './app'
 import { UserModel } from './models/user.model';
 import { ReservationModel } from './models/reservation.model';
 import { RoomModel } from './models/room.model';
+import { DepartmentModel } from './models/department.model';
 
 describe("app", () => {
   let mongodb;
   let app;
   let authToken;
+
   let userProfile;
+  let authTokenResponsible;
+  let userProfileResponsible;
   let reservSamples: any[];
   let roomsSamples: any[];
+  let depsSamples: any[];
   
   beforeAll(async () => {
     mongodb = new MongodbMemoryServer();
@@ -24,9 +29,45 @@ describe("app", () => {
       password: 'super secret password',
       role: 'auth'
     });
-
+    
     await user.save();
+    
+    const userResponsible = new UserModel({
+      name: 'user responsible',
+      email: 'responsible@email.com',
+      password: 'super secret password2',
+      role: 'responsible'
+    });
 
+    await userResponsible.save();
+
+    let res = await request(app).post("/login")
+      .send({email: "test@email.com", password: "super secret password"})
+      .set("Accept", "application/json");
+    authToken = res.body.token;
+    userProfile = res.body.profile;
+
+    res = await request(app).post("/login")
+      .send({email: "responsible@email.com", password: "super secret password2"})
+      .set("Accept", "application/json");
+    authTokenResponsible = res.body.token;
+    userProfileResponsible = res.body.profile;
+
+    const depsStub: any[] = [
+      {
+        name: "Institutite of stuffs",
+        acronym: "IEG",
+        userId: userProfileResponsible._id
+      },
+      {
+        name: "Institutite of other",
+        acronym: "UOG",
+        userId: "fkdjasçfjç"
+      }
+    ];
+
+    depsSamples = await DepartmentModel.insertMany(depsStub);
+    
     const roomsStbub: any[] = [
       {
         name: "sala 01",
@@ -39,8 +80,9 @@ describe("app", () => {
           long: 30
         },
         type: "sala",
-        departmentId: "dep0003",
+        departmentId: depsSamples[1]._id
       },
+      
       {
         name: "auditorio 19",
         description: "aditorion pequena, cabo so uma pessoa",
@@ -48,8 +90,9 @@ describe("app", () => {
         length: 1,
         capacity: 1,
         type: "auditorio",
-        departmentId: "iced99",
+        departmentId: depsSamples[1]._id
       },
+      
       {
         name: "laboratorio 102",
         description: "laboratorio de informatica sem computador :-(",
@@ -57,13 +100,14 @@ describe("app", () => {
         length: 1000,
         capacity: 300,
         type: "laboratorio",
-        departmentId: "other888",
+        departmentId: depsSamples[0]._id
       }
     ];
     
     roomsSamples = await RoomModel.insertMany(roomsStbub);
 
     const reservationsStub: any[] = [
+      
       {
         reason: "por alguma coisa razão",
         startDate: new Date("2018-08-23T00:00:00"),
@@ -76,6 +120,7 @@ describe("app", () => {
         userId: user._id,
         roomId: roomsSamples[0]._id
       },
+      
       {
         startDate: new Date("2018-08-23T00:00:00"),
         endDate: new Date("2018-09-30T00:00:00"),
@@ -86,6 +131,7 @@ describe("app", () => {
         userId: user._id,
         roomId: roomsSamples[1]._id
       },
+      
       {
         reason: "por alguma outra coisa razão razão",
         startDate: new Date("2018-08-27T00:00:00"),
@@ -97,6 +143,7 @@ describe("app", () => {
         userId: user._id,
         roomId: roomsSamples[2]._id
       },
+      
       {
         reason: "por alguma coisa razão. razão etc. etc.",
         startDate: new Date("2018-08-27T00:00:00"),
@@ -109,6 +156,7 @@ describe("app", () => {
         userId: user._id,
         roomId: roomsSamples[1]._id
       },
+      
       {
         reason: "por alguma outra coisa razão. balu, balu",
         startDate: new Date("2018-09-01T00:00:00"),
@@ -121,6 +169,7 @@ describe("app", () => {
         userId: "dkjsçf",
         roomId: roomsSamples[2]._id
       },
+      
       {
         reason: "por alguma outra coisa razão razão. etc sabe como é",
         startDate: new Date("2018-10-01T00:00:00"),
@@ -133,6 +182,7 @@ describe("app", () => {
         userId: "92929kkkkk",
         roomId: roomsSamples[1]._id
       },
+      
       {
         reason: "por alguma........... coisa razão. razão etc. etc.",
         startDate: Date.now(),
@@ -143,8 +193,9 @@ describe("app", () => {
         sequence: 8,
         status: 'removed',
         userId: user._id,
-        roomId: 'uniqueroomid3'
+        roomId: roomsSamples[0]._id
       },
+      
       {
         reason: "por alguma........... pessoas tem razões para fazer as coisas.",
         startDate: new Date("2018-12-23T12:00:00"),
@@ -156,16 +207,47 @@ describe("app", () => {
         status: 'pending',
         userId: user._id,
         roomId: 'uniqueroomid2'
+      },
+      {
+        reason: "por alguma coisa, coisa.",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'pending',
+        userId: userResponsible._id,
+        roomId: roomsSamples[2]._id
+      },
+      {
+        reason: "por alguma coisa, coisa, coisa.",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'pending',
+        userId: userResponsible._id,
+        roomId: roomsSamples[0]._id
+      },
+      
+      {
+        reason: "por alguma coisa, coisa, coisa.",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'approved',
+        userId: userResponsible._id,
+        roomId: roomsSamples[2]._id
       }
     ];
 
     reservSamples = await ReservationModel.insertMany(reservationsStub);
-
-    const res = await request(app).post("/login")
-      .send({email: "test@email.com", password: "super secret password"})
-      .set("Accept", "application/json");
-    authToken = res.body.token;
-    userProfile = res.body.profile;
   });
 
   afterAll(async () => {
@@ -250,7 +332,7 @@ describe("app", () => {
         expect(v.status).toBe("removed");
       }
 
-      expect(res.body[0].roomId).toBe("uniqueroomid3");
+      expect(res.body[0].roomId).toBe(roomsSamples[0]._id.toString());
     });
 
   });
@@ -449,48 +531,165 @@ describe("app", () => {
       expect(r.createdAt).toBeTruthy();
       expect(r.updatedAt).toBeTruthy();
     });
+
+  });
+
+  describe("/reservation/:id", () =>{
     
-    it("/:id, DELETE, should return a 401 status code for not logged user", async () => {
-      const res = await request(app).delete('/reservation/1').set('Accept', 'application/json');
-      expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe('No authorization token was found');
-    });
+    describe("DELETE", () => {
 
-    it("/:id, DELETE, should return a message for not found reservation", async () => {
-      const res = await request(app).delete(`/reservation/fkldjsfç`)
-        .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+      it("should return a 401 status code for not logged user", async () => {
+        const res = await request(app).delete('/reservation/1').set('Accept', 'application/json');
+        expect(res.statusCode).toBe(401);
+        expect(res.body.message).toBe('No authorization token was found');
+      });
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBe("Reservation not found");
-    });
+      it("should return a message for not found reservation", async () => {
+        const res = await request(app).delete(`/reservation/fkldjsfç`)
+          .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
 
-    it("/:id, DELETE, should return a 403 status code when trying to delete a reservation marked as removed",
-       async () => {
-         const res = await request(app).delete(`/reservation/${reservSamples[6]._id}`)
-           .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("Reservation not found");
+      });
 
-         expect(res.statusCode).toBe(403);
-       });
-    
-    it("DELETE, should remove 'pending' reservations from database", async () => {
-      const res = await request(app).delete(`/reservation/${reservSamples[7]._id}`)
-        .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+      it("should return a 403 status code when trying to delete a reservation marked as removed",
+         async () => {
+           const res = await request(app).delete(`/reservation/${reservSamples[6]._id}`)
+             .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.item._id).toBe(reservSamples[7]._id.toString());
-      expect(res.body.item.status).toBe("pending");
-    });
-    
-    test("DELETE, should mark 'approved' reservations as 'removed'", async () => {
-      const res = await request(app).delete(`/reservation/${reservSamples[3]._id}`)
-        .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+           expect(res.statusCode).toBe(403);
+         });
       
-      expect(reservSamples[3].status).toBe("approved");
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.item._id).toBe(reservSamples[3]._id.toString());
-      expect(res.body.item.status).toBe("removed");
+      it("should remove 'pending' reservations from database", async () => {
+        const res = await request(app).delete(`/reservation/${reservSamples[7]._id}`)
+          .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body.item._id).toBe(reservSamples[7]._id.toString());
+        expect(res.body.item.status).toBe("pending");
+      });
+      
+      it("should mark 'approved' reservations as 'removed'", async () => {
+        const res = await request(app).delete(`/reservation/${reservSamples[3]._id}`)
+          .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
+        
+        expect(reservSamples[3].status).toBe("approved");
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.item._id).toBe(reservSamples[3]._id.toString());
+        expect(res.body.item.status).toBe("removed");
+      });
+      
+    });
+
+    describe("PUT", () => {
+
+      //////////////////////////////////////////////////////////////////////////////
+      ////////////////////////// USER (TYPE: RESPONSIBLE) //////////////////////////
+      //////////////////////////////////////////////////////////////////////////////
+      
+      // A user of the responsible type can only approve a pending reservation
+      // belonging to the department for which he is responsible.
+      it("should let a user of type responsible approve a pending reservation", async () => {
+        let res = await request(app).put(`/reservation/${reservSamples[2]._id}`)
+          .set("Authorization", `Bearer ${authTokenResponsible}`)
+          .send({status: "approved"});
+
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("reservation modified");
+
+        res = await request(app).put(`/reservation/${reservSamples[8]._id}`)
+          .set("Authorization", `Bearer ${authTokenResponsible}`)
+          .send({status: "approved"});
+
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("reservation modified");
+      });
+
+      // A user of the responsible type can only remove a approved reservation
+      // belonging to the department for which he is responsible
+      // or that belongs to himself.
+      it("should let a user of type responsible 'remove' a approved reservation", async () => {
+
+        let res = await request(app).put(`/reservation/${reservSamples[10]._id}`)
+          .set("Authorization", `Bearer ${authTokenResponsible}`)
+          .send({status: "removed"});
+
+        console.log("ddddddddddddddddddddddd", reservSamples[9]); // $$$$dddd
+        console.log("lllllllllllllll", res.body);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("reservation modified");
+        // TODO
+        // res = await request(app).put(`/reservation/${reservSamples[8]._id}`)
+        //   .set("Authorization", `Bearer ${authTokenResponsible}`)
+        //   .send({status: "removed"});
+
+        // console.log("lllllllllllllll", res.body);
+        // expect(res.body.success).toBe(true);
+        // expect(res.body.message).toBe("reservation modified");
+      });
+      
+      // A user of the responsible type can only approve a pending reservation
+      // belonging to the department for which he is responsible.
+      it(
+        "should not let a user of the responsible type approve a reservation\n" +
+          "that does not belong to the department to which he is responsible",
+        async () => {
+          let res = await request(app).put(`/reservation/${reservSamples[5]._id}`)
+            .set("Authorization", `Bearer ${authTokenResponsible}`)
+            .send({status: "approved"});
+
+          expect(res.body.success).toBe(false);
+          expect(res.body.message).toBe("user not authorized");
+
+          res = await request(app).put(`/reservation/${reservSamples[9]._id}`)
+            .set("Authorization", `Bearer ${authTokenResponsible}`)
+            .send({status: "approved"});
+
+          expect(res.body.success).toBe(false);
+          expect(res.body.message).toBe("user not authorized");
+
+        });
+      
+      it("should not let a user of the responsible type approve/remove a approved/removed reservation",
+         async () => {
+           let res = await request(app).put(`/reservation/${reservSamples[6]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed"});
+
+           expect(res.body.success).toBe(false);
+           expect(res.body.message).toBe("reservation already removed");
+
+           // it should not be possible to approve a removed reservation
+           res = await request(app).put(`/reservation/${reservSamples[6]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "approved"});
+
+           expect(res.body.success).toBe(false);
+           expect(res.body.message).toBe("reservation already removed");
+
+           res = await request(app).put(`/reservation/${reservSamples[4]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "approved"});
+           
+           expect(res.body.success).toBe(false);
+           expect(res.body.message).toBe("reservation already approved");
+
+         });
+      
+      it("should not accept a invalid status", async () => {
+        let res = await request(app).put(`/reservation/${reservSamples[2]._id}`)
+          .set("Authorization", `Bearer ${authTokenResponsible}`)
+          .send({status: "approvedp"});
+
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("invalid status");
+
+        // TODO, add a send: status removed, and for ther user of type 'auth'
+        
+      });
+      
     });
     
   });

@@ -11,6 +11,10 @@ import { DepartmentModel } from './../models/department.model';
 
 export class ReservationController {
 
+  /////////////////////////////////////////////////
+  //////////////////// LIST ///////////////////////
+  /////////////////////////////////////////////////
+  
   getReservations(req: Request, res: Response) {
     const status = req.query.status;
     ReservationModel.find({userId: (req as any).user.sub, status: status}, (err, reservations: any[]) => {
@@ -20,6 +24,10 @@ export class ReservationController {
       res.send(reservations);
     });
   }
+
+  /////////////////////////////////////////////////
+  ////////////////// CREATE ///////////////////////
+  /////////////////////////////////////////////////
 
   newReservation(req: Request, res: Response) {
     const temp = {
@@ -56,7 +64,7 @@ export class ReservationController {
     });
   }
 
-  validateNewReservation(): any[] {
+  validateNew(): any[] {
     return [
       body("reason").optional().isString().not().isEmpty().trim().escape(),
       body("startDate").isISO8601(),
@@ -73,7 +81,6 @@ export class ReservationController {
   checkRoomExistence(value, obj): Promise<any> {
     return new Promise((accept, reject) => {
       RoomModel.countDocuments({_id: obj.req.body.roomId}, (err, result) => {
-
         if (err) {
           return reject(err.message);
         }
@@ -93,37 +100,86 @@ export class ReservationController {
     next();
   }
 
-  // it is possible to update only the status field, and only by users of type responsible
+  /////////////////////////////////////////////////
+  ////////////////// UPDATE ///////////////////////
+  /////////////////////////////////////////////////
+  
+  // it is possible to update only the status field
   updateReservation(req: Request, res: Response) {
-  }
-
-  // check if the current user is responsible for the department to which the reserved room belongs
-  validateUpdateReservation(req: Request, res: Response, next: NextFunction) {
-    ReservationModel.findById(req.params.id, "roomId", (err, reserv) => {
+    const newStatus = req.body.status;
+    const reserv = (req as any).reserv;
+    
+    ReservationModel.updateOne({_id: reserv._id}, {status: newStatus}, (err, result) => {
       if (err) {
-        return res.send({success: false, message: err.message});
+        return res.send({success: false, message: err.message})
       }
-      RoomModel.findById(reserv._id, "departmentId", (err, room) => {
-        if (err) {
-          return res.send({success: false, message: err.message});
-        }
-        DepartmentModel.findById(room.departmentId, "userId", (err, dep) => {
-          if (dep.userId !== (req as any).user.sub) {
-            return res.status(401).send({sucess: false, message: "user not authorized"});
-          }
-          next();
-        });
-      });
+      if (result.nModified === 1) {
+        return res.send({success: true, message: "reservation modified"});
+      }
     });
   }
 
-  checkResponsible(req: Request, res: Response, next: NextFunction) {
-    if ((req as any).user.role !== "responsible") {
-      return res.status(401).send({success: false, message: "user not authorized"})
+  validateUpdate(req: Request, res: Response, next: NextFunction) {
+    
+    const newStatus: string = req.body.status;
+    if (newStatus !== "approved" && newStatus !== "removed") {
+      return res.status(401).send({success: false, message: "invalid status"});
     }
-    next();
+    
+    const user = (req as any).user;
+    
+    ReservationModel.findById(req.params.id, (err, reserv) => {
+      // console.log("controller reserv", reserv); // $$$$dddd
+      if (err) {
+        return res.send({success: false, message: err.message});
+      }
+
+      if (reserv.status === "removed") {
+        return res.status(401).send({success: false, message: "reservation already removed"});
+      }
+      
+      (req as any).reserv = reserv;
+      
+      if (user.role === "auth") {
+        console.log("reserv.userId", reserv.userId); // $$$$dddd
+        console.log("user.sub", user.sub);           // $$$$dddd
+        if (reserv.userId.toString() === user.sub
+            && reserv.status === "approved"
+            && newStatus === "removed") {
+          return next();
+        }
+        return res.status(401).send({success: false, message: "user not authorized"});
+      }
+
+      if (reserv.status === "approved" && newStatus === "approved") {
+        return res.send({success: false, message: "reservation already approved"})
+      }
+      
+      RoomModel.findById(reserv.roomId, "departmentId", (err, room) => {
+        if (err) {
+          return res.send({success: false, message: err.message});
+        }
+        
+        DepartmentModel.findById(room.departmentId, "userId", (err, dep) => {
+          if (err) {
+            return res.send({success: false, message: err.message});
+          }
+          if (dep.userId !== user.sub) {
+            return res.status(401).send({success: false, message: "user not authorized"});
+          }
+          next();
+        });
+        
+      });
+      
+    });
+    
   }
-  
+
+  /////////////////////////////////////////////////
+  ////////////////// DELETE ///////////////////////
+  /////////////////////////////////////////////////
+
   deleteReservation(req: Request, res: Response) {
     const id = req.params.id;
 
