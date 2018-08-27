@@ -80,8 +80,9 @@ export class Routes {
       this.reservationController.newReservation);
     
     app.route("/reservation/:id")
+      .put(authGuard, this.reservationController.updateReservation)
       .delete(authGuard, this.reservationController.deleteReservation);
-
+    
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
         return res.status(401).send({message: err.message});

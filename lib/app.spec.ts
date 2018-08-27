@@ -290,7 +290,6 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
-      // console.log("kkkkkkkkk", res.body); // $$$$dddd
       expect(res.statusCode).toBe(422);
       expect(res.body.errors[0].param).toEqual("reason");
       expect(res.body.errors[1].param).toEqual("startDate");
@@ -300,7 +299,8 @@ describe("app", () => {
       expect(res.body.errors[5].param).toEqual("code");
       expect(res.body.errors[6].param).toEqual("sequence");
       expect(res.body.errors[7].param).toEqual("roomId");
-      expect(res.body.errors[7].msg).toEqual("Room with id rrfldças not found");
+      expect(res.body.errors[7].msg).toEqual(
+        "Cast to ObjectId failed for value \"rrfldças\" at path \"_id\" for model \"Room\"");
 
       delete temp.roomId;
       res = await request(app).post("/reservation")

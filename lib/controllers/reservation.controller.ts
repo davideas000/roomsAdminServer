@@ -6,6 +6,8 @@ import { sanitizeBody } from 'express-validator/filter';
 
 import { ReservationModel } from './../models/reservation.model';
 import { RoomModel } from './../models/room.model';
+import { DepartmentModel } from './../models/department.model';
+
 
 export class ReservationController {
 
@@ -53,6 +55,74 @@ export class ReservationController {
       
     });
   }
+
+  validateNewReservation(): any[] {
+    return [
+      body("reason").optional().isString().not().isEmpty().trim().escape(),
+      body("startDate").isISO8601(),
+      body("endDate").isISO8601(),
+      body("startTime").isISO8601(),
+      body("endTime").isISO8601(),
+      body("code").optional().isInt({min: 0}),
+      body("sequence").optional().isInt({min: 0}),
+      body("roomId").isString().custom(this.checkRoomExistence),
+      this.checkValidationErrors
+    ]
+  }
+
+  checkRoomExistence(value, obj): Promise<any> {
+    return new Promise((accept, reject) => {
+      RoomModel.countDocuments({_id: obj.req.body.roomId}, (err, result) => {
+
+        if (err) {
+          return reject(err.message);
+        }
+        if (result === 1) {
+          return accept(true);
+        }
+        reject(`Room with id ${obj.req.body.roomId} not found`)
+      });
+    });
+  }
+
+  checkValidationErrors(req: Request, res: Response, next: NextFunction) {
+    const errors: Result = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send({success: false, errors: errors.array()});
+    }
+    next();
+  }
+
+  // it is possible to update only the status field, and only by users of type responsible
+  updateReservation(req: Request, res: Response) {
+  }
+
+  // check if the current user is responsible for the department to which the reserved room belongs
+  validateUpdateReservation(req: Request, res: Response, next: NextFunction) {
+    ReservationModel.findById(req.params.id, "roomId", (err, reserv) => {
+      if (err) {
+        return res.send({success: false, message: err.message});
+      }
+      RoomModel.findById(reserv._id, "departmentId", (err, room) => {
+        if (err) {
+          return res.send({success: false, message: err.message});
+        }
+        DepartmentModel.findById(room.departmentId, "userId", (err, dep) => {
+          if (dep.userId !== (req as any).user.sub) {
+            return res.status(401).send({sucess: false, message: "user not authorized"});
+          }
+          next();
+        });
+      });
+    });
+  }
+
+  checkResponsible(req: Request, res: Response, next: NextFunction) {
+    if ((req as any).user.role !== "responsible") {
+      return res.status(401).send({success: false, message: "user not authorized"})
+    }
+    next();
+  }
   
   deleteReservation(req: Request, res: Response) {
     const id = req.params.id;
@@ -79,41 +149,6 @@ export class ReservationController {
       } else {
         res.sendStatus(403);
       }
-    });
-  }
-
-  validateNewReservation(): any[] {
-    return [
-      body("reason").optional().isString().not().isEmpty().trim().escape(),
-      body("startDate").isISO8601(),
-      body("endDate").isISO8601(),
-      body("startTime").isISO8601(),
-      body("endTime").isISO8601(),
-      body("code").optional().isInt({min: 0}),
-      body("sequence").optional().isInt({min: 0}),
-      body("roomId").isString().custom(this.checkRoomExistence),
-      (req: Request, res: Response, next: NextFunction) => {
-        const errors: Result = validationResult(req);
-        if (!errors.isEmpty()) {
-          return res.status(422).send({success: false, errors: errors.array()});
-        }
-        next();
-      }
-    ]
-  }
-
-  checkRoomExistence(value, obj): Promise<any> {
-    return new Promise((accept, reject) => {
-      RoomModel.countDocuments({_id: obj.req.body.roomId}, (err, result) => {
-
-        if (err) {
-          return reject(err.message);
-        }
-        if (result === 1) {
-          return accept(true);
-        }
-        reject(`Room with id ${obj.req.body.roomId} not found`)
-      });
     });
   }
 

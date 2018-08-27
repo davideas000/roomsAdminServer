@@ -10,7 +10,8 @@ describe("Routes", () => {
         post: jest.fn(),
         route: jest.fn(),
         use: jest.fn(),
-        delete: jest.fn()
+        delete: jest.fn(),
+        put: jest.fn()
       };
     });
 
@@ -18,6 +19,7 @@ describe("Routes", () => {
     const routes = new Routes();
     appMock.route.mockReturnValue(appMock);
     appMock.get.mockReturnValue(appMock);
+    appMock.put.mockReturnValue(appMock);
     routes.routes(appMock);
     
     expect(appMock.get).toHaveBeenCalledTimes(2);
@@ -36,6 +38,9 @@ describe("Routes", () => {
     
     expect(appMock.use).toHaveBeenCalledTimes(2);
     expect(appMock.use).toHaveBeenCalledWith(expect.any(Function));
+    
+    expect(appMock.put).toHaveBeenCalledTimes(1);
+    expect(appMock.put).toHaveBeenCalledWith(expect.any(Function), expect.any(Function));
     
     expect(appMock.delete).toHaveBeenCalledTimes(1);
     expect(appMock.delete).toHaveBeenCalledWith(expect.any(Function), expect.any(Function));
