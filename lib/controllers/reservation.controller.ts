@@ -120,16 +120,15 @@ export class ReservationController {
   }
 
   validateUpdate(req: Request, res: Response, next: NextFunction) {
-    
+
     const newStatus: string = req.body.status;
     if (newStatus !== "approved" && newStatus !== "removed") {
-      return res.status(401).send({success: false, message: "invalid status"});
+      return res.status(401).send({success: false, message: `invalid status: ${newStatus}`});
     }
     
     const user = (req as any).user;
-    
+
     ReservationModel.findById(req.params.id, (err, reserv) => {
-      // console.log("controller reserv", reserv); // $$$$dddd
       if (err) {
         return res.send({success: false, message: err.message});
       }
@@ -137,33 +136,37 @@ export class ReservationController {
       if (reserv.status === "removed") {
         return res.status(401).send({success: false, message: "reservation already removed"});
       }
-      
+
       (req as any).reserv = reserv;
       
+      if (reserv.userId.toString() === user.sub
+          && reserv.status === "approved"
+          && newStatus === "removed") {
+        return next();
+      }
+
       if (user.role === "auth") {
-        console.log("reserv.userId", reserv.userId); // $$$$dddd
-        console.log("user.sub", user.sub);           // $$$$dddd
-        if (reserv.userId.toString() === user.sub
-            && reserv.status === "approved"
-            && newStatus === "removed") {
-          return next();
-        }
-        return res.status(401).send({success: false, message: "user not authorized"});
+        return res.status(401).send({success: false, message: "user not authorized"});  
       }
 
       if (reserv.status === "approved" && newStatus === "approved") {
-        return res.send({success: false, message: "reservation already approved"})
+        return res.send({success: false, message: "reservation already approved"});
+      }
+     
+      if (reserv.status === "pending" && newStatus === "removed") {
+        return res.send({success: false, message: "cannot remove a pending reservation"})
       }
       
       RoomModel.findById(reserv.roomId, "departmentId", (err, room) => {
         if (err) {
           return res.send({success: false, message: err.message});
         }
-        
+
         DepartmentModel.findById(room.departmentId, "userId", (err, dep) => {
           if (err) {
             return res.send({success: false, message: err.message});
           }
+          
           if (dep.userId !== user.sub) {
             return res.status(401).send({success: false, message: "user not authorized"});
           }

@@ -108,7 +108,7 @@ describe("app", () => {
 
     const reservationsStub: any[] = [
       
-      {
+      { // 0
         reason: "por alguma coisa razão",
         startDate: new Date("2018-08-23T00:00:00"),
         endDate: new Date("2018-08-30T00:00:00"),
@@ -121,7 +121,7 @@ describe("app", () => {
         roomId: roomsSamples[0]._id
       },
       
-      {
+      { // 1
         startDate: new Date("2018-08-23T00:00:00"),
         endDate: new Date("2018-09-30T00:00:00"),
         startTime: new Date("2018-01-01T12:00:00"),
@@ -132,7 +132,7 @@ describe("app", () => {
         roomId: roomsSamples[1]._id
       },
       
-      {
+      { // 2
         reason: "por alguma outra coisa razão razão",
         startDate: new Date("2018-08-27T00:00:00"),
         endDate: new Date("2018-08-31T00:00:00"),
@@ -144,7 +144,7 @@ describe("app", () => {
         roomId: roomsSamples[2]._id
       },
       
-      {
+      { // 3
         reason: "por alguma coisa razão. razão etc. etc.",
         startDate: new Date("2018-08-27T00:00:00"),
         endDate: new Date("2018-08-31T00:00:00"),
@@ -157,7 +157,7 @@ describe("app", () => {
         roomId: roomsSamples[1]._id
       },
       
-      {
+      { // 4
         reason: "por alguma outra coisa razão. balu, balu",
         startDate: new Date("2018-09-01T00:00:00"),
         endDate: new Date("2018-09-30T00:00:00"),
@@ -167,10 +167,10 @@ describe("app", () => {
         sequence: 2,
         status: 'approved',
         userId: "dkjsçf",
-        roomId: roomsSamples[2]._id
+        roomId: roomsSamples[0]._id
       },
       
-      {
+      { // 5
         reason: "por alguma outra coisa razão razão. etc sabe como é",
         startDate: new Date("2018-10-01T00:00:00"),
         endDate: new Date("2018-10-30T00:00:00"),
@@ -183,7 +183,7 @@ describe("app", () => {
         roomId: roomsSamples[1]._id
       },
       
-      {
+      { // 6
         reason: "por alguma........... coisa razão. razão etc. etc.",
         startDate: Date.now(),
         endDate: Date.now(),
@@ -196,7 +196,7 @@ describe("app", () => {
         roomId: roomsSamples[0]._id
       },
       
-      {
+      { // 7
         reason: "por alguma........... pessoas tem razões para fazer as coisas.",
         startDate: new Date("2018-12-23T12:00:00"),
         endDate: new Date("2019-06-20T12:00:00"),
@@ -208,7 +208,8 @@ describe("app", () => {
         userId: user._id,
         roomId: 'uniqueroomid2'
       },
-      {
+      
+      { // 8
         reason: "por alguma coisa, coisa.",
         startDate: new Date("2019-04-23T00:00:00"),
         endDate: new Date("2019-06-20T00:00:00"),
@@ -220,7 +221,8 @@ describe("app", () => {
         userId: userResponsible._id,
         roomId: roomsSamples[2]._id
       },
-      {
+      
+      { // 9
         reason: "por alguma coisa, coisa, coisa.",
         startDate: new Date("2019-04-23T00:00:00"),
         endDate: new Date("2019-06-20T00:00:00"),
@@ -233,7 +235,7 @@ describe("app", () => {
         roomId: roomsSamples[0]._id
       },
       
-      {
+      { // 10
         reason: "por alguma coisa, coisa, coisa.",
         startDate: new Date("2019-04-23T00:00:00"),
         endDate: new Date("2019-06-20T00:00:00"),
@@ -244,7 +246,60 @@ describe("app", () => {
         status: 'approved',
         userId: userResponsible._id,
         roomId: roomsSamples[2]._id
+      },
+
+      { // 11
+        reason: "por alguma coisa, coisa, coisa. 11",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'pending',
+        userId: "user0001",
+        roomId: roomsSamples[1]._id
+      },
+
+      { // 12
+        reason: "por alguma coisa, coisa, coisa. 12",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'approved',
+        userId: userResponsible._id,
+        roomId: roomsSamples[1]._id
+      },
+
+      { // 13
+        reason: "por alguma coisa, coisa, coisa. 13",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'approved',
+        userId: user._id,
+        roomId: roomsSamples[0]._id
+      },
+
+      { // 14
+        reason: "por alguma coisa, coisa, coisa. 14",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: 'pending',
+        userId: user._id,
+        roomId: roomsSamples[0]._id
       }
+      
     ];
 
     reservSamples = await ReservationModel.insertMany(reservationsStub);
@@ -292,7 +347,7 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.length).toBe(3);
+      expect(res.body.length).toBe(4);
       
       for(let v of res.body) {
         expect(v.userId).toBe(userProfile._id);
@@ -308,7 +363,7 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.length).toBe(2);
+      expect(res.body.length).toBe(3);
       
       for(let v of res.body) {
         expect(v.userId).toBe(userProfile._id);
@@ -357,7 +412,7 @@ describe("app", () => {
     
     it("POST, should not create a new reservation with invalid data", async () => {
       const temp =   {
-        // reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
+        reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
         reason: 444,
         code: -13,
         sequence: -10,
@@ -585,6 +640,22 @@ describe("app", () => {
 
     describe("PUT", () => {
 
+      it("should not accept a invalid status", async () => {
+        let res = await request(app).put(`/reservation/${reservSamples[2]._id}`)
+          .set("Authorization", `Bearer ${authTokenResponsible}`)
+          .send({status: "approvedp"});
+
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("invalid status: approvedp");
+
+        res = await request(app).put(`/reservation/${reservSamples[13]._id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send({status: "removid"});
+
+        expect(res.body.success).toBe(false);
+        expect(res.body.message).toBe("invalid status: removid");
+      });
+
       //////////////////////////////////////////////////////////////////////////////
       ////////////////////////// USER (TYPE: RESPONSIBLE) //////////////////////////
       //////////////////////////////////////////////////////////////////////////////
@@ -615,19 +686,18 @@ describe("app", () => {
         let res = await request(app).put(`/reservation/${reservSamples[10]._id}`)
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "removed"});
-
-        console.log("ddddddddddddddddddddddd", reservSamples[9]); // $$$$dddd
-        console.log("lllllllllllllll", res.body);
+        
         expect(res.body.success).toBe(true);
         expect(res.body.message).toBe("reservation modified");
-        // TODO
-        // res = await request(app).put(`/reservation/${reservSamples[8]._id}`)
-        //   .set("Authorization", `Bearer ${authTokenResponsible}`)
-        //   .send({status: "removed"});
 
-        // console.log("lllllllllllllll", res.body);
-        // expect(res.body.success).toBe(true);
-        // expect(res.body.message).toBe("reservation modified");
+        // a user can mark as removed an approved reservation that belongs to himself
+        res = await request(app).put(`/reservation/${reservSamples[12]._id}`) // approved reservation
+          .set("Authorization", `Bearer ${authTokenResponsible}`)
+          .send({status: "removed"});
+
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("reservation modified");
+        
       });
       
       // A user of the responsible type can only approve a pending reservation
@@ -678,16 +748,66 @@ describe("app", () => {
 
          });
       
-      it("should not accept a invalid status", async () => {
-        let res = await request(app).put(`/reservation/${reservSamples[2]._id}`)
-          .set("Authorization", `Bearer ${authTokenResponsible}`)
-          .send({status: "approvedp"});
+      it("should not let a user of responsible type mark as removed a pending reservation",
+         async () => {
+           let res = await request(app).put(`/reservation/${reservSamples[11]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed"});
+           expect(res.body.success).toBe(false);
+           expect(res.body.message).toBe("cannot remove a pending reservation");
+         });
 
+      ////////////////////////////////////////////////////////////////////////
+      /////////////////////////// USER (TYPE: AUTH) //////////////////////////
+      ////////////////////////////////////////////////////////////////////////
+
+      // a user of the auth type cannot modify others reservations and he
+      // cannot modify reservations that belongs to himself unless
+      // it is marked as approved and he is trying mark it as removed
+      it("should let a user of the auth type remove an approved reservation that belongs to himself", async () => {
+        let res = await request(app).put(`/reservation/${reservSamples[0]._id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send({status: "removed"});
+        expect(res.statusCode).toBe(200);
+        expect(res.body.success).toBe(true);
+        expect(res.body.message).toBe("reservation modified");
+      });
+      
+      it("should not let a user of auth type approve a reservation", async () => {
+        let res = await request(app).put(`/reservation/${reservSamples[14]._id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send({status: "approved"});
+        expect(res.statusCode).toBe(401);
         expect(res.body.success).toBe(false);
-        expect(res.body.message).toBe("invalid status");
-
-        // TODO, add a send: status removed, and for ther user of type 'auth'
+        expect(res.body.message).toBe("user not authorized");
+      });
+      
+      it("should not let a user of auth type remove a already removed reservation", async () => {
+        let res = await request(app).put(`/reservation/${reservSamples[6]._id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send({status: "removed"});
         
+        expect(res.body.message).toBe("reservation already removed");
+        expect(res.statusCode).toBe(401);
+        expect(res.body.success).toBe(false);
+      });
+
+      it("should not let a user of the auth type modify others reservations", async () => {
+        let res = await request(app).put(`/reservation/${reservSamples[4]._id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send({status: "removed"});
+        
+        expect(res.body.message).toBe("user not authorized");
+        expect(res.statusCode).toBe(401);
+        expect(res.body.success).toBe(false);
+
+        res = await request(app).put(`/reservation/${reservSamples[5]._id}`)
+          .set("Authorization", `Bearer ${authToken}`)
+          .send({status: "removed"});
+        
+        expect(res.body.message).toBe("user not authorized");
+        expect(res.statusCode).toBe(401);
+        expect(res.body.success).toBe(false);
       });
       
     });
