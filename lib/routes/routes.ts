@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, Application } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as expressJwt from 'express-jwt';
+import { body } from 'express-validator/check';
 
 import { config } from './../../config/config';
 import { UserModel } from './../models/user.model';
@@ -80,7 +81,7 @@ export class Routes {
       this.reservationController.newReservation);
     
     app.route("/reservation/:id")
-      .put(authGuard,
+      .put(authGuard, body("reason").optional().escape().trim(),
            this.reservationController.validateUpdate,
            this.reservationController.updateReservation)
       .delete(authGuard, this.reservationController.deleteReservation);
