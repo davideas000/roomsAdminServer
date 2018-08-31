@@ -341,6 +341,19 @@ describe("app", () => {
         status: "pending",
         userId: userProfileThird._id,
         roomId: roomsSamples[2]._id
+      },
+
+      { // 17
+        reason: "por alguma coisa, coisa, coisa. 17",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: "approved",
+        userId: userProfileResponsible._id,
+        roomId: roomsSamples[0]._id
       }
       
     ];
@@ -813,8 +826,9 @@ describe("app", () => {
            expect(res.body.success).toBe(true);
            expect(res.body.message).toBe("reservation modified");
 
+           const roomName = "laboratorio 102";
            expect(userTemp.notifications[0].message).toBe(
-             "Reserva removida. Motivo: reason of the removal."
+             `Reserva no espaço '${roomName}' removida. Motivo: reason of the removal.`
            );
            expect(userTemp.notifications[0].status).toBe("unread");
            expect(userTemp.notifications[0].createdAt).toBeDefined();
@@ -834,8 +848,9 @@ describe("app", () => {
            expect(res.body.success).toBe(true);
            expect(res.body.message).toBe("reservation modified");
 
+           const roomName = "laboratorio 102";
            expect(userTemp.notifications[1].message).toBe(
-             "Reserva aprovada."
+             `Reserva no espaço '${roomName}' aprovada.`
            );
            expect(userTemp.notifications[1].status).toBe("unread");
            expect(userTemp.notifications[1].createdAt).toBeDefined();
@@ -894,6 +909,21 @@ describe("app", () => {
         expect(res.statusCode).toBe(401);
         expect(res.body.success).toBe(false);
       });
+
+      it("should not add a notification when a user\n"
+         + "is removing a reservation that belongs to himself",
+         async () => {
+           let res = await request(app).put(`/reservation/${reservSamples[17]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed"});
+
+           let userTemp = await UserModel.findById(userProfileResponsible._id);
+           expect(res.statusCode).toBe(200);
+           expect(res.body.success).toBe(true);
+           expect(res.body.message).toBe("reservation modified");
+
+           expect(userTemp.notifications.length).toBe(1)
+         });
       
     });
     

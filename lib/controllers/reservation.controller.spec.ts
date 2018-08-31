@@ -347,6 +347,11 @@ describe("ReservationController", () => {
     const userStub = {notifications: [], save: mockSave};
     
     UserModel.findById = jest.fn((id, callback) => callback(null, userStub));
+
+    const roomStub = {name: "roomname"};
+    RoomModel.findById = jest.fn((id, projection, callback) => {
+      callback(null, roomStub);
+    });
     
     instance.updateReservation(req, res);
 
@@ -357,7 +362,8 @@ describe("ReservationController", () => {
     expect(UserModel.findById).toHaveBeenCalledTimes(1);
     expect(UserModel.findById).toHaveBeenCalledWith(reservStub.userId, expect.any(Function));
     expect(userStub.notifications.length).toBe(1);
-    expect(userStub.notifications[0]).toEqual({message: "Reserva aprovada.", status: "unread"});
+    expect(userStub.notifications[0]).toEqual(
+      {message: `Reserva no espaço '${roomStub.name}' aprovada.`, status: "unread"});
     expect(userStub.save).toHaveBeenCalledTimes(1);
     expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
     
@@ -598,6 +604,10 @@ describe("ReservationController", () => {
        };
        
        UserModel.findById = jest.fn((id, callback) => callback(null, userStub));
+
+       const roomStub = {name: "roomname2"};
+       RoomModel.findById = jest.fn(
+         (query, projection, callback) => callback(null, roomStub));
        
        instance.updateReservation(req, res);
        expect(ReservationModel.updateOne).toHaveBeenCalledTimes(1);
@@ -607,7 +617,8 @@ describe("ReservationController", () => {
        expect(UserModel.findById).toHaveBeenCalledTimes(1);
        expect(UserModel.findById).toHaveBeenCalledWith(reservStub.userId, expect.any(Function));
 
-       expect(userStub.notifications[0]).toEqual({message: "Reserva removida.", status: "unread"});
+       expect(userStub.notifications[0]).toEqual(
+         {message: `Reserva no espaço '${roomStub.name}' removida.`, status: "unread"});
        expect(userStub.save).toHaveBeenCalledTimes(1);
        expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
 
@@ -619,7 +630,7 @@ describe("ReservationController", () => {
        instance.updateReservation(req, res);
        expect(userStub.notifications[1]).toBeDefined();
        expect(userStub.notifications[1]).toEqual(
-         {message: `Reserva removida. Motivo: ${req.body.reason}.`,
+         {message: `Reserva no espaço '${roomStub.name}' removida. Motivo: ${req.body.reason}.`,
           status: "unread"
          }
        );
@@ -664,7 +675,7 @@ describe("ReservationController", () => {
      });
 
   it("#updateReservation() should add a notification when a user of the responsible type\n"
-     + "is approving a reservation that does not belong to himself",  () => {
+     + "is approving a reservation",  () => {
        const req = new Req();
        const res = new Res();
 
@@ -685,6 +696,10 @@ describe("ReservationController", () => {
        };
        
        UserModel.findById = jest.fn((id, callback) => callback(null, userStub));
+
+       const roomStub = {name: "roomname3"};
+       RoomModel.findById = jest.fn(
+         (query, projection, callback) => callback(null, roomStub));
        
        instance.updateReservation(req, res);
        expect(ReservationModel.updateOne).toHaveBeenCalledTimes(1);
@@ -694,7 +709,8 @@ describe("ReservationController", () => {
        expect(UserModel.findById).toHaveBeenCalledTimes(1);
        expect(UserModel.findById).toHaveBeenCalledWith(reservStub.userId, expect.any(Function));
 
-       expect(userStub.notifications[0]).toEqual({message: "Reserva aprovada.", status: "unread"});
+       expect(userStub.notifications[0]).toEqual(
+         {message: `Reserva no espaço '${roomStub.name}' aprovada.`, status: "unread"});
        expect(userStub.save).toHaveBeenCalledTimes(1);
        expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
 

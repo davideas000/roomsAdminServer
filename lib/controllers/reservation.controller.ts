@@ -116,7 +116,7 @@ export class ReservationController {
       if (result.nModified === 1) {
         if (newStatus === "approved" || reserv.userId !== (req as any).user.sub) {
 
-          RoomModel.findById(reserv.roomId, (err, room) => {
+          RoomModel.findById(reserv.roomId, "name", (err, room) => {
             if (err) {
               return res.send({success: false, message: err.message})
             }
