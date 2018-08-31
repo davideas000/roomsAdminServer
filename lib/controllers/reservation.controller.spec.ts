@@ -3,6 +3,7 @@ import { Response, Request } from 'express';
 import { ReservationController } from './reservation.controller';
 import { ReservationModel } from './../models/reservation.model';
 import { RoomModel } from './../models/room.model';
+import { DepartmentModel } from './../models/department.model';
 
 jest.mock('./../models/reservation.model', () => {
   return {
@@ -13,6 +14,12 @@ jest.mock('./../models/reservation.model', () => {
 jest.mock('./../models/room.model', () => {
   return {
     RoomModel: jest.fn()
+  }
+});
+
+jest.mock('./../models/department.model', () => {
+  return {
+    DepartmentModel: jest.fn()
   }
 });
 
@@ -319,5 +326,234 @@ describe("ReservationController", () => {
       {_id: stubData.req.body.roomId}, expect.any(Function)
     );
   });
+
+  it("#updateReservation() should update a reservation", () => {
+    let req = new Req();
+    let res = new Res();
+
+    ReservationModel.updateOne = jest.fn((arg1, arg2, callback) => callback(null, {nModified: 1}));
+    req.body = {status: "approved"};
+    (req as any).reserv = {_id: "reservid"}
+    
+    instance.updateReservation(req, res);
+
+    expect(ReservationModel.updateOne).toHaveBeenCalledTimes(1);
+    expect(ReservationModel.updateOne).toHaveBeenCalledWith(
+      {_id: "reservid"}, {status: "approved"}, expect.any(Function));
+
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send).toHaveBeenCalledWith({success: true, message: "reservation modified"});
+  });
+
+  it("#validateUpdate() should not accept invalid status", () => {
+    let req = new Req();
+    let res = new Res();
+
+    req.body = {
+      status: "pending"
+    };
+
+    res.status = jest.fn();
+    (res.status as any).mockReturnValue(res);
+
+    const mockNext = jest.fn();
+    
+    instance.validateUpdate(req, res, mockNext);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(401);
+
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send).toHaveBeenCalledWith({success: false, message: "invalid status: pending"});
+  });
+
+  it("#validateUpdate() should let a user of the auth type remove " +
+     "an approved reservation that belongs to himself", () => {
+       let req = new Req();
+       let res = new Res();
+
+       req.body = {
+         status: "removed"
+       };
+
+       req.params = {id: "reservid"};
+
+       (req as any).user = {
+         sub: "userid001",
+         role: "auth"
+       }
+
+       ReservationModel.findById = jest.fn((id, callback) => callback(null, {userId: "userid001", status: "approved"}));
+       const mockNext = jest.fn();
+       
+       instance.validateUpdate(req, res, mockNext);
+
+       expect(ReservationModel.findById).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findById).toHaveBeenCalledWith("reservid", expect.any(Function));
+       expect(mockNext).toHaveBeenCalledTimes(1);
+       expect(mockNext).toHaveBeenCalledWith();
+     });
+
+  it("#validateUpdate() should not let a user of the auth type update " +
+     "a reservation that does not belong to himself", () => {
+       let req = new Req();
+       let res = new Res();
+
+       req.body = {
+         status: "removed"
+       };
+
+       req.params = {id: "reservid"};
+
+       (req as any).user = {
+         sub: "userid001",
+         role: "auth"
+       }
+
+       res.status = jest.fn();
+       (res.status as any).mockReturnValue(res);
+
+       ReservationModel.findById = jest.fn(
+         (id, callback) => callback(null, {userId: "userid000", status: "approved"})
+       );
+       const mockNext = jest.fn();
+       
+       instance.validateUpdate(req, res, mockNext);
+
+       expect(ReservationModel.findById).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findById).toHaveBeenCalledWith("reservid", expect.any(Function));
+       expect(mockNext).toHaveBeenCalledTimes(0);
+       expect(res.status).toHaveBeenCalledTimes(1);
+       expect(res.status).toHaveBeenCalledWith(401);
+       expect(res.send).toHaveBeenCalledWith({success: false, message: "user not authorized"});
+     });
+
+  it("#validateUpdate() should let a user of the responsible type remove an approved " +
+     "reservation that belongs to the department for which he is responsible", () => {
+       let req = new Req();
+       let res = new Res();
+
+       req.body = {
+         status: "removed"
+       };
+
+       req.params = {id: "reservid"};
+
+       (req as any).user = {
+         sub: "userid001",
+         role: "responsible"
+       }
+
+       RoomModel.findById = jest.fn(
+         (id, project, callback) => callback(null, {departmentId: "dep001"}));
+
+       DepartmentModel.findById = jest.fn(
+         (id, project, callback) => callback(null, {userId: "userid001"}));
+       
+       ReservationModel.findById = jest.fn(
+         (id, callback) => callback(null, {userId: "userid000", status: "approved", roomId: "roomId001"})
+       );
+       const mockNext = jest.fn();
+       
+       instance.validateUpdate(req, res, mockNext);
+
+       expect(ReservationModel.findById).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findById).toHaveBeenCalledWith("reservid", expect.any(Function));
+       expect(mockNext).toHaveBeenCalledTimes(1);
+
+       expect(RoomModel.findById).toHaveBeenCalledTimes(1);
+       expect(RoomModel.findById).toHaveBeenCalledWith("roomId001",
+                                                       "departmentId",
+                                                       expect.any(Function));
+     });
+
+  it("#validateUpdate() should not let a user of the responsible type to remove an approved " +
+     "reservation that does not belong to the department for which he is responsible", () => {
+       let req = new Req();
+       let res = new Res();
+
+       req.body = {
+         status: "removed"
+       };
+
+       req.params = {id: "reservid"};
+
+       (req as any).user = {
+         sub: "userid001",
+         role: "responsible"
+       }
+
+       res.status = jest.fn();
+       (res.status as any).mockReturnValue(res);
+
+       RoomModel.findById = jest.fn(
+         (id, project, callback) => callback(null, {departmentId: "dep001"}));
+
+       DepartmentModel.findById = jest.fn(
+         (id, project, callback) => callback(null, {userId: "userid000"}));
+       
+       ReservationModel.findById = jest.fn(
+         (id, callback) => callback(null, {userId: "userid000", status: "approved", roomId: "roomId001"})
+       );
+       const mockNext = jest.fn();
+       
+       instance.validateUpdate(req, res, mockNext);
+
+       expect(ReservationModel.findById).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findById).toHaveBeenCalledWith("reservid", expect.any(Function));
+       expect(mockNext).toHaveBeenCalledTimes(0);
+
+       expect(RoomModel.findById).toHaveBeenCalledTimes(1);
+       expect(RoomModel.findById).toHaveBeenCalledWith("roomId001",
+                                                       "departmentId",
+                                                       expect.any(Function));
+
+       expect(res.status).toHaveBeenCalledTimes(1);
+       expect(res.status).toHaveBeenCalledWith(401);
+       expect(res.send).toHaveBeenCalledTimes(1);
+       expect(res.send).toHaveBeenCalledWith({success: false, message: "user not authorized"});
+     });
+
+  it("#validateUpdate() should let a user of the responsible type approve a pending " +
+     "reservation belonging to the department to which he is responsible", () => {
+       let req = new Req();
+       let res = new Res();
+
+       req.body = {
+         status: "approved"
+       };
+
+       req.params = {id: "reservid"};
+
+       (req as any).user = {
+         sub: "userid001",
+         role: "responsible"
+       };
+
+       res.status = jest.fn();
+       (res.status as any).mockReturnValue(res);
+
+       RoomModel.findById = jest.fn(
+         (id, project, callback) => callback(null, {departmentId: "dep001"}));
+
+       DepartmentModel.findById = jest.fn(
+         (id, project, callback) => callback(null, {userId: "userid001"}));
+       
+       ReservationModel.findById = jest.fn(
+         (id, callback) => callback(null, {userId: "userid000", status: "pending", roomId: "roomId001"})
+       );
+       const mockNext = jest.fn();
+       
+       instance.validateUpdate(req, res, mockNext);
+
+       expect(ReservationModel.findById).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findById).toHaveBeenCalledWith("reservid", expect.any(Function));
+       expect(mockNext).toHaveBeenCalledTimes(1);
+
+       expect(RoomModel.findById).toHaveBeenCalledTimes(1);
+       expect(RoomModel.findById).toHaveBeenCalledWith("roomId001",
+                                                       "departmentId",
+                                                       expect.any(Function));
+     });
   
 });
