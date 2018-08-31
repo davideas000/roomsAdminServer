@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { notificationSchema } from './notification.model';
 
 const userSchema = new Schema({
   name: {type: String, required: true},
@@ -26,6 +27,7 @@ const userSchema = new Schema({
     enum: ['admin', 'auth', 'responsible'],
     required: true
   },
+  notifications: [notificationSchema]
 }, {timestamps: true});
 
 const BCRYPT_SALT_ROUNDS = 12;

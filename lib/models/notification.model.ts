@@ -2,7 +2,7 @@ import * as mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-const notificationSchema = new Schema({
+export const notificationSchema = new Schema({
   message: {type: String, required: true},
   status:  {
     type: String,
@@ -11,4 +11,3 @@ const notificationSchema = new Schema({
   }
 }, {timestamps: true});
 
-export const NotificationModel = mongoose.model("Notification", notificationSchema);

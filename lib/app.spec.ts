@@ -14,6 +14,8 @@ describe("app", () => {
   let userProfile;
   let authTokenResponsible;
   let userProfileResponsible;
+  let authTokenThird;
+  let userProfileThird;
   let reservSamples: any[];
   let roomsSamples: any[];
   let depsSamples: any[];
@@ -41,6 +43,15 @@ describe("app", () => {
 
     await userResponsible.save();
 
+    const thirdUser = new UserModel({
+      name: 'third user',
+      email: 'thirduser@email.com',
+      password: 'super secret password3',
+      role: 'auth'
+    });
+
+    await thirdUser.save();
+
     let res = await request(app).post("/login")
       .send({email: "test@email.com", password: "super secret password"})
       .set("Accept", "application/json");
@@ -52,6 +63,12 @@ describe("app", () => {
       .set("Accept", "application/json");
     authTokenResponsible = res.body.token;
     userProfileResponsible = res.body.profile;
+
+    res = await request(app).post("/login")
+      .send({email: "thirduser@email.com", password: "super secret password3"})
+      .set("Accept", "application/json");
+    authTokenThird = res.body.token;
+    userProfileThird = res.body.profile;
 
     const depsStub: any[] = [
       {
@@ -298,6 +315,32 @@ describe("app", () => {
         status: 'pending',
         userId: user._id,
         roomId: roomsSamples[0]._id
+      },
+      
+      { // 15
+        reason: "por alguma coisa, coisa, coisa. 15",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: "approved",
+        userId: userProfileThird._id,
+        roomId: roomsSamples[2]._id
+      },
+
+      { // 16
+        reason: "por alguma coisa, coisa, coisa. 16",
+        startDate: new Date("2019-04-23T00:00:00"),
+        endDate: new Date("2019-06-20T00:00:00"),
+        startTime: new Date("2018-01-01T14:00:00"),
+        endTime: new Date("2018-01-01T18:00:00"),
+        code: 11,
+        sequence: 8,
+        status: "pending",
+        userId: userProfileThird._id,
+        roomId: roomsSamples[2]._id
       }
       
     ];
@@ -755,6 +798,48 @@ describe("app", () => {
              .send({status: "removed"});
            expect(res.body.success).toBe(false);
            expect(res.body.message).toBe("cannot remove a pending reservation");
+         });
+
+      it("should add a notification when a user of the responsible type\n"
+         + "is removing a reservation that does not belong to himself",
+         async () => {
+           let res = await request(app).put(`/reservation/${reservSamples[15]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed", reason: "reason of the removal"});
+
+           let userTemp = await UserModel.findById(userProfileThird._id);
+           
+           expect(res.statusCode).toBe(200);
+           expect(res.body.success).toBe(true);
+           expect(res.body.message).toBe("reservation modified");
+
+           expect(userTemp.notifications[0].message).toBe(
+             "Reserva removida. Motivo: reason of the removal."
+           );
+           expect(userTemp.notifications[0].status).toBe("unread");
+           expect(userTemp.notifications[0].createdAt).toBeDefined();
+           expect(userTemp.notifications[0].updatedAt).toBeDefined();
+         });
+
+      it("should add a notification when a user of the responsible type\n"
+         + "is approving a reservation",
+         async () => {
+           let res = await request(app).put(`/reservation/${reservSamples[16]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "approved"});
+
+           let userTemp = await UserModel.findById(userProfileThird._id);
+           
+           expect(res.statusCode).toBe(200);
+           expect(res.body.success).toBe(true);
+           expect(res.body.message).toBe("reservation modified");
+
+           expect(userTemp.notifications[1].message).toBe(
+             "Reserva aprovada."
+           );
+           expect(userTemp.notifications[1].status).toBe("unread");
+           expect(userTemp.notifications[1].createdAt).toBeDefined();
+           expect(userTemp.notifications[1].updatedAt).toBeDefined();
          });
 
       ////////////////////////////////////////////////////////////////////////

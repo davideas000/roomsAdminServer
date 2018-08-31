@@ -1,6 +1,13 @@
-import { NotificationModel } from './notification.model';
+import * as mongoose from "mongoose";
+import { notificationSchema } from "./notification.model";
 
 describe("NotificationModel", () => {
+
+  let NotificationModel;
+  
+  beforeEach(() => {
+    NotificationModel = mongoose.model("Notification", notificationSchema);
+  });
   
   it("should be created",  () => {
     const notifi = new NotificationModel({

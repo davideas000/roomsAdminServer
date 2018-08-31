@@ -7,7 +7,7 @@ import { sanitizeBody } from 'express-validator/filter';
 import { ReservationModel } from './../models/reservation.model';
 import { RoomModel } from './../models/room.model';
 import { DepartmentModel } from './../models/department.model';
-
+import { UserModel } from './../models/user.model';
 
 export class ReservationController {
 
@@ -108,13 +108,39 @@ export class ReservationController {
   updateReservation(req: Request, res: Response) {
     const newStatus = req.body.status;
     const reserv = (req as any).reserv;
-    
+
     ReservationModel.updateOne({_id: reserv._id}, {status: newStatus}, (err, result) => {
       if (err) {
         return res.send({success: false, message: err.message})
       }
       if (result.nModified === 1) {
-        return res.send({success: true, message: "reservation modified"});
+        if (newStatus === "approved" || reserv.userId !== (req as any).user.sub) {
+
+          RoomModel.findById(reserv.roomId, (err, room) => {
+            if (err) {
+              return res.send({success: false, message: err.message})
+            }
+
+            const temp = newStatus === "approved" ? "aprovada" : "removida";
+            const reasonTemp = req.body.reason ? `Motivo: ${req.body.reason}.` : null;
+            const msg = `Reserva no espaço '${room.name}' ${temp}.${reasonTemp ? " " + reasonTemp : ""}`;
+
+            UserModel.findById(reserv.userId, (err, userTemp) => {
+              if (err) {
+                return res.send({success: false, message: err.message})
+              }
+              userTemp.notifications.push({message: msg, status: "unread"});
+              userTemp.save((err) => {
+                if (err) {
+                  return res.send({success: false, message: err.message})
+                }
+                return res.send({success: true, message: "reservation modified"});
+              })
+            });
+          });
+        } else {
+          return res.send({success: true, message: "reservation modified"});
+        }
       }
     });
   }
@@ -152,7 +178,7 @@ export class ReservationController {
       if (reserv.status === "approved" && newStatus === "approved") {
         return res.send({success: false, message: "reservation already approved"});
       }
-     
+      
       if (reserv.status === "pending" && newStatus === "removed") {
         return res.send({success: false, message: "cannot remove a pending reservation"})
       }
