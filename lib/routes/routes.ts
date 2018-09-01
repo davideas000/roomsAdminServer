@@ -8,10 +8,12 @@ import { UserModel } from './../models/user.model';
 import { ReservationModel } from '../models/reservation.model';
 
 import { ReservationController } from '../controllers/reservation.controller';
+import { NotificationController } from '../controllers/notification.controller';
 
 export class Routes {
 
   private reservationController = new ReservationController();
+  private notificationController = new NotificationController();
   
   routes(app: Application): void {
     
@@ -85,6 +87,8 @@ export class Routes {
            this.reservationController.validateUpdate,
            this.reservationController.updateReservation)
       .delete(authGuard, this.reservationController.deleteReservation);
+
+    app.get("/notifications", authGuard, this.notificationController.getCurrentUserNotifications);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {

@@ -13,30 +13,16 @@ export class App {
   app: Application;
   routes: Routes;
   
-  constructor(private mongoURL: string) {
+  constructor() {
     this.app = express();
     this.config();
     this.routes = new Routes();
     this.routes.routes(this.app);
-    this.mongoSetup();
   }
 
   config(): void {
     this.app.use(bodyParser.json());
     // this.app.use(morgan('dev')); // $$$$dddd
   }
-
-  mongoSetup(): void {
-    mongoose.Promise = global.Promise;
-    mongoose.connect(this.mongoURL, {useNewUrlParser: true});
-    const db = mongoose.connection;
-    
-    db.on('error', () => {
-      console.error("mongo connection error, make sure that mongo service is running");
-    });
-    
-    db.once('open', () => {
-      console.log("mongo connection successfull");
-    });
-  }
+  
 }

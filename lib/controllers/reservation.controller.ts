@@ -214,8 +214,14 @@ export class ReservationController {
 
     ReservationModel.findOne({_id: id, userId: (req as any).user.sub}, (err, reserv) => {
       if (err) {
-        res.send({success: false, message: "Reservation not found"});
-      } else if (reserv.status === "pending") {
+        return res.send({success: false, message: err.message});
+      }
+      
+      if (!reserv) {
+        return res.send({success: false, message: "reservation not found"});
+      }
+      
+      if (reserv.status === "pending") {
         reserv.remove((err) => {
           if (err) {
             return res.send({success: false, message: err.message});
@@ -223,16 +229,8 @@ export class ReservationController {
           res.send({success: true, item: reserv});
         });
         
-      } else if (reserv.status === "approved") {
-        ReservationModel.findOneAndUpdate(
-          {_id: reserv._id}, {status: "removed"}, {new: true}, (err, reser) => {
-            if (err) {
-              return res.send({success: false, message: "Reservation not found" })
-            }
-            res.send({success: true, item: reser});
-          });
       } else {
-        res.sendStatus(403);
+        res.status(401).send({success: false, message: "user not authorized"});
       }
     });
   }
