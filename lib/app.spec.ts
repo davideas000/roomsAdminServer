@@ -839,14 +839,14 @@ describe("app", () => {
         expect(notifications[1].message).toBe("Reserva no espaço 'laboratorio 102' removida.");
         expect(notifications[1].status).toBe("unread");
 
+        // user 2
         res = await request(app).put(`/reservation/${reservSamples[6]._id}`)
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "approved"});
         
-        // user 2
         res = await request(app).get("/notifications")
           .set("Authorization", `Bearer ${authTokenResponsible}`);
-        
+
         notifications = res.body.result;
         const notifis = await UserModel.findById(userProfileResponsible._id, "notifications");
         
