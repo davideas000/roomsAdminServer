@@ -120,29 +120,6 @@ describe("ReservationController", () => {
     expect(temp.remove).toHaveBeenCalledTimes(1);
   });
 
-  it("#deleteReservation#/:id should mark approved reservations as removed", () => {
-    let req = new Req();
-    let res = new Res();
-    req.params = {id: "ddd1"}
-
-    const temp = {
-      status: "approved",
-      _id: "ddd1"
-    };
-    
-    ReservationModel.findOne = jest.fn((query, callback) => callback(null, temp));
-    ReservationModel.findOneAndUpdate = jest.fn((query, updata, opt, callback) => callback(null, temp));
-    
-    instance.deleteReservation(req, res);
-    
-    expect(ReservationModel.findOne).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.findOne).toHaveBeenCalledWith(
-      {_id: "ddd1", userId: "userid"}, expect.any(Function));
-    expect(ReservationModel.findOneAndUpdate).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.findOneAndUpdate).toBeCalledWith(
-      {_id: "ddd1"}, {status: "removed"}, {new: true}, expect.any(Function));
-  });
-
   it("#newReservation() should create a new pending reservation and save it in the database", () => {
     let req = new Req();
     let res = new Res();
