@@ -104,7 +104,8 @@ describe("app", () => {
           long: 30
         },
         type: "sala",
-        departmentId: depsSamples[1]._id
+        departmentId: depsSamples[1]._id,
+        photos: ["./storage/photo1.png", "./storage/photo2.png"]
       },
       
       {
@@ -872,7 +873,6 @@ describe("app", () => {
       
       const res = await request(app).put("/notifim")
         .set("Authorization", `Bearer ${authToken}`);
-      console.log("res", res.body);
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.message).toBe("notifications modified");

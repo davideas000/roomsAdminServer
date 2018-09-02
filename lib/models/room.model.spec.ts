@@ -9,7 +9,8 @@ describe("RoomModel", () => {
       length: 18,
       capacity: 10,
       type: "sala",
-      departmentId: "dep991"
+      departmentId: "dep991",
+      photos: ["./storage/roomphoto1.png", "./storage/roomphoto2.png"]
     });
     const result = instance.validateSync();
     expect(result).toBeUndefined();
