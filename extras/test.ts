@@ -1,16 +1,16 @@
 import * as mongoose from 'mongoose';
 import { config } from '../config/config';
-import { User } from '../lib/models/user.model';
+import { UserModel } from '../lib/models/user.model';
 
-mongoose.connect(config.mongoUrl, {useNewUrlParser: true});
+mongoose.connect(config.mongoURL, {useNewUrlParser: true});
 
-const user = new User({
+const user = new UserModel({
 
   name: "david az",
   displayName: "endrew",
   email: "david.edews@gmail.com",
   password: "dddddddd",
-  role: "admin",
+  role: "auth",
   createdAt: new Date(),
   updatedAt: new Date()
 });
