@@ -9,11 +9,13 @@ import { ReservationModel } from '../models/reservation.model';
 
 import { ReservationController } from '../controllers/reservation.controller';
 import { NotificationController } from '../controllers/notification.controller';
+import { UserController } from '../controllers/user.controller';
 
 export class Routes {
 
   private reservationController = new ReservationController();
   private notificationController = new NotificationController();
+  private userController = new UserController();
   
   routes(app: Application): void {
     
@@ -90,6 +92,8 @@ export class Routes {
 
     app.get("/notifications", authGuard, this.notificationController.getCurrentUserNotifications);
     app.put("/notifim", authGuard, this.notificationController.markNotificationsAsRead);
+
+    app.get("/profile", authGuard, this.userController.getCurrentUser);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {

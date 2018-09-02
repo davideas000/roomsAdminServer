@@ -885,6 +885,19 @@ describe("app", () => {
     });
 
   });
+
+  describe("GET /profile", () => {
+    
+    it("should return current user profile", async () => {
+      const res = await request(app).get("/profile")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.body.result).toEqual(userProfile);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+    
+  });
   
 });
 
