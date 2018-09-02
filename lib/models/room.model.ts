@@ -12,6 +12,7 @@ const roomSchema = new Schema({
   },
   type: {type: String, required: true},
   departmentId: {type: String, required: true},
+  photos: [String]
 }, {timestamps: true});
 
 export const RoomModel = model("Room", roomSchema);
