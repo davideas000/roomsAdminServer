@@ -26,8 +26,7 @@ describe("Routes", () => {
     expect(appMock.get).toHaveBeenCalledWith('/', expect.any(Function));
     expect(appMock.get).toHaveBeenCalledWith(
       "/notifications",
-      expect.any(Function), expect.any(Function)
-    );
+      expect.any(Function), expect.any(Function));
     
     expect(appMock.post).toHaveBeenCalledTimes(2);
     expect(appMock.post).toHaveBeenCalledWith('/login', expect.any(Function));
@@ -43,9 +42,13 @@ describe("Routes", () => {
     expect(appMock.use).toHaveBeenCalledTimes(2);
     expect(appMock.use).toHaveBeenCalledWith(expect.any(Function));
     
-    expect(appMock.put).toHaveBeenCalledTimes(1);
+    expect(appMock.put).toHaveBeenCalledTimes(2);
     expect(appMock.put).toHaveBeenCalledWith(
       expect.any(Function), expect.any(Function), expect.any(Function),
+      expect.any(Function));
+    
+    expect(appMock.put).toHaveBeenCalledWith(
+      "/notifim", expect.any(Function),
       expect.any(Function));
     
     expect(appMock.delete).toHaveBeenCalledTimes(1);

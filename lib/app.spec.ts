@@ -37,7 +37,7 @@ describe("app", () => {
   });
   
   beforeEach(async () => {
-      
+    
     const user = new UserModel({
       name: 'test person',
       email: 'test@email.com',
@@ -857,6 +857,33 @@ describe("app", () => {
       });
     });
     
+  });
+
+  describe("/notifim", () => {
+    
+    it("should mark user notifications as read", async () => {
+      let userTemp = await UserModel.findById(userProfile._id, "notifications");
+
+      userTemp.notifications.push({message: "Reserva aprovada...", status: "unread"});
+      userTemp.notifications.push({message: "Reserva removida...", status: "unread"});
+      userTemp.notifications.push({message: "Reserva rejeitada...", status: "unread"});
+
+      await userTemp.save();
+      
+      const res = await request(app).put("/notifim")
+        .set("Authorization", `Bearer ${authToken}`);
+      console.log("res", res.body);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toBe("notifications modified");
+      
+      userTemp = await UserModel.findById(userProfile._id, "notifications");
+      for(let n of userTemp.notifications) {
+        expect(n.status).toBe("read");
+      }
+      
+    });
+
   });
   
 });

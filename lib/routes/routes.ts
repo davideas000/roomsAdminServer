@@ -89,6 +89,7 @@ export class Routes {
       .delete(authGuard, this.reservationController.deleteReservation);
 
     app.get("/notifications", authGuard, this.notificationController.getCurrentUserNotifications);
+    app.put("/notifim", authGuard, this.notificationController.markNotificationsAsRead);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
