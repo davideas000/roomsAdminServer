@@ -30,7 +30,11 @@ jest.mock('./../models/user.model', () => {
   }
 });
 
-ReservationModel.find = jest.fn((query, callback) => { callback(null, {status: "pending"})});
+// ReservationModel.find = jest.fn((query, callback) => { callback(null, {status: "pending"})});
+ReservationModel.find = jest.fn();
+ReservationModel.populate = jest.fn();
+ReservationModel.populate.mockReturnValue(ReservationModel);
+ReservationModel.find.mockReturnValue(ReservationModel);
 
 import * as validator from "express-validator/check";
 
@@ -60,15 +64,17 @@ describe("ReservationController", () => {
     let req = new Req();
     let res = new Res();
 
+    ReservationModel.exec = jest.fn((callback) => callback(null, {status: "pending"}));
+    
     req.query = {status: "approved"};
     
     instance.getReservations(req, res);
     
     expect(ReservationModel.find).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.find).toBeCalledWith({userId: "userid", status: "approved"},
-                                                 expect.any(Function));
+    expect(ReservationModel.find).toBeCalledWith({user: "userid", status: "approved"});
+                                                 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({status: "pending"});
+    expect(res.send).toHaveBeenCalledWith({success: true , result: {status: "pending"}});
   });
 
   it("#getReservations?status=pending should run", () => {
@@ -79,10 +85,10 @@ describe("ReservationController", () => {
     instance.getReservations(req, res);
     
     expect(ReservationModel.find).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.find).toHaveBeenCalledWith({userId: "userid", status: "pending"},
-                                                       expect.any(Function));
+    expect(ReservationModel.find).toHaveBeenCalledWith({user: "userid", status: "pending"});
+
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({status: "pending"});
+    expect(res.send).toHaveBeenCalledWith({success: true, result: {status: "pending"}});
   });
 
   it("#getReservations?status=pending should run", () => {
@@ -93,10 +99,10 @@ describe("ReservationController", () => {
     instance.getReservations(req, res);
     
     expect(ReservationModel.find).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.find).toHaveBeenCalledWith({userId: "userid", status: "removed"},
-                                                       expect.any(Function));
+    expect(ReservationModel.find).toHaveBeenCalledWith({user: "userid", status: "removed"});
+                                    
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({status: "pending"});
+    expect(res.send).toHaveBeenCalledWith({success: true, result: {status: "pending"}});
   });
 
   it("#deleteReservation#/:id should remove pending reservations from database", () => {
@@ -114,7 +120,7 @@ describe("ReservationController", () => {
     instance.deleteReservation(req, res);
     
     expect(ReservationModel.findOne).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.findOne).toHaveBeenCalledWith({_id: "ddd1", userId: "userid"},
+    expect(ReservationModel.findOne).toHaveBeenCalledWith({_id: "ddd1", user: "userid"},
                                                           expect.any(Function));
 
     expect(temp.remove).toHaveBeenCalledTimes(1);
@@ -132,7 +138,7 @@ describe("ReservationController", () => {
       endTime: new Date(),
       code: 22,
       sequence: 1,
-      roomId: "roomId01"
+      room: "roomId01"
     };
     
     req.body = newReservStubData;
@@ -154,7 +160,7 @@ describe("ReservationController", () => {
     
     instance.newReservation(req, res);
 
-    newReservStubData.userId = (req as any).user.sub;
+    newReservStubData.user = (req as any).user.sub;
     newReservStubData.status = "pending";
     
     expect(ReservationModel).toHaveBeenCalledTimes(1);
@@ -181,13 +187,13 @@ describe("ReservationController", () => {
         endDate: new Date(),
         startTime: new Date(),
         endTime: new Date(),
-        roomId: "roomId01"
+        room: "roomId01"
       };
       
       req.body = newReservStubData;
 
       const mockFindOverlappingReservation = jest.fn((callback) => {
-        callback(null, [{roomId: "room11"}]);
+        callback(null, [{room: "room11"}]);
       });
 
       const mockSave = jest.fn((callback) => {
@@ -203,7 +209,7 @@ describe("ReservationController", () => {
       
       instance.newReservation(req, res);
 
-      newReservStubData.userId = (req as any).user.sub;
+      newReservStubData.user = (req as any).user.sub;
       newReservStubData.status = "pending";
       
       expect(ReservationModel).toHaveBeenCalledTimes(1);
@@ -221,7 +227,7 @@ describe("ReservationController", () => {
     const stubData = {
       req: {
         body: {
-          roomId: "roomid000"
+          room: "roomid000"
         }
       }
     };
@@ -242,7 +248,7 @@ describe("ReservationController", () => {
     instance.validateNew();
 
     expect(RoomModel.countDocuments).toHaveBeenCalledTimes(1);
-    expect(RoomModel.countDocuments).toHaveBeenCalledWith({_id: stubData.req.body.roomId}, expect.any(Function));
+    expect(RoomModel.countDocuments).toHaveBeenCalledWith({_id: stubData.req.body.room}, expect.any(Function));
 
     expect(mockBody).toHaveBeenCalledTimes(8);
     expect(mockBody).toHaveBeenCalledWith("reason");
@@ -252,7 +258,7 @@ describe("ReservationController", () => {
     expect(mockBody).toHaveBeenCalledWith("startTime");
     expect(mockBody).toHaveBeenCalledWith("code");
     expect(mockBody).toHaveBeenCalledWith("sequence");
-    expect(mockBody).toHaveBeenCalledWith("roomId");
+    expect(mockBody).toHaveBeenCalledWith("room");
 
     expect(mockOptional).toHaveBeenCalledTimes(3);
     expect(mockIsString).toHaveBeenCalledTimes(2);
@@ -273,7 +279,7 @@ describe("ReservationController", () => {
     const stubData = {
       req: {
         body: {
-          roomId: "roomid001"
+          room: "roomid001"
         }
       }
     };
@@ -285,7 +291,7 @@ describe("ReservationController", () => {
     const result = await instance.checkRoomExistence(true, stubData);
     expect(RoomModel.countDocuments).toHaveBeenCalledTimes(1);
     expect(RoomModel.countDocuments).toHaveBeenCalledWith(
-      {_id: stubData.req.body.roomId}, expect.any(Function)
+      {_id: stubData.req.body.room}, expect.any(Function)
     );
     expect(result).toBe(true);
   });
@@ -295,7 +301,7 @@ describe("ReservationController", () => {
     const stubData = {
       req: {
         body: {
-          roomId: "roomid001"
+          room: "roomid001"
         }
       }
     };
@@ -304,10 +310,10 @@ describe("ReservationController", () => {
     RoomModel.countDocuments = jest.fn((value, callback) => callback(null, 0));
 
     await expect(instance.checkRoomExistence(true, stubData))
-      .rejects.toBe(`Room with id ${stubData.req.body.roomId} not found`);
+      .rejects.toBe(`Room with id ${stubData.req.body.room} not found`);
     expect(RoomModel.countDocuments).toHaveBeenCalledTimes(1);
     expect(RoomModel.countDocuments).toHaveBeenCalledWith(
-      {_id: stubData.req.body.roomId}, expect.any(Function)
+      {_id: stubData.req.body.room}, expect.any(Function)
     );
   });
 
@@ -317,7 +323,7 @@ describe("ReservationController", () => {
 
     ReservationModel.updateOne = jest.fn((arg1, arg2, callback) => callback(null, {nModified: 1}));
     req.body = {status: "approved"};
-    const reservStub = {_id: "reservid", userId: "userId001"};
+    const reservStub = {_id: "reservid", user: "userId001"};
     (req as any).reserv = reservStub;
 
     const mockSave = jest.fn((callback) => callback(null));
@@ -337,7 +343,7 @@ describe("ReservationController", () => {
       {_id: "reservid"}, {status: "approved"}, expect.any(Function));
     
     expect(UserModel.findById).toHaveBeenCalledTimes(1);
-    expect(UserModel.findById).toHaveBeenCalledWith(reservStub.userId, expect.any(Function));
+    expect(UserModel.findById).toHaveBeenCalledWith(reservStub.user, expect.any(Function));
     expect(userStub.notifications.length).toBe(1);
     expect(userStub.notifications[0]).toEqual(
       {message: `Reserva no espaço '${roomStub.name}' aprovada.`, status: "unread"});
@@ -386,7 +392,7 @@ describe("ReservationController", () => {
          role: "auth"
        }
 
-       ReservationModel.findById = jest.fn((id, callback) => callback(null, {userId: "userid001", status: "approved"}));
+       ReservationModel.findById = jest.fn((id, callback) => callback(null, {user: "userid001", status: "approved"}));
        const mockNext = jest.fn();
        
        instance.validateUpdate(req, res, mockNext);
@@ -417,7 +423,7 @@ describe("ReservationController", () => {
        (res.status as any).mockReturnValue(res);
 
        ReservationModel.findById = jest.fn(
-         (id, callback) => callback(null, {userId: "userid000", status: "approved"})
+         (id, callback) => callback(null, {user: "userid000", status: "approved"})
        );
        const mockNext = jest.fn();
        
@@ -447,14 +453,17 @@ describe("ReservationController", () => {
          role: "responsible"
        }
 
+       res.status = jest.fn();
+       (res as any).status.mockReturnValue(res);
+
        RoomModel.findById = jest.fn(
-         (id, project, callback) => callback(null, {departmentId: "dep001"}));
+         (id, project, callback) => callback(null, {department: "dep001"}));
 
        DepartmentModel.findById = jest.fn(
-         (id, project, callback) => callback(null, {userId: "userid001"}));
+         (id, project, callback) => callback(null, {user: "userid001"}));
        
        ReservationModel.findById = jest.fn(
-         (id, callback) => callback(null, {userId: "userid000", status: "approved", roomId: "roomId001"})
+         (id, callback) => callback(null, {user: "userid000", status: "approved", room: "roomId001"})
        );
        const mockNext = jest.fn();
        
@@ -466,7 +475,7 @@ describe("ReservationController", () => {
 
        expect(RoomModel.findById).toHaveBeenCalledTimes(1);
        expect(RoomModel.findById).toHaveBeenCalledWith("roomId001",
-                                                       "departmentId",
+                                                       "department",
                                                        expect.any(Function));
      });
 
@@ -490,13 +499,13 @@ describe("ReservationController", () => {
        (res.status as any).mockReturnValue(res);
 
        RoomModel.findById = jest.fn(
-         (id, project, callback) => callback(null, {departmentId: "dep001"}));
+         (id, project, callback) => callback(null, {department: "dep001"}));
 
        DepartmentModel.findById = jest.fn(
-         (id, project, callback) => callback(null, {userId: "userid000"}));
+         (id, project, callback) => callback(null, {user: "userid000"}));
        
        ReservationModel.findById = jest.fn(
-         (id, callback) => callback(null, {userId: "userid000", status: "approved", roomId: "roomId001"})
+         (id, callback) => callback(null, {user: "userid000", status: "approved", room: "roomId001"})
        );
        const mockNext = jest.fn();
        
@@ -508,7 +517,7 @@ describe("ReservationController", () => {
 
        expect(RoomModel.findById).toHaveBeenCalledTimes(1);
        expect(RoomModel.findById).toHaveBeenCalledWith("roomId001",
-                                                       "departmentId",
+                                                       "department",
                                                        expect.any(Function));
 
        expect(res.status).toHaveBeenCalledTimes(1);
@@ -537,13 +546,13 @@ describe("ReservationController", () => {
        (res.status as any).mockReturnValue(res);
 
        RoomModel.findById = jest.fn(
-         (id, project, callback) => callback(null, {departmentId: "dep001"}));
+         (id, project, callback) => callback(null, {department: "dep001"}));
 
        DepartmentModel.findById = jest.fn(
-         (id, project, callback) => callback(null, {userId: "userid001"}));
+         (id, project, callback) => callback(null, {user: "userid001"}));
        
        ReservationModel.findById = jest.fn(
-         (id, callback) => callback(null, {userId: "userid000", status: "pending", roomId: "roomId001"})
+         (id, callback) => callback(null, {user: "userid000", status: "pending", room: "roomId001"})
        );
        const mockNext = jest.fn();
        
@@ -555,7 +564,7 @@ describe("ReservationController", () => {
 
        expect(RoomModel.findById).toHaveBeenCalledTimes(1);
        expect(RoomModel.findById).toHaveBeenCalledWith("roomId001",
-                                                       "departmentId",
+                                                       "department",
                                                        expect.any(Function));
      });
 
@@ -567,7 +576,7 @@ describe("ReservationController", () => {
        const incomingStatus = "removed";
        req.body = {status: incomingStatus};
        
-       const reservStub = {_id: "reservid001", userId: "user000"};
+       const reservStub = {_id: "reservid001", user: "user000"};
        (req as any).reserv = reservStub;
 
        (req as any).user = {sub: "user001"};
@@ -592,7 +601,7 @@ describe("ReservationController", () => {
          {_id: reservStub._id}, {status: incomingStatus}, expect.any(Function));
 
        expect(UserModel.findById).toHaveBeenCalledTimes(1);
-       expect(UserModel.findById).toHaveBeenCalledWith(reservStub.userId, expect.any(Function));
+       expect(UserModel.findById).toHaveBeenCalledWith(reservStub.user, expect.any(Function));
 
        expect(userStub.notifications[0]).toEqual(
          {message: `Reserva no espaço '${roomStub.name}' removida.`, status: "unread"});
@@ -622,7 +631,7 @@ describe("ReservationController", () => {
        const incomingStatus = "removed";
        req.body = {status: incomingStatus};
        
-       const reservStub = {_id: "reservid001", userId: "user000"};
+       const reservStub = {_id: "reservid001", user: "user000"};
        (req as any).reserv = reservStub;
 
        (req as any).user = {sub: "user000"};
@@ -659,7 +668,7 @@ describe("ReservationController", () => {
        const incomingStatus = "approved";
        req.body = {status: incomingStatus};
        
-       const reservStub = {_id: "reservid001", userId: "user000"};
+       const reservStub = {_id: "reservid001", user: "user000"};
        (req as any).reserv = reservStub;
 
        (req as any).user = {sub: "user001"};
@@ -684,7 +693,7 @@ describe("ReservationController", () => {
          {_id: reservStub._id}, {status: incomingStatus}, expect.any(Function));
 
        expect(UserModel.findById).toHaveBeenCalledTimes(1);
-       expect(UserModel.findById).toHaveBeenCalledWith(reservStub.userId, expect.any(Function));
+       expect(UserModel.findById).toHaveBeenCalledWith(reservStub.user, expect.any(Function));
 
        expect(userStub.notifications[0]).toEqual(
          {message: `Reserva no espaço '${roomStub.name}' aprovada.`, status: "unread"});

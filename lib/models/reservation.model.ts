@@ -1,5 +1,4 @@
-import * as mongoose from 'mongoose';
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const reservationSchema = new Schema({
   reason: String,
@@ -14,8 +13,8 @@ const reservationSchema = new Schema({
     enum: ["pending", "approved", "removed"],
     required: true
   },
-  userId: {type: String, required: true},
-  roomId: {type: String, required: true}
+  user: {type: Schema.Types.ObjectId, ref: "User", required: true},
+  room: {type: Schema.Types.ObjectId, ref: "Room", required: true}
 }, {timestamps: true});
 
 reservationSchema.methods.findOverlappingReservations = function (callback) {
@@ -31,5 +30,5 @@ reservationSchema.methods.findOverlappingReservations = function (callback) {
   );
 }
 
-export const ReservationModel = mongoose.model("Reservation", reservationSchema);
+export const ReservationModel = model("Reservation", reservationSchema);
 

@@ -11,7 +11,7 @@ const roomSchema = new Schema({
     coordinates: {type: [], default: [0, 0]}
   },
   type: {type: String, required: true},
-  departmentId: {type: String, required: true},
+  department: {type: Schema.Types.Object, ref: "Department", required: true},
   photos: [String]
 }, {timestamps: true});
 

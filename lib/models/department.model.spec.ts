@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { DepartmentModel } from './department.model';
 
 describe("DeparmentModel", () => {
@@ -6,7 +7,7 @@ describe("DeparmentModel", () => {
     const dep = new DepartmentModel({
       name: "dep blu",
       acronym: "DB",
-      userId: "userid001",
+      user: new Types.ObjectId()
     });
     const e = dep.validateSync();
     expect(e).toBeUndefined();
@@ -16,7 +17,7 @@ describe("DeparmentModel", () => {
     const dep = new DepartmentModel();
     const e = dep.validateSync();
     expect(e).toBeDefined();
-    expect(e.errors.userId.message).toBe("Path `userId` is required.");
+    expect(e.errors.user.message).toBe("Path `user` is required.");
     expect(e.errors.acronym.message).toBe("Path `acronym` is required.");
   });
   

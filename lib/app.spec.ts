@@ -19,7 +19,6 @@ describe("app", () => {
   let roomsSamples: any[];
   let depsSamples: any[];
 
-
   beforeAll(async () => {
     mongoose.Promise = Promise;
     mongodb = new MongodbMemoryServer();
@@ -56,15 +55,6 @@ describe("app", () => {
 
     await userResponsible.save();
 
-    const thirdUser = new UserModel({
-      name: 'third user',
-      email: 'thirduser@email.com',
-      password: 'super secret password3',
-      role: 'auth'
-    });
-
-    await thirdUser.save();
-
     let res = await request(app).post("/login")
       .send({email: "test@email.com", password: "super secret password"})
       .set("Accept", "application/json");
@@ -81,12 +71,12 @@ describe("app", () => {
       {
         name: "Institutite of stuffs",
         acronym: "IEG",
-        userId: userProfileResponsible._id
+        user: userProfileResponsible._id
       },
       {
         name: "Institutite of other",
         acronym: "UOG",
-        userId: "fkdjasçfjç"
+        user: new mongoose.Types.ObjectId()
       }
     ];
 
@@ -104,7 +94,7 @@ describe("app", () => {
           long: 30
         },
         type: "sala",
-        departmentId: depsSamples[1]._id,
+        department: depsSamples[1]._id,
         photos: ["./storage/photo1.png", "./storage/photo2.png"]
       },
       
@@ -115,7 +105,7 @@ describe("app", () => {
         length: 1,
         capacity: 1,
         type: "auditorio",
-        departmentId: depsSamples[1]._id
+        department: depsSamples[1]._id
       },
       
       {
@@ -125,7 +115,7 @@ describe("app", () => {
         length: 1000,
         capacity: 300,
         type: "laboratorio",
-        departmentId: depsSamples[0]._id
+        department: depsSamples[0]._id
       }
     ];
     
@@ -142,8 +132,8 @@ describe("app", () => {
         code: 10,
         sequence: 1,
         status: 'approved',
-        userId: user._id,
-        roomId: roomsSamples[2]._id
+        user: user._id,
+        room: roomsSamples[2]._id
       },
       
       { // 1
@@ -153,8 +143,8 @@ describe("app", () => {
         endTime: new Date("2018-01-01T18:00:00"),
         code: 19,
         status: 'pending',
-        userId: user._id,
-        roomId: roomsSamples[2]._id
+        user: user._id,
+        room: roomsSamples[2]._id
       },
       
       { // 2
@@ -165,8 +155,8 @@ describe("app", () => {
         endTime: new Date("2018-01-01T18:00:00"),
         sequence: 4,
         status: 'removed',
-        userId: user._id,
-        roomId: roomsSamples[1]._id
+        user: user._id,
+        room: roomsSamples[1]._id
       },
       
       { // 3
@@ -178,8 +168,8 @@ describe("app", () => {
         code: 10,
         sequence: 1,
         status: 'pending',
-        userId: userProfileResponsible._id,
-        roomId: roomsSamples[1]._id
+        user: userProfileResponsible._id,
+        room: roomsSamples[1]._id
       },
       
       { // 4
@@ -191,8 +181,8 @@ describe("app", () => {
         code: 19,
         sequence: 2,
         status: 'removed',
-        userId: userProfileResponsible._id,
-        roomId: roomsSamples[0]._id
+        user: userProfileResponsible._id,
+        room: roomsSamples[0]._id
       },
       
       { // 5
@@ -204,8 +194,8 @@ describe("app", () => {
         code: 9,
         sequence: 4,
         status: 'approved',
-        userId: userProfileResponsible._id,
-        roomId: roomsSamples[1]._id
+        user: userProfileResponsible._id,
+        room: roomsSamples[1]._id
       },
 
       { // 6
@@ -217,8 +207,8 @@ describe("app", () => {
         code: 9,
         sequence: 4,
         status: 'pending',
-        userId: userProfileResponsible._id,
-        roomId: roomsSamples[2]._id
+        user: userProfileResponsible._id,
+        room: roomsSamples[2]._id
       }
       
     ];
@@ -267,8 +257,9 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.length).toBe(0);
-         expect(res.body).toEqual([]);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(0);
+         expect(res.body.result).toEqual([]);
        });
 
     it("GET ?status=approved, should return list of approved reservations of the current user", async () => {
@@ -276,11 +267,20 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.length).toBe(1);
+      expect(res.body.result.length).toBe(1);
       
-      for(let v of res.body) {
-        expect(v.userId).toBe(userProfile._id);
+      for(let v of res.body.result) {
+        expect(v.user).toBe(userProfile._id);
         expect(v.status).toBe("approved");
+        expect(v.room._id).toBeDefined();
+        expect(v.room.name).toBeDefined();
+        expect(v.room.createdAt).toBeDefined();
+        expect(v.room.updatedAt).toBeDefined();
+        expect(v.room.department._id).toBeDefined();
+        expect(v.room.department.name).toBeDefined();
+        expect(v.room.department.acronym).toBeDefined();
+        expect(v.room.department.createdAt).toBeDefined();
+        expect(v.room.department.updatedAt).toBeDefined();
       }
       
     });
@@ -290,14 +290,23 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.length).toBe(1);
+      expect(res.body.result.length).toBe(1);
       
-      for(let v of res.body) {
-        expect(v.userId).toBe(userProfile._id);
+      for(let v of res.body.result) {
+        expect(v.user).toBe(userProfile._id);
         expect(v.status).toBe("pending");
+        expect(v.room._id).toBeDefined();
+        expect(v.room.name).toBeDefined();
+        expect(v.room.createdAt).toBeDefined();
+        expect(v.room.updatedAt).toBeDefined();
+        expect(v.room.department._id).toBeDefined();
+        expect(v.room.department.name).toBeDefined();
+        expect(v.room.department.acronym).toBeDefined();
+        expect(v.room.department.createdAt).toBeDefined();
+        expect(v.room.department.updatedAt).toBeDefined();
       }
 
-      expect(res.body[0].roomId).toBe(roomsSamples[2]._id.toString());
+      expect(res.body.result[0].room._id).toBe(roomsSamples[2]._id.toString());
     });
 
     it("GET ?status=removed, should return list of removed reservations of the current user", async () => {
@@ -306,14 +315,23 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.length).toBe(1);
+      expect(res.body.result.length).toBe(1);
       
-      for(let v of res.body) {
-        expect(v.userId).toBe(userProfile._id);
+      for(let v of res.body.result) {
+        expect(v.user).toBe(userProfile._id);
         expect(v.status).toBe("removed");
+        expect(v.room._id).toBeDefined();
+        expect(v.room.name).toBeDefined();
+        expect(v.room.createdAt).toBeDefined();
+        expect(v.room.updatedAt).toBeDefined();
+        expect(v.room.department._id).toBeDefined();
+        expect(v.room.department.name).toBeDefined();
+        expect(v.room.department.acronym).toBeDefined();
+        expect(v.room.department.createdAt).toBeDefined();
+        expect(v.room.department.updatedAt).toBeDefined();
       }
 
-      expect(res.body[0].roomId).toBe(roomsSamples[1]._id.toString());
+      expect(res.body.result[0].room._id).toBe(roomsSamples[1]._id.toString());
     });
 
   });
@@ -329,7 +347,7 @@ describe("app", () => {
           startTime: Date.now(),
           endTime: Date.now(),
           code: 3,
-          roomId: 'roomId'
+          room: 'room'
         });
       
       expect(res.statusCode).toBe(401);
@@ -338,7 +356,7 @@ describe("app", () => {
     
     it("POST, should not create a new reservation with invalid data", async () => {
       const temp =   {
-        reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
+        // reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
         reason: 444,
         code: -13,
         sequence: -10,
@@ -346,7 +364,7 @@ describe("app", () => {
         endDate: Date.now(),
         startTime: 243124,
         endTime: "10-33",
-        roomId: "rrfldças"
+        room: "rrfldças"
       };
       
       let res = await request(app).post("/reservation")
@@ -361,16 +379,16 @@ describe("app", () => {
       expect(res.body.errors[4].param).toEqual("endTime");
       expect(res.body.errors[5].param).toEqual("code");
       expect(res.body.errors[6].param).toEqual("sequence");
-      expect(res.body.errors[7].param).toEqual("roomId");
+      expect(res.body.errors[7].param).toEqual("room");
       expect(res.body.errors[7].msg).toEqual(
         "Cast to ObjectId failed for value \"rrfldças\" at path \"_id\" for model \"Room\"");
 
-      delete temp.roomId;
+      delete temp.room;
       res = await request(app).post("/reservation")
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
-      expect(res.body.errors[7].param).toEqual("roomId");
+      expect(res.body.errors[7].param).toEqual("room");
       expect(res.body.errors[7].msg).toEqual("Invalid value");
     });
 
@@ -385,7 +403,7 @@ describe("app", () => {
           endDate: new Date("2018-11-30T00:00:00"),
           startTime: new Date("2018-01-01T11:00:00"),
           endTime: new Date("2018-01-01T18:00:00"),
-          roomId: roomsSamples[0]._id
+          room: roomsSamples[0]._id
         };
 
         // first test
@@ -418,7 +436,7 @@ describe("app", () => {
         temp.endDate = new Date("2018-08-30T00:00:00");
         temp.startTime = new Date("2018-01-01T17:00:00");
         temp.endTime = new Date("2018-01-01T18:00:00");
-        temp.roomId = roomsSamples[2]._id;
+        temp.room = roomsSamples[2]._id;
 
         res = await request(app).post("/reservation")
           .set("Authorization", `Bearer ${authToken}`)
@@ -434,7 +452,7 @@ describe("app", () => {
         temp.endDate = new Date("2018-10-30T00:00:00");
         temp.startTime = new Date("2018-01-01T08:00:00");
         temp.endTime = new Date("2018-01-01T18:00:00");
-        temp.roomId = roomsSamples[1]._id;
+        temp.room = roomsSamples[1]._id;
 
         res = await request(app).post("/reservation")
           .set("Authorization", `Bearer ${authToken}`)
@@ -455,7 +473,7 @@ describe("app", () => {
         endDate: new Date("2018-09-30T00:00:00"),
         startTime: new Date("2018-01-01T18:00:00"),
         endTime: new Date("2018-01-01T22:00:00"),
-        roomId: roomsSamples[1]._id
+        room: roomsSamples[1]._id
       };
 
       // first test
@@ -475,8 +493,8 @@ describe("app", () => {
       expect(r.code).toBe(temp.code);
       expect(r.sequence).toBe(temp.sequence);
       expect(r.status).toBe("pending");
-      expect(r.userId).toBe(userProfile._id);
-      expect(r.roomId).toBe(temp.roomId.toString());
+      expect(r.user).toBe(userProfile._id);
+      expect(r.room).toBe(temp.room.toString());
       expect(r.createdAt).toBeTruthy();
       expect(r.updatedAt).toBeTruthy();
 
@@ -484,7 +502,7 @@ describe("app", () => {
       delete temp.code;
       delete temp.sequence;
       delete temp.reason;
-      temp.roomId = roomsSamples[2]._id;
+      temp.room = roomsSamples[2]._id;
 
       temp.startDate = new Date("2019-01-12T00:00:00");
       temp.endDate = new Date("2018-05-30T00:00:00");
@@ -507,8 +525,8 @@ describe("app", () => {
       expect(r.code).toBeUndefined();
       expect(r.sequence).toBeUndefined();
       expect(r.status).toBe("pending");
-      expect(r.userId).toBe(userProfile._id);
-      expect(r.roomId).toBe(temp.roomId.toString());
+      expect(r.user).toBe(userProfile._id);
+      expect(r.room).toBe(temp.room.toString());
       expect(r.createdAt).toBeTruthy();
       expect(r.updatedAt).toBeTruthy();
     });
@@ -682,7 +700,7 @@ describe("app", () => {
            expect(userTemp.notifications[0].createdAt).toBeDefined();
            expect(userTemp.notifications[0].updatedAt).toBeDefined();
          });
-
+      
       it("should add a notification when a user of the responsible type\n"
          + "is approving a reservation",
          async () => {

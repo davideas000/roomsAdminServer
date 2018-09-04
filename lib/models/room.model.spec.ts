@@ -9,7 +9,7 @@ describe("RoomModel", () => {
       length: 18,
       capacity: 10,
       type: "sala",
-      departmentId: "dep991",
+      department: "dep991",
       photos: ["./storage/roomphoto1.png", "./storage/roomphoto2.png"]
     });
     const result = instance.validateSync();
@@ -29,7 +29,7 @@ describe("RoomModel", () => {
     expect(result.errors.length.message).toBe("Path `length` is required.");
     expect(result.errors.capacity.message).toBe("Path `capacity` is required.");
     expect(result.errors.type.message).toBe("Path `type` is required.");
-    expect(result.errors.departmentId.message).toBe("Path `departmentId` is required.");
+    expect(result.errors.department.message).toBe("Path `department` is required.");
   });
   
 })

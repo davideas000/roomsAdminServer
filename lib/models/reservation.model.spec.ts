@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { ReservationModel } from './reservation.model';
 
 describe("ReservationModel", () => {
@@ -9,8 +10,8 @@ describe("ReservationModel", () => {
       startTime: Date.now(),
       endTime: Date.now(),
       status: "pending",
-      userId: "flçdsjaçf",
-      roomId: "kjçjçjççj"
+      user: new Types.ObjectId(),
+      room: new Types.ObjectId()
     });
     const e = reserv.validateSync();
     expect(e).toBeUndefined();
@@ -21,8 +22,8 @@ describe("ReservationModel", () => {
     
     const e = reserv.validateSync();
     expect(e).toBeTruthy();
-    expect(e.errors.roomId.message).toBe('Path `roomId` is required.');
-    expect(e.errors.userId.message).toBe('Path `userId` is required.');
+    expect(e.errors.room.message).toBe('Path `room` is required.');
+    expect(e.errors.user.message).toBe('Path `user` is required.');
     expect(e.errors.status.message).toBe('Path `status` is required.');
     expect(e.errors.startDate.message).toBe('Path `startDate` is required.');
     expect(e.errors.endDate.message).toBe('Path `endDate` is required.');
@@ -37,8 +38,8 @@ describe("ReservationModel", () => {
       startTime: Date.now(),
       endTime: Date.now(),
       status: "kpending",
-      userId: "flçdsjaçf",
-      roomId: "kjçjçjççj"
+      user: "flçdsjaçf",
+      room: "kjçjçjççj"
     });
     
     const e = reserv.validateSync();
@@ -53,8 +54,8 @@ describe("ReservationModel", () => {
       startTime: Date.now(),
       endTime: Date.now(),
       status: "kpending",
-      userId: "flçdsjaçf",
-      roomId: "kjçjçjççj"
+      user: "flçdsjaçf",
+      room: "kjçjçjççj"
     });
 
     const mockFind = jest.fn((query, callback) => callback(null, {value: true}));
@@ -68,7 +69,7 @@ describe("ReservationModel", () => {
       expect(mockFind).toHaveBeenCalledTimes(1);
       expect(mockFind).toHaveBeenCalledWith(
         {
-          roomId: reserv.roomId,
+          room: reserv.room,
           startDate: {$lte: reserv.endDate},
           endDate: {$gte: reserv.startDate},
           startTime: {$lt: reserv.endTime},

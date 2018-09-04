@@ -17,12 +17,14 @@ export class ReservationController {
   
   getReservations(req: Request, res: Response) {
     const status = req.query.status;
-    ReservationModel.find({userId: (req as any).user.sub, status: status}, (err, reservations: any[]) => {
-      if (err) {
-        return res.send({success: false, message: err.message});
-      }
-      res.send(reservations);
-    });
+    ReservationModel.find({user: (req as any).user.sub, status: status})
+    .populate({path: "room", populate: {path: "department"}})
+      .exec((err, reservations: any[]) => {
+        if (err) {
+          return res.send({success: false, message: err.message});
+        }
+        res.send({success: true, result: reservations});
+      });
   }
 
   /////////////////////////////////////////////////
@@ -39,8 +41,8 @@ export class ReservationController {
       code: req.body.code,
       sequence: req.body.sequence,
       status: "pending",
-      userId: (req as any).user.sub,
-      roomId: req.body.roomId,
+      user: (req as any).user.sub,
+      room: req.body.room,
     };
     
     const newReserv = new ReservationModel(temp);
@@ -73,21 +75,21 @@ export class ReservationController {
       body("endTime").isISO8601(),
       body("code").optional().isInt({min: 0}),
       body("sequence").optional().isInt({min: 0}),
-      body("roomId").isString().custom(this.checkRoomExistence),
+      body("room").isString().custom(this.checkRoomExistence),
       this.checkValidationErrors
     ]
   }
 
   checkRoomExistence(value, obj): Promise<any> {
     return new Promise((accept, reject) => {
-      RoomModel.countDocuments({_id: obj.req.body.roomId}, (err, result) => {
+      RoomModel.countDocuments({_id: obj.req.body.room}, (err, result) => {
         if (err) {
           return reject(err.message);
         }
         if (result === 1) {
           return accept(true);
         }
-        reject(`Room with id ${obj.req.body.roomId} not found`)
+        reject(`Room with id ${obj.req.body.room} not found`)
       });
     });
   }
@@ -114,9 +116,9 @@ export class ReservationController {
         return res.send({success: false, message: err.message})
       }
       if (result.nModified === 1) {
-        if (newStatus === "approved" || reserv.userId !== (req as any).user.sub) {
+        if (newStatus === "approved" || reserv.user.toString() !== (req as any).user.sub) {
 
-          RoomModel.findById(reserv.roomId, "name", (err, room) => {
+          RoomModel.findById(reserv.room, "name", (err, room) => {
             if (err) {
               return res.send({success: false, message: err.message})
             }
@@ -125,7 +127,7 @@ export class ReservationController {
             const reasonTemp = req.body.reason ? `Motivo: ${req.body.reason}.` : null;
             const msg = `Reserva no espaço '${room.name}' ${temp}.${reasonTemp ? " " + reasonTemp : ""}`;
 
-            UserModel.findById(reserv.userId, (err, userTemp) => {
+            UserModel.findById(reserv.user, (err, userTemp) => {
               if (err) {
                 return res.send({success: false, message: err.message})
               }
@@ -165,7 +167,7 @@ export class ReservationController {
 
       (req as any).reserv = reserv;
       
-      if (reserv.userId.toString() === user.sub
+      if (reserv.user.toString() === user.sub
           && reserv.status === "approved"
           && newStatus === "removed") {
         return next();
@@ -183,17 +185,17 @@ export class ReservationController {
         return res.send({success: false, message: "cannot remove a pending reservation"})
       }
       
-      RoomModel.findById(reserv.roomId, "departmentId", (err, room) => {
+      RoomModel.findById(reserv.room, "department", (err, room) => {
         if (err) {
           return res.send({success: false, message: err.message});
         }
 
-        DepartmentModel.findById(room.departmentId, "userId", (err, dep) => {
+        DepartmentModel.findById(room.department, "user", (err, dep) => {
           if (err) {
             return res.send({success: false, message: err.message});
           }
           
-          if (dep.userId !== user.sub) {
+          if (dep.user.toString() !== user.sub) {
             return res.status(401).send({success: false, message: "user not authorized"});
           }
           next();
@@ -212,7 +214,7 @@ export class ReservationController {
   deleteReservation(req: Request, res: Response) {
     const id = req.params.id;
 
-    ReservationModel.findOne({_id: id, userId: (req as any).user.sub}, (err, reserv) => {
+    ReservationModel.findOne({_id: id, user: (req as any).user.sub}, (err, reserv) => {
       if (err) {
         return res.send({success: false, message: err.message});
       }

@@ -1,11 +1,10 @@
-import * as mongoose from 'mongoose';
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const departmentSchema = new Schema({
   name: String,
   acronym: {type: String, required: true},
-  userId: {type: String, required: true},
+  user: {type: Schema.Types.ObjectId, required: true},
 }, {timestamps: true});
 
-export const DepartmentModel = mongoose.model("Department", departmentSchema);
+export const DepartmentModel = model("Department", departmentSchema);
 
