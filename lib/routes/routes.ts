@@ -31,8 +31,13 @@ export class Routes {
       const email = req.body.email;
       const password = req.body.password;
 
-      if (!email || !password) {
-        return res.send({success: false, message: 'missing-email-or-password'});
+      if (!email)
+      {
+        return res.status(401).send({success: false, message: 'missing-email'});
+      }
+      
+      if(!password) {
+        return res.status(401).send({success: false, message: 'wrong-password'});
       }
       
       UserModel.findOne(
@@ -42,13 +47,14 @@ export class Routes {
             return res.status(500).send({success: false, message: err.message});
           }
           if (!user) {
-            return res.send({success: false, message: "user-not-found"})
+            return res.status(401).send({success: false, message: "user-not-found"})
           }
 
           user.checkPassword(password, function(result) {
             if (result === true) {
+              const EXPIRES_IN = 600000;
               const token = jwt.sign({role: user.role}, config.secret, {
-                expiresIn: "7d",
+                expiresIn: EXPIRES_IN,
                 subject: user._id.toString()
               });
               
@@ -60,11 +66,11 @@ export class Routes {
                 photoURL: user.photoURL,
                 role: user.role
               };
-              return res.send({success: true, token: token, profile: tempUser});
+              return res.send({success: true, token: token, profile: tempUser, expiresIn: EXPIRES_IN});
             }
 
             if (result === false) {
-              return res.send({success: false, message: 'invalid-password'})
+              return res.status(401).send({success: false, message: 'wrong-password'})
             }
             
             if (result.message) {

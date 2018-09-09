@@ -1,6 +1,8 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as mongoose from 'mongoose';
+import * as cors from "cors";
+
 import * as morgan from 'morgan';
 
 import { Application } from 'express';
@@ -21,6 +23,7 @@ export class App {
   }
 
   config(): void {
+    this.app.use(cors());
     this.app.use(bodyParser.json());
     // this.app.use(morgan('dev')); // $$$$dddd
   }

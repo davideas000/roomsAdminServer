@@ -811,7 +811,7 @@ describe("app", () => {
         .set("Accept", "application/json");
 
       const body = res.body;
-      expect(res.statusCode).toBe(200);
+      expect(res.statusCode).toBe(401);
       expect(body.success).toBe(false);
       expect(body.token).toBeFalsy();
       expect(body.message).toBe('user-not-found');
@@ -823,10 +823,10 @@ describe("app", () => {
         .set("Accept", "application/json");
 
       const body = res.body;
-      expect(res.statusCode).toBe(200);
+      expect(res.statusCode).toBe(401);
       expect(body.success).toBe(false);
       expect(body.token).toBeFalsy();
-      expect(body.message).toBe('invalid-password');
+      expect(body.message).toBe('wrong-password');
     });
 
   });
