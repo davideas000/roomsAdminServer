@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { config } from '../config/config';
-import { UserModel } from '../lib/models/user.model';
-import { notificationSchema } from '../lib/models/notification.model';
+import { UserModel } from '../models/user.model';
+import { notificationSchema } from '../models/notification.model';
 
 const con = mongoose.connect(config.mongoURL, {useNewUrlParser: true});
 

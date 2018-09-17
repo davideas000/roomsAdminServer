@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import * as expressJwt from 'express-jwt';
 import { body } from 'express-validator/check';
 
-import { config } from './../../config/config';
+import { config } from './../config/config';
 import { UserModel } from './../models/user.model';
 import { ReservationModel } from '../models/reservation.model';
 

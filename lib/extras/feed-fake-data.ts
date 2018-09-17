@@ -1,9 +1,9 @@
 import * as mongoose from 'mongoose';
 import { config } from '../config/config';
-import { ReservationModel } from '../lib/models/reservation.model';
-import { UserModel } from '../lib/models/user.model';
-import { DepartmentModel } from '../lib/models/department.model';
-import { RoomModel } from '../lib/models/room.model';
+import { ReservationModel } from '../models/reservation.model';
+import { UserModel } from '../models/user.model';
+import { DepartmentModel } from '../models/department.model';
+import { RoomModel } from '../models/room.model';
 
 const con = mongoose.connect(config.mongoURL, {useNewUrlParser: true});
 

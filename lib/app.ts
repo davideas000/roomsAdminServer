@@ -1,14 +1,15 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as mongoose from 'mongoose';
-import * as cors from "cors";
+import * as cors from 'cors';
+import * as path from 'path';
 
 import * as morgan from 'morgan';
 
 import { Application } from 'express';
 
 import { Routes } from './routes/routes';
-import { config } from '../config/config';
+import { config } from './config/config';
 
 export class App {
   
@@ -26,6 +27,9 @@ export class App {
     this.app.use(cors());
     this.app.use(bodyParser.json());
     this.app.use(morgan('dev')); // $$$$dddd
+    
+    const staticPath = path.join(__dirname, '../storage');
+    this.app.use(express.static(staticPath));
   }
   
 }

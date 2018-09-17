@@ -1,8 +1,0 @@
-{
-  "name": "david endrew",
-  "diplayName": "david",
-  "email": "david.edews@gmail.com",
-  "role": "admin",
-  "createdAt": {"$date": "2018-08-16T02:17:20.842Z"},
-  "updatedAt": {"$date": "2018-08-16T02:17:20.842Z"}
-}

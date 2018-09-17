@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
+    "start": "node dist/server",
     "build": "tsc",
     "dev": "ts-node lib/server",
     "test": "jest",
