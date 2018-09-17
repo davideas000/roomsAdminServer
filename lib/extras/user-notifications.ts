@@ -24,6 +24,7 @@ const user = new UserModel({
   email: "david.edews@gmail.com",
   password: "dddddddd",
   role: "auth",
+  photoURL: 'http://localhost:3000/user-1.png'
 });
 
 user.notifications.push(fakeNotifications[0]);
