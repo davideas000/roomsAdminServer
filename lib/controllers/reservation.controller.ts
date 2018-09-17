@@ -123,6 +123,7 @@ export class ReservationController {
               return res.send({success: false, message: err.message})
             }
 
+            // create a notification
             const temp = newStatus === "approved" ? "aprovada" : "removida";
             const reasonTemp = req.body.reason ? `Motivo: ${req.body.reason}.` : null;
             const msg = `Reserva no espaço '${room.name}' ${temp}.${reasonTemp ? " " + reasonTemp : ""}`;
@@ -131,6 +132,8 @@ export class ReservationController {
               if (err) {
                 return res.send({success: false, message: err.message})
               }
+              
+              // insert a notification in the user's notifications list
               userTemp.notifications.push({message: msg, status: "unread"});
               userTemp.save((err) => {
                 if (err) {

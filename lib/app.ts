@@ -25,7 +25,7 @@ export class App {
   config(): void {
     this.app.use(cors());
     this.app.use(bodyParser.json());
-    // this.app.use(morgan('dev')); // $$$$dddd
+    this.app.use(morgan('dev')); // $$$$dddd
   }
   
 }
