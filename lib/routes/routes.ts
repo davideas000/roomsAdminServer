@@ -11,6 +11,7 @@ import { ReservationController } from '../controllers/reservation.controller';
 import { NotificationController } from '../controllers/notification.controller';
 import { UserController } from '../controllers/user.controller';
 import { RoomController } from '../controllers/room.controller';
+import { DepartmentController } from '../controllers/department.controller';
 
 export class Routes {
 
@@ -18,6 +19,7 @@ export class Routes {
   private notificationController = new NotificationController();
   private userController = new UserController();
   private roomController = new RoomController();
+  private departmentController = new DepartmentController();
   
   routes(app: Application): void {
     
@@ -105,6 +107,9 @@ export class Routes {
 
     // TODO: add tests
     app.get('/rtypes', authGuard, this.roomController.getTypes);
+
+    // TODO: add tests
+    app.get('/dacronyms', this.departmentController.getAcronyms);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
