@@ -17,14 +17,30 @@ export class ReservationController {
   
   getReservations(req: Request, res: Response) {
     const status = req.query.status;
-    ReservationModel.find({user: (req as any).user.sub, status: status})
-    .populate({path: "room", populate: {path: "department"}})
-      .exec((err, reservations: any[]) => {
-        if (err) {
-          return res.send({success: false, message: err.message});
-        }
-        res.send({success: true, result: reservations});
-      });
+    const op = req.query.op;
+    
+    if (op) {
+      switch(op) {
+        case 'count':
+          ReservationModel.countDocuments({user: (req as any).user.sub, status: status})
+            .exec((err, count: number) => {
+              if (err) {
+                return res.send({success: false, message: err.message});
+              }
+              res.send({success: true, result: count});
+            });
+          break
+      }
+    } else {
+      ReservationModel.find({user: (req as any).user.sub, status: status})
+        .populate({path: "room", populate: {path: "department"}})
+        .exec((err, reservations: any[]) => {
+          if (err) {
+            return res.send({success: false, message: err.message});
+          }
+          res.send({success: true, result: reservations});
+        });
+    }
   }
 
   /////////////////////////////////////////////////

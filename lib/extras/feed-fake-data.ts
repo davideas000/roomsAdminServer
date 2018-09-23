@@ -146,6 +146,42 @@ async function initializeDB () {
       status: 'approved',
       user: user._id,
       room: rooms[2]._id
+    },
+
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      startTime: new Date(),
+      endTime: new Date(),
+      code: 21,
+      sequence: 1,
+      status: 'pending',
+      user: user._id,
+      room: rooms[2]._id
+    },
+
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      startTime: new Date(),
+      endTime: new Date(),
+      code: 21,
+      sequence: 1,
+      status: 'pending',
+      user: user._id,
+      room: rooms[1]._id
+    },
+
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      startTime: new Date(),
+      endTime: new Date(),
+      code: 21,
+      sequence: 1,
+      status: 'pending',
+      user: user._id,
+      room: rooms[3]._id
     }
     
   ];
