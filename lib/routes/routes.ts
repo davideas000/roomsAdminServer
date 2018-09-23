@@ -10,12 +10,14 @@ import { ReservationModel } from '../models/reservation.model';
 import { ReservationController } from '../controllers/reservation.controller';
 import { NotificationController } from '../controllers/notification.controller';
 import { UserController } from '../controllers/user.controller';
+import { RoomController } from '../controllers/room.controller';
 
 export class Routes {
 
   private reservationController = new ReservationController();
   private notificationController = new NotificationController();
   private userController = new UserController();
+  private roomController = new RoomController();
   
   routes(app: Application): void {
     
@@ -100,6 +102,9 @@ export class Routes {
     app.put("/notifim", authGuard, this.notificationController.markNotificationsAsRead);
 
     app.get("/profile", authGuard, this.userController.getCurrentUser);
+
+    // TODO: add tests
+    app.get('/rtypes', authGuard, this.roomController.getTypes);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
@@ -111,6 +116,7 @@ export class Routes {
     app.use((req: Request, res: Response) => {
       res.sendStatus(404);
     });
+
   }
 
 }
