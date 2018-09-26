@@ -927,6 +927,18 @@ describe("app", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('GET /dacronym should return department acronyms', async() => {
+    const res = await request(app).get("/dacronyms")
+      .set("Authorization", `Bearer ${authToken}`);
+
+    // department acronyms
+    let dacronyms: any[] = await DepartmentModel.find({}, 'acronym');
+    dacronyms = dacronyms.map((r) => r.acronym);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.result).toEqual(dacronyms);
+  });
   
 });
 
