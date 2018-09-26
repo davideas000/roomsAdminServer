@@ -3,7 +3,6 @@ import { RoomModel } from '../models/room.model';
 
 export class RoomController {
   
-  // TODO: add tests
   getTypes(req: Request, res: Response) {
     RoomModel.find({}, 'type', (err, result) => {
       if (err) {

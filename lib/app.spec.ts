@@ -916,6 +916,17 @@ describe("app", () => {
     });
     
   });
+
+  it('GET /rtypes should return room types', async() => {
+    const res = await request(app).get("/rtypes")
+      .set("Authorization", `Bearer ${authToken}`);
+
+    let rtypes: any[] = await RoomModel.find({}, 'type');
+    rtypes = rtypes.map((r) => r.type);
+    expect(res.body.result).toEqual(rtypes);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
   
 });
 

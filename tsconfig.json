@@ -9,11 +9,9 @@
     "baseUrl": "./lib"
   },
   "include": [
-    "lib/**/*.ts",
-    "extras"
+    "lib/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
+    "node_modules"
   ]
 }

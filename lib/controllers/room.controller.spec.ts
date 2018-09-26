@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import { RoomModel } from '../models/room.model';
 
 jest.mock('../models/room.model', () => {
-  // return jest.fn();
   return {
     RoomModel: jest.fn()
   };
