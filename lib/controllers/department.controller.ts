@@ -6,7 +6,7 @@ export class DepartmentController {
   getAcronyms(req: Request, res: Response) {
     DepartmentModel.find({}, 'acronym', (err, result) => {
       if (err) {
-        return res.status(502).send({success: false, message: err.message});
+        return res.status(500).send({success: false, message: err.message});
       }
 
       const names = new Set<string>();
@@ -14,7 +14,7 @@ export class DepartmentController {
         names.add(dep.acronym);
       }
 
-      res.send(Array.from(names));
+      res.send({success: true, result: Array.from(names)});
     });
   }
 }
