@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { DepartmentModel } from '../models/department.model';
 
 export class DepartmentController {
+  // TODO: add tests
   getAcronyms(req: Request, res: Response) {
     DepartmentModel.find({}, 'acronym', (err, result) => {
       if (err) {

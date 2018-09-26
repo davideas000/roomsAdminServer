@@ -105,11 +105,9 @@ export class Routes {
 
     app.get("/profile", authGuard, this.userController.getCurrentUser);
 
-    // TODO: add tests
     app.get('/rtypes', authGuard, this.roomController.getTypes);
 
-    // TODO: add tests
-    app.get('/dacronyms', this.departmentController.getAcronyms);
+    app.get('/dacronyms', authGuard, this.departmentController.getAcronyms);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {

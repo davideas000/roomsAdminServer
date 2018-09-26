@@ -22,13 +22,21 @@ describe("Routes", () => {
     appMock.put.mockReturnValue(appMock);
     routes.routes(appMock);
     
-    expect(appMock.get).toHaveBeenCalledTimes(4);
+    expect(appMock.get).toHaveBeenCalledTimes(6);
     expect(appMock.get).toHaveBeenCalledWith('/', expect.any(Function));
     expect(appMock.get).toHaveBeenCalledWith(
       "/notifications",
       expect.any(Function), expect.any(Function));
     expect(appMock.get).toHaveBeenCalledWith(
       "/profile",
+      expect.any(Function), expect.any(Function));
+
+    expect(appMock.get).toHaveBeenCalledWith(
+      "/rtypes",
+      expect.any(Function), expect.any(Function));
+
+    expect(appMock.get).toHaveBeenCalledWith(
+      "/dacronyms",
       expect.any(Function), expect.any(Function));
     
     expect(appMock.post).toHaveBeenCalledTimes(2);
