@@ -1,4 +1,5 @@
 import { RoomModel } from "./room.model";
+import * as mongoose from 'mongoose';
 
 describe("RoomModel", () => {
 
@@ -9,7 +10,7 @@ describe("RoomModel", () => {
       length: 18,
       capacity: 10,
       type: "sala",
-      department: "dep991",
+      department: new mongoose.Types.ObjectId,
       photos: ["./storage/roomphoto1.png", "./storage/roomphoto2.png"]
     });
     const result = instance.validateSync();

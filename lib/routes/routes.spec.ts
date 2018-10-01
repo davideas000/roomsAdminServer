@@ -22,7 +22,7 @@ describe("Routes", () => {
     appMock.put.mockReturnValue(appMock);
     routes.routes(appMock);
     
-    expect(appMock.get).toHaveBeenCalledTimes(6);
+    expect(appMock.get).toHaveBeenCalledTimes(7);
     expect(appMock.get).toHaveBeenCalledWith('/', expect.any(Function));
     expect(appMock.get).toHaveBeenCalledWith(
       "/notifications",
@@ -37,6 +37,10 @@ describe("Routes", () => {
 
     expect(appMock.get).toHaveBeenCalledWith(
       "/dacronyms",
+      expect.any(Function), expect.any(Function));
+
+    expect(appMock.get).toHaveBeenCalledWith(
+      "/rsearch", expect.any(Function),
       expect.any(Function), expect.any(Function));
     
     expect(appMock.post).toHaveBeenCalledTimes(2);

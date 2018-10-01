@@ -83,7 +83,7 @@ describe("app", () => {
     depsSamples = await DepartmentModel.insertMany(depsStub);
     
     const roomsStbub: any[] = [
-      {
+      { // 0
         name: "sala 01",
         description: "sala grande, sem arcondicionado",
         width: 10,
@@ -98,7 +98,7 @@ describe("app", () => {
         photos: ["./storage/photo1.png", "./storage/photo2.png"]
       },
       
-      {
+      { // 1
         name: "auditorio 19",
         description: "aditorion pequena, cabo so uma pessoa",
         width: 1,
@@ -108,7 +108,7 @@ describe("app", () => {
         department: depsSamples[1]._id
       },
       
-      {
+      { // 2
         name: "laboratorio 102",
         description: "laboratorio de informatica sem computador :-(",
         width: 100,
@@ -187,8 +187,8 @@ describe("app", () => {
       
       { // 5
         reason: "por alguma outra coisa razão razão. etc sabe como é",
-        startDate: new Date("2018-10-01T00:00:00"),
-        endDate: new Date("2018-10-30T00:00:00"),
+        startDate: new Date("2019-11-01T00:00:00"),
+        endDate: new Date("2019-11-30T00:00:00"),
         startTime: new Date("2018-01-01T08:00:00"),
         endTime: new Date("2018-01-01T18:00:00"),
         code: 9,
@@ -200,8 +200,8 @@ describe("app", () => {
 
       { // 6
         reason: "por alguma outra coisa razão razão. etc sabe como é",
-        startDate: new Date("2018-10-01T00:00:00"),
-        endDate: new Date("2018-10-30T00:00:00"),
+        startDate: new Date("2019-10-01T00:00:00"),
+        endDate: new Date("2019-10-30T00:00:00"),
         startTime: new Date("2018-01-01T08:00:00"),
         endTime: new Date("2018-01-01T18:00:00"),
         code: 9,
@@ -448,11 +448,11 @@ describe("app", () => {
 
         // third test
 
-        temp.startDate = new Date("2018-10-30T00:00:00");
+        temp.startDate = new Date("2018-09-30T00:00:00");
         temp.endDate = new Date("2018-10-30T00:00:00");
-        temp.startTime = new Date("2018-01-01T08:00:00");
-        temp.endTime = new Date("2018-01-01T18:00:00");
-        temp.room = roomsSamples[1]._id;
+        temp.startTime = new Date("2018-01-01T17:30:00");
+        temp.endTime = new Date("2018-01-01T20:30:00");
+        temp.room = roomsSamples[0]._id;
 
         res = await request(app).post("/reservation")
           .set("Authorization", `Bearer ${authToken}`)
@@ -938,6 +938,149 @@ describe("app", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.result).toEqual(dacronyms);
+  });
+
+  describe('GET /rsearch', () => {
+
+    it('without query parameters should return all rooms', async () => {
+      const res = await request(app).get("/rsearch")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      // this is the total of rooms in the tests database
+      expect(res.body.result.length).toBe(3);
+      expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+      expect(res.body.result[1]._id).toBe(roomsSamples[1]._id.toString());
+      expect(res.body.result[2]._id).toBe(roomsSamples[2]._id.toString());  
+    });
+    
+    it('?capacity=value should filter by room capacity', async() => {
+      const query = '?capacity=10'; // mininum capacity
+      const res = await request(app).get("/rsearch" + query)
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.result.length).toBe(2);
+      expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+      expect(res.body.result[1]._id).toBe(roomsSamples[2]._id.toString());
+    });
+    
+    it('?capacity=value&width=value should filter by room capacity '
+       + 'and width', async() => {
+         const query = '?capacity=10&width=100';
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(1);
+         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+       });
+
+    it('?capacity=value&width=value should filter by room width ' +
+       'and length', async() => {
+         const query = '?length=100&width=10';
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(2);
+         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body.result[1]._id).toBe(roomsSamples[2]._id.toString());
+       });
+    
+    it('?length=value&department=depId should filter by room length ' +
+       'and department', async() => {
+         const query = `?length=100&department=${depsSamples[1]._id}`;
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(1);
+         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+       });
+
+    it('?type=roomType&department=depId should filter by room type ' +
+       'and department', async() => {
+         const query = `?type=auditorio&department=${depsSamples[1]._id}`;
+         
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(1);
+         expect(res.body.result[0]._id).toBe(roomsSamples[1]._id.toString());
+       });
+
+    // FIXME: english
+    it('should return only rooms that are not reserved in the specified date',
+       async() => {
+         const startDate = new Date("2018-08-23T00:00:00");
+         const endDate = new Date("2018-08-30T00:00:00");
+         const startTime = new Date("2018-01-01T08:15:00");
+         const endTime = new Date("2018-01-01T12:00:00");
+         
+         const query = `?startDate=${startDate}&endDate=${endDate}`
+           + `&startTime=${startTime}&endTime=${endTime}`;
+
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(1);
+         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+       });
+
+    // FIXME: english
+    it('should return only rooms that are not reserved in the specified date '
+       + 'and satisfy the given parameters',
+       async() => {
+         
+         const startDate = new Date("2019-10-01T00:00:00");
+         const endDate = new Date("2019-10-30T00:00:00");
+         const startTime = new Date("2019-01-01T08:00:00");
+         const endTime = new Date("2019-01-01T18:00:00");
+         
+         const query = `?startDate=${startDate}&endDate=${endDate}`
+           + `&startTime=${startTime}&endTime=${endTime}`
+           + `&capacity=12`;
+
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(1);
+         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+       });
+
+    // FIXME: english
+    it('should return only rooms that are not reserved in the specified date '
+       + 'and satisfy the given parameters... TEST 2',
+       async() => {
+         const startDate = new Date("2019-11-01T00:00:00");
+         const endDate = new Date("2019-11-30T00:00:00");
+         const startTime = new Date("2018-01-01T08:00:00");
+         const endTime = new Date("2018-01-01T18:00:00");
+         
+         const query = `?startDate=${startDate}&endDate=${endDate}`
+           + `&startTime=${startTime}&endTime=${endTime}`
+           + `&department=${depsSamples[0]._id}`;
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(1);
+         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+       });
+    
   });
   
 });
