@@ -929,15 +929,25 @@ describe("app", () => {
   });
 
   it('GET /dacronym should return department acronyms', async() => {
-    const res = await request(app).get("/dacronyms")
+    const res = await request(app).get("/departments")
       .set("Authorization", `Bearer ${authToken}`);
 
     // department acronyms
-    let dacronyms: any[] = await DepartmentModel.find({}, 'acronym');
-    dacronyms = dacronyms.map((r) => r.acronym);
+    let deps: any[] = await DepartmentModel.find({}, 'name acronym');
+    console.log("depsssssssss", deps); // $$$$dddd
+    // dacronyms = dacronyms.map((r) => r.acronym);
+    
+    // for(let d of deps) {
+    //   d._id = d._id.toString();
+    // }
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.result).toEqual(dacronyms);
+    for(let i = 0; i < deps.length; i++) {
+      expect(res.body.result[i]._id).toBe(deps[i]._id.toString());
+      expect(res.body.result[i].acronym).toBe(deps[i].acronym);
+      expect(res.body.result[i].name).toBe(deps[i].name);
+    }
+    // expect(res.body.result).toEqual(deps);
   });
   
 });

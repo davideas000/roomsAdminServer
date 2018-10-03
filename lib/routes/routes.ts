@@ -107,7 +107,7 @@ export class Routes {
 
     app.get('/rtypes', authGuard, this.roomController.getTypes);
 
-    app.get('/dacronyms', authGuard, this.departmentController.getAcronyms);
+    app.get('/departments', authGuard, this.departmentController.getDeps);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {

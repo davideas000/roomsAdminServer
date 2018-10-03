@@ -3,18 +3,13 @@ import { DepartmentModel } from '../models/department.model';
 
 export class DepartmentController {
   // TODO: add tests
-  getAcronyms(req: Request, res: Response) {
-    DepartmentModel.find({}, 'acronym', (err, result) => {
+  getDeps(req: Request, res: Response) {
+    DepartmentModel.find({}, 'name acronym', (err, deps) => {
       if (err) {
         return res.status(500).send({success: false, message: err.message});
       }
 
-      const names = new Set<string>();
-      for(let dep of result) {
-        names.add(dep.acronym);
-      }
-
-      res.send({success: true, result: Array.from(names)});
+      res.send({success: true, result: deps});
     });
   }
 }

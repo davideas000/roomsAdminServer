@@ -36,7 +36,7 @@ describe("Routes", () => {
       expect.any(Function), expect.any(Function));
 
     expect(appMock.get).toHaveBeenCalledWith(
-      "/dacronyms",
+      "/departments",
       expect.any(Function), expect.any(Function));
     
     expect(appMock.post).toHaveBeenCalledTimes(2);
