@@ -28,7 +28,7 @@ export class Routes {
     });
     
     app.get('/', (req: Request, res: Response) => {
-      res.send({message: "Api endpoint"});
+      res.send({message: 'Api endpoint'});
     });
 
     app.post('/login', (req: Request, res: Response) => {
@@ -51,7 +51,7 @@ export class Routes {
             return res.status(500).send({success: false, message: err.message});
           }
           if (!user) {
-            return res.status(401).send({success: false, message: "user-not-found"})
+            return res.status(401).send({success: false, message: 'user-not-found'})
           }
 
           user.checkPassword(password, function(result) {
@@ -85,29 +85,41 @@ export class Routes {
         });
     });
     
-    app.route("/reservations")
+    app.route('/reservations')
       .get(authGuard, this.reservationController.getReservations);
 
     app.post(
-      "/reservation",
+      '/reservation',
       authGuard,
       this.reservationController.validateNew(),
       this.reservationController.newReservation);
     
-    app.route("/reservation/:id")
-      .put(authGuard, body("reason").optional().escape().trim(),
+    app.route('/reservation/:id')
+      .put(authGuard, body('reason').optional().escape().trim(),
            this.reservationController.validateUpdate,
            this.reservationController.updateReservation)
       .delete(authGuard, this.reservationController.deleteReservation);
 
-    app.get("/notifications", authGuard, this.notificationController.getCurrentUserNotifications);
-    app.put("/notifim", authGuard, this.notificationController.markNotificationsAsRead);
+    app.get('/notifications', authGuard, this.notificationController.getCurrentUserNotifications);
+    app.put('/notifim', authGuard, this.notificationController.markNotificationsAsRead);
 
-    app.get("/profile", authGuard, this.userController.getCurrentUser);
+    app.get('/profile', authGuard, this.userController.getCurrentUser);
 
     app.get('/rtypes', authGuard, this.roomController.getTypes);
 
     app.get('/departments', authGuard, this.departmentController.getDeps);
+    
+    // FIXME: english grammar
+    // recives the following values as query paramenters:
+    // dateStart, dateEnd, timeStart, timeEnd,
+    // width, length, capacity, type and department.
+    // dateStart, dateEnd, timeStart and timeEnd are optional
+    // but all of them must be specified or none at all,
+    // width, length, capacity, type and department are also
+    // optional (any of them can be specified).
+    app.get('/rsearch', authGuard,
+            this.roomController.getExcludes,
+            this.roomController.findRoomsAndExclude);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
