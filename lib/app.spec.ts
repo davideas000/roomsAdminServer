@@ -932,14 +932,7 @@ describe("app", () => {
     const res = await request(app).get("/departments")
       .set("Authorization", `Bearer ${authToken}`);
 
-    // department acronyms
     let deps: any[] = await DepartmentModel.find({}, 'name acronym');
-    console.log("depsssssssss", deps); // $$$$dddd
-    // dacronyms = dacronyms.map((r) => r.acronym);
-    
-    // for(let d of deps) {
-    //   d._id = d._id.toString();
-    // }
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
     for(let i = 0; i < deps.length; i++) {
@@ -947,7 +940,6 @@ describe("app", () => {
       expect(res.body.result[i].acronym).toBe(deps[i].acronym);
       expect(res.body.result[i].name).toBe(deps[i].name);
     }
-    // expect(res.body.result).toEqual(deps);
   });
 
   describe('GET /rsearch', () => {
