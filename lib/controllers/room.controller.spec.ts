@@ -129,9 +129,11 @@ describe('RoomController', () => {
   });
 
   // FIXME: english spell check
-  it('#findRoomsAndExclude() should use default values when' +
+  it('#findRoomsAndExclude() should use default values when ' +
      'query parameters are not specified', () => {
-       RoomModel.find = jest.fn();
+       RoomModel.exec = jest.fn();
+       RoomModel.populate = jest.fn((m) => RoomModel);
+       RoomModel.find = jest.fn((q) => RoomModel);
        
        instance.findRoomsAndExclude(req, res);
        expect(RoomModel.find).toHaveBeenCalledTimes(1);
@@ -140,20 +142,20 @@ describe('RoomController', () => {
            width: {$gte: 0},
            length: {$gte: 0},
            capacity: {$gte: 0}
-         },
-         expect.any(Function));
+         });
      });
 
   // FIXME: english spell check
   it('#findRoomsAndExclude() without any query parameters '
      + 'and with excludes array empty should send all rooms', () => {
-       RoomModel.find = jest.fn((query, callback) => callback(null, roomsStub));
-       
        const roomsStub = [
          {_id: 'room01'},
          {_id: 'room02'},
          {_id: 'room03'}
        ];
+       RoomModel.exec = jest.fn((callback) => callback(null, roomsStub));
+       RoomModel.populate = jest.fn((m) => RoomModel);
+       RoomModel.find = jest.fn((q) => RoomModel);
 
        instance.findRoomsAndExclude(req, res);
        expect(RoomModel.find).toHaveBeenCalledTimes(1);
@@ -162,8 +164,9 @@ describe('RoomController', () => {
            width: {$gte: 0},
            length: {$gte: 0},
            capacity: {$gte: 0}
-         },
-         expect.any(Function));
+         });
+       expect(RoomModel.populate).toHaveBeenCalledTimes(1);
+       expect(RoomModel.populate).toHaveBeenCalledWith('department');
 
        expect(res.send).toHaveBeenCalledTimes(1);
        expect(res.send).toHaveBeenCalledWith({success: true, result: roomsStub});
@@ -171,7 +174,9 @@ describe('RoomController', () => {
 
   // FIXME: english spell check
   it('#findRoomsAndExclude() should use specified query parameters', () => {
-    RoomModel.find = jest.fn((query, callback) => callback(null, []));
+    RoomModel.exec = jest.fn((callback) => callback(null, []));
+    RoomModel.populate = jest.fn((m) => RoomModel);
+    RoomModel.find = jest.fn((q) => RoomModel);
     
     req.query = {
       width: 10,
@@ -190,26 +195,30 @@ describe('RoomController', () => {
         capacity: {$gte: req.query.capacity},
         department: req.query.department,
         type: req.query.type
-      },
-      expect.any(Function));
+      });
+    expect(RoomModel.populate).toHaveBeenCalledTimes(1);
+    expect(RoomModel.populate).toHaveBeenCalledWith('department');
   });
 
   // FIXME: english spell check
   it('#findRoomsAndExclude() should not send rooms with id specified in the excludes array',
      () => {
-       RoomModel.find = jest.fn((query, callback) => callback(null, roomsStub));
-       
        const roomsStub = [
          {_id: 'room01'},
          {_id: 'room02'},
          {_id: 'room03'}
        ];
-
+       RoomModel.exec = jest.fn((callback) => callback(null, roomsStub));
+       RoomModel.populate = jest.fn((m) => RoomModel);
+       RoomModel.find = jest.fn((q) => RoomModel);
+       
        res.locals.excludes = ['room01', 'room03'];
 
        instance.findRoomsAndExclude(req, res);
        expect(res.send).toHaveBeenCalledTimes(1);
        expect(res.send).toHaveBeenCalledWith({success: true, result: [roomsStub[1]]});
+       expect(RoomModel.populate).toHaveBeenCalledTimes(1);
+       expect(RoomModel.populate).toHaveBeenCalledWith('department');
      });
 
 });

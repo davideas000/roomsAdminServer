@@ -78,8 +78,9 @@ export class RoomController {
     }
 
     RoomModel.find(
-      roomsQuery,
-      (err, rooms:any[]) => {
+      roomsQuery
+    ).populate('department')
+      .exec((err, rooms:any[]) => {
         if (err) {
           return res.status(500).send({success: false, message: err.message});
         }
@@ -91,8 +92,7 @@ export class RoomController {
         }
         
         res.send({success: true, result: rooms});
-      }
-    );
+      });
   }
   
 }
