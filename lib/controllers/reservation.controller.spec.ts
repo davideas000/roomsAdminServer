@@ -704,5 +704,10 @@ describe("ReservationController", () => {
        expect(res.send).toHaveBeenCalledWith({success: true, message: "reservation modified"});
        
      });
+
+  it('#formatTime() should return a date with the specified time', () => {
+    const result = instance.timeToDate('12:00');
+    expect(result).toEqual(new Date('2018-01-01T12:00'));
+  });
   
 });

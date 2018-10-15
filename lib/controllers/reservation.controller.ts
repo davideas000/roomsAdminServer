@@ -14,6 +14,10 @@ export class ReservationController {
   /////////////////////////////////////////////////
   //////////////////// LIST ///////////////////////
   /////////////////////////////////////////////////
+
+  timeToDate(time: string): Date {
+    return new Date(`2018-01-01T${time}`);
+  }
   
   getReservations(req: Request, res: Response) {
     const status = req.query.status;
