@@ -36,8 +36,8 @@ export class RoomController {
         {
           startDate: startDate,
           endDate: endDate,
-          startTime: startTime,
-          endTime: endTime
+          startTime: new Date("2018-01-01T" + startTime), // FIXME: move to ReservationModel
+          endTime: new Date("2018-01-01T" + endTime)
         }
       );
 

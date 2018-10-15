@@ -41,12 +41,12 @@ async function initializeDB () {
   const deps = await DepartmentModel.insertMany(depsTest);
 
   const roomsTest = [
-    {
+    { // 0
       name: 'sala 100',
       description: 'sala comum',
       width: 200,
       length: 300,
-      capacity: 100,
+      capacity: 10,
       type: 'sala',
       department: deps[0]._id
     },
@@ -54,26 +54,26 @@ async function initializeDB () {
     {
       name: 'lab 1',
       description: 'laboratorio de informatica',
-      width: 200,
-      length: 300,
-      capacity: 100,
+      width: 100,
+      length: 100,
+      capacity: 40,
       type: 'laboratorio',
       department: deps[0]._id
     },
     
     {
       name: 'auditorio 7',
-      width: 200,
-      length: 300,
-      capacity: 100,
+      width: 270,
+      length: 200,
+      capacity: 1000,
       type: 'auditorio',
       department: deps[1]._id
     },
     
     {
       name: 'lab 3',
-      width: 200,
-      length: 300,
+      width: 2100,
+      length: 500,
       capacity: 100,
       type: 'laboratorio',
       department: deps[1]._id
@@ -85,12 +85,12 @@ async function initializeDB () {
   const user = await UserModel.findOne({email: 'david.edews@gmail.com'});
   const reservationTest = [
     
-    {
+    { // 0
       reason: 'aula de alguma coisa, e outra coisa',
-      startDate: new Date(),
-      endDate: new Date(),
-      startTime: new Date(),
-      endTime: new Date(),
+      startDate: new Date('2018-08-01'),
+      endDate: new Date('2018-08-31'),
+      startTime: new Date('2018-01-01T08:00'),
+      endTime: new Date('2018-01-01T18:00'),
       code: 21,
       sequence: 1,
       status: 'approved',
@@ -98,7 +98,7 @@ async function initializeDB () {
       room: rooms[0]._id
     },
     
-    {
+    { // 1
       reason: 'aula de alguma coisa, coisa',
       startDate: new Date(),
       endDate: new Date(),
@@ -111,7 +111,7 @@ async function initializeDB () {
       room: rooms[1]._id
     },
 
-    {
+    { // 2
       reason: 'outra razão',
       startDate: new Date(),
       endDate: new Date(),
@@ -124,7 +124,7 @@ async function initializeDB () {
       room: rooms[2]._id
     },
 
-    {
+    { // 3
       startDate: new Date(),
       endDate: new Date(),
       startTime: new Date(),
@@ -136,7 +136,7 @@ async function initializeDB () {
       room: rooms[3]._id
     },
 
-    {
+    { // 4
       startDate: new Date(),
       endDate: new Date(),
       startTime: new Date(),
@@ -148,7 +148,7 @@ async function initializeDB () {
       room: rooms[2]._id
     },
 
-    {
+    { // 5
       startDate: new Date(),
       endDate: new Date(),
       startTime: new Date(),
@@ -160,7 +160,7 @@ async function initializeDB () {
       room: rooms[2]._id
     },
 
-    {
+    { // 6
       startDate: new Date(),
       endDate: new Date(),
       startTime: new Date(),
@@ -172,7 +172,7 @@ async function initializeDB () {
       room: rooms[1]._id
     },
 
-    {
+    { // 7
       startDate: new Date(),
       endDate: new Date(),
       startTime: new Date(),
