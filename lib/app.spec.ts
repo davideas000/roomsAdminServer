@@ -1,4 +1,3 @@
-import MongodbMemoryServer from 'mongodb-memory-server';
 import * as mongoose from "mongoose";
 import * as request from 'supertest';
 import { App } from './app'
@@ -21,8 +20,7 @@ describe("app", () => {
 
   beforeAll(async () => {
     mongoose.Promise = Promise;
-    mongodb = new MongodbMemoryServer();
-    const mongoURI = await mongodb.getConnectionString();
+    const mongoURI = "mongodb://test:test@localhost:27017/raTest";
     app = new App().app;
     mongoose.connect(mongoURI, {useNewUrlParser: true});
     
