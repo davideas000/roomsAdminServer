@@ -2,6 +2,7 @@ import { RoomController } from './room.controller';
 import { Request, Response } from 'express';
 import { RoomModel } from '../models/room.model';
 import { ReservationModel } from '../models/reservation.model';
+import { ReservationController } from './reservation.controller';
 
 jest.mock('../models/room.model', () => {
   return {
@@ -65,8 +66,8 @@ describe('RoomController', () => {
     req.query = {
       startDate: "01-01-2199",
       endDate: "01-01-2199",
-      startTime: "01-01-2199",
-      endTime: "01-01-2199"
+      startTime: "11:00",
+      endTime: "13:00"
     };
 
     const mockGetExludesResult = [];
@@ -88,7 +89,12 @@ describe('RoomController', () => {
 
     instance.getExcludes(req, res, nextMock);
     expect(ReservationModel).toHaveBeenCalledTimes(1);
-    expect(ReservationModel).toHaveBeenCalledWith(req.query);
+
+    const expecResult = req.query;
+    expecResult.startTime = ReservationController.timeToDate(expecResult.startTime);
+    expecResult.endTime = ReservationController.timeToDate(expecResult.endTime);
+    expect(ReservationModel).toHaveBeenCalledWith(expecResult);
+    
     expect(nextMock).toHaveBeenCalledTimes(1);
     expect(res.locals.excludes).toEqual(excludesStub);
   });
@@ -100,8 +106,8 @@ describe('RoomController', () => {
     req.query = {
       startDate: "01-01-2199",
       endDate: "01-01-2199",
-      startTime: "01-01-2199",
-      endTime: "01-01-2199"
+      startTime: "12:00",
+      endTime: "18:00"
     };
 
     const mockGetExludesResult = [];

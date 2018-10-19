@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { RoomModel } from '../models/room.model';
 import { ReservationModel } from '../models/reservation.model';
+import { ReservationController } from './reservation.controller';
 
 export class RoomController {
   
@@ -36,8 +37,8 @@ export class RoomController {
         {
           startDate: startDate,
           endDate: endDate,
-          startTime: new Date("2018-01-01T" + startTime), // FIXME: move to ReservationModel
-          endTime: new Date("2018-01-01T" + endTime)
+          startTime: ReservationController.timeToDate(startTime),
+          endTime: ReservationController.timeToDate(endTime),
         }
       );
 
@@ -76,7 +77,6 @@ export class RoomController {
     if (rtype) {
       roomsQuery.type = rtype;
     }
-
     RoomModel.find(
       roomsQuery
     ).populate('department')
@@ -84,7 +84,6 @@ export class RoomController {
         if (err) {
           return res.status(500).send({success: false, message: err.message});
         }
-
         if (res.locals.excludes) {
           rooms = rooms.filter((r) => {
             return res.locals.excludes.indexOf(r._id.toString()) === -1;

@@ -73,7 +73,8 @@ describe("ReservationModel", () => {
           startDate: {$lte: reserv.endDate},
           endDate: {$gte: reserv.startDate},
           startTime: {$lt: reserv.endTime},
-          endTime: {$gt: reserv.startTime}
+          endTime: {$gt: reserv.startTime},
+          status: {$ne: 'removed'}
         }, expect.any(Function));
       done();
     });

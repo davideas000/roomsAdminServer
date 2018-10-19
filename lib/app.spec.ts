@@ -1024,8 +1024,11 @@ describe("app", () => {
        async() => {
          const startDate = new Date("2018-08-23T00:00:00");
          const endDate = new Date("2018-08-30T00:00:00");
-         const startTime = new Date("2018-01-01T08:15:00");
-         const endTime = new Date("2018-01-01T12:00:00");
+         const startTime = "08:15";
+         const endTime = "12:00";
+         
+         // const startTime = new Date("2018-01-01T08:15:00");
+         // const endTime = new Date("2018-01-01T12:00:00");
          
          const query = `?startDate=${startDate}&endDate=${endDate}`
            + `&startTime=${startTime}&endTime=${endTime}`;
@@ -1044,14 +1047,14 @@ describe("app", () => {
        + 'and satisfy the given parameters',
        async() => {
          
-         const startDate = new Date("2019-10-01T00:00:00");
-         const endDate = new Date("2019-10-30T00:00:00");
-         const startTime = new Date("2019-01-01T08:00:00");
-         const endTime = new Date("2019-01-01T18:00:00");
+         const startDate = "2019-10-01";
+         const endDate = "2019-10-30";
+         const startTime = "08:00";
+         const endTime = "18:00";
          
          const query = `?startDate=${startDate}&endDate=${endDate}`
            + `&startTime=${startTime}&endTime=${endTime}`
-           + `&capacity=12`;
+           + `&capacity=10`;
 
          const res = await request(app).get("/rsearch" + query)
            .set("Authorization", `Bearer ${authToken}`);
@@ -1059,17 +1062,38 @@ describe("app", () => {
          expect(res.statusCode).toBe(200);
          expect(res.body.success).toBe(true);
          expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
        });
 
     // FIXME: english
     it('should return only rooms that are not reserved in the specified date '
        + 'and satisfy the given parameters... TEST 2',
        async() => {
-         const startDate = new Date("2019-11-01T00:00:00");
-         const endDate = new Date("2019-11-30T00:00:00");
-         const startTime = new Date("2018-01-01T08:00:00");
-         const endTime = new Date("2018-01-01T18:00:00");
+         const startDate = "2019-11-01";
+         const endDate = "2019-11-10";
+         const startTime = "14:00";
+         const endTime = "15:00";
+         
+         const query = `?startDate=${startDate}&endDate=${endDate}`
+           + `&startTime=${startTime}&endTime=${endTime}`
+           + `&department=${depsSamples[0]._id}`;
+         const res = await request(app).get("/rsearch" + query)
+           .set("Authorization", `Bearer ${authToken}`);
+         
+         expect(res.statusCode).toBe(200);
+         expect(res.body.success).toBe(true);
+         expect(res.body.result.length).toBe(1);
+         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+       });
+
+    // TODO: english
+    it('should return only rooms that are not reserved in the specified date '
+       + 'and satisfy the given parameters... TEST 3',
+       async() => {
+         const startDate = "jkldçajfça";
+         const endDate = "jfkldaçs";
+         const startTime = "fdlçasjf";
+         const endTime = "jfçldasjfçl";
          
          const query = `?startDate=${startDate}&endDate=${endDate}`
            + `&startTime=${startTime}&endTime=${endTime}`
@@ -1077,10 +1101,12 @@ describe("app", () => {
          const res = await request(app).get("/rsearch" + query)
            .set("Authorization", `Bearer ${authToken}`);
 
+         console.log("bodyyyyyyy", res.body); // $$$$dddd
+         
          expect(res.statusCode).toBe(200);
          expect(res.body.success).toBe(true);
          expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+         expect(res.body.result[0]._id).toBe(roomsSamples[1]._id.toString());
        });
     
   });

@@ -24,7 +24,8 @@ reservationSchema.methods.findOverlappingReservations = function (callback) {
       startDate: {$lte: this.endDate},
       endDate: {$gte: this.startDate},
       startTime: {$lt: this.endTime},
-      endTime: {$gt: this.startTime}
+      endTime: {$gt: this.startTime},
+      status: {$ne: "removed"}
     },
     callback
   );
