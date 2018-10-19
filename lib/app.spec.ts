@@ -5,6 +5,7 @@ import { UserModel } from './models/user.model';
 import { ReservationModel } from './models/reservation.model';
 import { RoomModel } from './models/room.model';
 import { DepartmentModel } from './models/department.model';
+import { ReservationController } from './controllers/reservation.controller';
 
 describe("app", () => {
   let mongodb;
@@ -1084,27 +1085,24 @@ describe("app", () => {
          expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
        });
 
-    // TODO: english
-    it('should return only rooms that are not reserved in the specified date '
-       + 'and satisfy the given parameters... TEST 3',
+    it('should not consider reservations marked as removed when searching for '
+       + 'reserved rooms',
        async() => {
-         const startDate = "jkldçajfça";
-         const endDate = "jfkldaçs";
-         const startTime = "fdlçasjf";
-         const endTime = "jfçldasjfçl";
+         const startDate = "2018-09-01";
+         const endDate = "2018-09-30";
+         const startTime = "08:00";
+         const endTime = "18:00";
          
          const query = `?startDate=${startDate}&endDate=${endDate}`
            + `&startTime=${startTime}&endTime=${endTime}`
-           + `&department=${depsSamples[0]._id}`;
          const res = await request(app).get("/rsearch" + query)
            .set("Authorization", `Bearer ${authToken}`);
 
-         console.log("bodyyyyyyy", res.body); // $$$$dddd
-         
          expect(res.statusCode).toBe(200);
          expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[1]._id.toString());
+         expect(res.body.result.length).toBe(2);
+         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body.result[1]._id).toBe(roomsSamples[1]._id.toString());
        });
     
   });
