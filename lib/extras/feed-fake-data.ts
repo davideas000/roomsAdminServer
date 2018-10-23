@@ -48,7 +48,12 @@ async function initializeDB () {
       length: 300,
       capacity: 10,
       type: 'sala',
-      department: deps[0]._id
+      department: deps[0]._id,
+      photos: [
+        'http://localhost:3000/img-1.png',
+        'http://localhost:3000/img-2.png',
+        'http://localhost:3000/img-3.png'
+      ]
     },
     
     {
@@ -58,7 +63,12 @@ async function initializeDB () {
       length: 100,
       capacity: 40,
       type: 'laboratorio',
-      department: deps[0]._id
+      department: deps[0]._id,
+      photos: [
+        'http://localhost:3000/lab1.jpg',
+        'http://localhost:3000/lab2.jpg',
+        'http://localhost:3000/lab3.jpg'
+      ]
     },
     
     {
