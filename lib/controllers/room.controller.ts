@@ -8,7 +8,7 @@ export class RoomController {
   getTypes(req: Request, res: Response) {
     RoomModel.find({}, 'type', (err, result) => {
       if (err) {
-        return res.status(502).send({success: false, message: err.message});
+        return res.status(502).send(err.message);
       }
 
       const rtypes = new Set<string>();
@@ -16,7 +16,7 @@ export class RoomController {
         rtypes.add(room.type);
       }
 
-      res.send({success: true, result: Array.from(rtypes)});
+      res.send(Array.from(rtypes));
     });
   }
 
@@ -44,7 +44,7 @@ export class RoomController {
 
       tempreserv.findOverlappingReservations((err, result: any[]) => {
         if (err) {
-          return res.status(500).send({success: false, message: err.message});
+          return res.status(500).send(err.message);
         }
         let excludes: any[] = result.map((reserv) => reserv.room.toString());
         res.locals.excludes = excludes;
@@ -82,7 +82,7 @@ export class RoomController {
     ).populate('department')
       .exec((err, rooms:any[]) => {
         if (err) {
-          return res.status(500).send({success: false, message: err.message});
+          return res.status(500).send(err.message);
         }
         if (res.locals.excludes) {
           rooms = rooms.filter((r) => {
@@ -90,7 +90,7 @@ export class RoomController {
           });
         }
         
-        res.send({success: true, result: rooms});
+        res.send(rooms);
       });
   }
   

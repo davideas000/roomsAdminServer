@@ -29,9 +29,9 @@ export class ReservationController {
           ReservationModel.countDocuments({user: (req as any).user.sub, status: status})
             .exec((err, count: number) => {
               if (err) {
-                return res.send({success: false, message: err.message});
+                return res.status(500).send(err.message);
               }
-              res.send({success: true, result: count});
+              res.send(count.toString());
             });
           break
       }
@@ -40,9 +40,9 @@ export class ReservationController {
         .populate({path: "room", populate: {path: "department"}})
         .exec((err, reservations: any[]) => {
           if (err) {
-            return res.send({success: false, message: err.message});
+            return res.status(500).send(err.message);
           }
-          res.send({success: true, result: reservations});
+          res.send(reservations);
         });
     }
   }
@@ -56,8 +56,8 @@ export class ReservationController {
       reason: req.body.reason,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
-      startTime: req.body.startTime,
-      endTime: req.body.endTime,
+      startTime: ReservationController.timeToDate(req.body.startTime),
+      endTime: ReservationController.timeToDate(req.body.endTime),
       code: req.body.code,
       sequence: req.body.sequence,
       status: "pending",
@@ -69,18 +69,18 @@ export class ReservationController {
 
     newReserv.findOverlappingReservations((err: any, result: any[]) => {
       if (err) {
-        res.status(500).send("server-error");
+        return res.status(500).send(err.message);
       }
 
       if (result.length !== 0) {
-        return res.send({success: false, message: "overlapping-reservation"})
+        return res.status(422).send("overlapping-reservation");
       }
       
       newReserv.save((err, item) => {
         if (err) {
-          return res.status(500).send("internal-server-error");
+          return res.status(500).send(err.message);
         }
-        res.send({success: true, item: item});
+        res.send(item);
       });
       
     });
@@ -91,8 +91,8 @@ export class ReservationController {
       body("reason").optional().isString().not().isEmpty().trim().escape(),
       body("startDate").isISO8601(),
       body("endDate").isISO8601(),
-      body("startTime").isISO8601(),
-      body("endTime").isISO8601(),
+      // body("startTime").isISO8601(), // FIXME
+      // body("endTime").isISO8601(),   // FIXME
       body("code").optional().isInt({min: 0}),
       body("sequence").optional().isInt({min: 0}),
       body("room").isString().custom(this.checkRoomExistence),
@@ -117,7 +117,7 @@ export class ReservationController {
   checkValidationErrors(req: Request, res: Response, next: NextFunction) {
     const errors: Result = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).send({success: false, errors: errors.array()});
+      return res.status(422).send(errors.array());
     }
     next();
   }
@@ -133,14 +133,14 @@ export class ReservationController {
 
     ReservationModel.updateOne({_id: reserv._id}, {status: newStatus}, (err, result) => {
       if (err) {
-        return res.send({success: false, message: err.message})
+        return res.status(500).send(err.message);
       }
       if (result.nModified === 1) {
         if (newStatus === "approved" || reserv.user.toString() !== (req as any).user.sub) {
 
           RoomModel.findById(reserv.room, "name", (err, room) => {
             if (err) {
-              return res.send({success: false, message: err.message})
+              return res.status(500).send(err.message)
             }
 
             // create a notification
@@ -150,21 +150,21 @@ export class ReservationController {
 
             UserModel.findById(reserv.user, (err, userTemp) => {
               if (err) {
-                return res.send({success: false, message: err.message})
+                return res.status(500).send(err.message)
               }
               
               // insert a notification in the user's notifications list
               userTemp.notifications.push({message: msg, status: "unread"});
               userTemp.save((err) => {
                 if (err) {
-                  return res.send({success: false, message: err.message})
+                  return res.status(500).send(err.message)
                 }
-                return res.send({success: true, message: "reservation modified"});
+                return res.send("reservation modified");
               })
             });
           });
         } else {
-          return res.send({success: true, message: "reservation modified"});
+          return res.send("reservation modified");
         }
       }
     });
@@ -174,18 +174,18 @@ export class ReservationController {
 
     const newStatus: string = req.body.status;
     if (newStatus !== "approved" && newStatus !== "removed") {
-      return res.status(401).send({success: false, message: `invalid status: ${newStatus}`});
+      return res.status(401).send(`invalid status: ${newStatus}`);
     }
     
     const user = (req as any).user;
 
     ReservationModel.findById(req.params.id, (err, reserv) => {
       if (err) {
-        return res.send({success: false, message: err.message});
+        return res.status(500).send(err.message);
       }
 
       if (reserv.status === "removed") {
-        return res.status(401).send({success: false, message: "reservation already removed"});
+        return res.status(401).send("reservation already removed");
       }
 
       (req as any).reserv = reserv;
@@ -197,29 +197,29 @@ export class ReservationController {
       }
 
       if (user.role === "auth") {
-        return res.status(401).send({success: false, message: "user not authorized"});  
+        return res.status(401).send("user not authorized");
       }
 
       if (reserv.status === "approved" && newStatus === "approved") {
-        return res.send({success: false, message: "reservation already approved"});
+        return res.send("reservation already approved");
       }
       
       if (reserv.status === "pending" && newStatus === "removed") {
-        return res.send({success: false, message: "cannot remove a pending reservation"})
+        return res.send("cannot remove a pending reservation");
       }
       
       RoomModel.findById(reserv.room, "department", (err, room) => {
         if (err) {
-          return res.send({success: false, message: err.message});
+          return res.status(500).send(err.message);
         }
 
         DepartmentModel.findById(room.department, "user", (err, dep) => {
           if (err) {
-            return res.send({success: false, message: err.message});
+            return res.status(500).send(err.message);
           }
           
           if (dep.user.toString() !== user.sub) {
-            return res.status(401).send({success: false, message: "user not authorized"});
+            return res.status(401).send("user not authorized");
           }
           next();
         });
@@ -239,23 +239,23 @@ export class ReservationController {
 
     ReservationModel.findOne({_id: id, user: (req as any).user.sub}, (err, reserv) => {
       if (err) {
-        return res.send({success: false, message: err.message});
+        return res.status(500).send(err.message);
       }
       
       if (!reserv) {
-        return res.send({success: false, message: "reservation not found"});
+        return res.send("reservation not found");
       }
       
       if (reserv.status === "pending") {
         reserv.remove((err) => {
           if (err) {
-            return res.send({success: false, message: err.message});
+            return res.status(500).send(err.message);
           }
-          res.send({success: true, item: reserv});
+          res.send(reserv);
         });
         
       } else {
-        res.status(401).send({success: false, message: "user not authorized"});
+        res.status(401).send("user not authorized");
       }
     });
   }

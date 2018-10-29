@@ -30,6 +30,13 @@ export class App {
     
     const staticPath = path.join(__dirname, '../storage');
     this.app.use(express.static(staticPath));
+
+    // testb
+    // fake delay
+    this.app.use((req, res, next) => {
+      setTimeout(next, 3000);
+    });
+    // teste
   }
   
 }
