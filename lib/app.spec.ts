@@ -21,7 +21,7 @@ describe("app", () => {
 
   beforeAll(async () => {
     mongoose.Promise = Promise;
-    const mongoURI = "mongodb://test:test@localhost:27017/raTest";
+    const mongoURI = "mongodb://raTests:raTests@localhost:27017/raTests";
     app = new App().app;
     mongoose.connect(mongoURI, {useNewUrlParser: true});
     
