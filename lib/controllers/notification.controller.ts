@@ -6,7 +6,7 @@ export class NotificationController {
   getCurrentUserNotifications(req: Request, res: Response) {
     UserModel.findById((req as any).user.sub, "notifications", (err, user) => {
       if (err) {
-        return res.status(500).send(err.message);
+        return res.status(500).send({message: err.message});
       }
 
       res.send(user.notifications);
@@ -16,7 +16,7 @@ export class NotificationController {
   markNotificationsAsRead(req: Request, res: Response) {
     UserModel.findById((req as any).user.sub, "notifications", (err, user) => {
       if (err) {
-        return res.status(500).send(err.message);
+        return res.status(500).send({message: err.message});
       }
 
       for(let notifi of user.notifications) {
@@ -25,10 +25,10 @@ export class NotificationController {
 
       user.save((err) => {
         if (err) {
-          return res.status(500).send(err.message);
+          return res.status(500).send({message: err.message});
         }
         
-        res.send("notifications modified");
+        res.send({message: "notifications modified"});
       });
       
     });
