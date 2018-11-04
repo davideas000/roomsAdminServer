@@ -54,8 +54,8 @@ export class ReservationController {
   newReservation(req: Request, res: Response) {
     const temp = {
       reason: req.body.reason,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
+      startDate: req.body.startDate + 'T00:00:00',
+      endDate: req.body.endDate + 'T00:00:00',
       startTime: ReservationController.timeToDate(req.body.startTime),
       endTime: ReservationController.timeToDate(req.body.endTime),
       code: req.body.code,
