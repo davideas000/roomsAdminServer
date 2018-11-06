@@ -7,7 +7,8 @@
     "build": "tsc",
     "dev": "ts-node lib/server",
     "test": "jest",
-    "lint": "tslint"
+    "lint": "tslint",
+    "postinstall": "tsc"
   },
   "author": "'david endrew'",
   "license": "MIT",
