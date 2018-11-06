@@ -26,17 +26,13 @@ export class App {
   config(): void {
     this.app.use(cors());
     this.app.use(bodyParser.json());
-    this.app.use(morgan('dev')); // $$$$dddd
+    
+    if (process.env.NODE_ENV === 'dev') {
+      this.app.use(morgan('dev'));
+    }
     
     const staticPath = path.join(__dirname, '../storage');
     this.app.use(express.static(staticPath));
-
-    // testb
-    // fake delay
-    this.app.use((req, res, next) => {
-      setTimeout(next, 3000);
-    });
-    // teste
   }
   
 }
