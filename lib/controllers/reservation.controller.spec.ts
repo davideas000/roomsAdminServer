@@ -83,18 +83,20 @@ describe("ReservationController", () => {
        expect(res.send).toHaveBeenCalledWith(reservsStub);
      });
 
-  it("#getReservations?status=pending should run", () => {
+  it("#getReservations() should return pending reservs when status=pending", () => {
     let req = new Req();
     let res = new Res();
     req.query = {status: "pending"};
-    
+
+    const resvsStub = [{_id: 're01'}, {_id: 're02'}];
+    ReservationModel.exec = jest.fn((callback) => callback(null, resvsStub));
     instance.getReservations(req, res);
     
     expect(ReservationModel.find).toHaveBeenCalledTimes(1);
     expect(ReservationModel.find).toHaveBeenCalledWith({user: "userid", status: "pending"});
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: true, result: {status: "pending"}});
+    expect(res.send).toHaveBeenCalledWith(resvsStub);
   });
 
   it("#getReservations?status=pending should run", () => {
