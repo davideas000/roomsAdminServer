@@ -29,7 +29,7 @@ describe("NotificationController", () => {
     res = new Res();
   })
 
-  it("#getCurrentUserReservations() should return current user notifications", () => {
+  it("#getCurrentUserNotifications() should return current user notifications", () => {
 
     req.user = {sub: "userid001"};
     res.status = jest.fn();
@@ -49,7 +49,7 @@ describe("NotificationController", () => {
     expect(UserModel.findById).toHaveBeenCalledWith(
       req.user.sub, "notifications", expect.any(Function));
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: true, result: userStub.notifications});
+    expect(res.send).toHaveBeenCalledWith(userStub.notifications);
     
   });
   
