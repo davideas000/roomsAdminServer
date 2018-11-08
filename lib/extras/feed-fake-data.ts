@@ -39,7 +39,9 @@ async function initializeDB () {
   ];
 
   const deps = await DepartmentModel.insertMany(depsTest);
-
+  const serverUrl = 'https://ra-server.herokuapp.com';
+  const localUrl = 'http://localhost:3000';
+  
   const roomsTest = [
     { // 0
       name: 'sala 100',
@@ -50,9 +52,9 @@ async function initializeDB () {
       type: 'sala',
       department: deps[0]._id,
       photos: [
-        'http://localhost:3000/img-1.png',
-        'http://localhost:3000/img-2.png',
-        'http://localhost:3000/img-3.png'
+        process.env.MONGODB_URI ? `${serverUrl}/room1.jpg` : `${localUrl}/room1.jpg`,
+        process.env.MONGODB_URI ? `${serverUrl}/room2.jpg` : `${localUrl}/room2.jpg`,
+        process.env.MONGODB_URI ? `${serverUrl}/room3.jpg` : `${localUrl}/room3.jpg`
       ]
     },
     
@@ -65,9 +67,9 @@ async function initializeDB () {
       type: 'laboratorio',
       department: deps[0]._id,
       photos: [
-        'http://localhost:3000/lab1.jpg',
-        'http://localhost:3000/lab2.jpg',
-        'http://localhost:3000/lab3.jpg'
+        process.env.MONGODB_URI ? `${serverUrl}/lab1.jpg` : `${localUrl}/lab1.jpg`,
+        process.env.MONGODB_URI ? `${serverUrl}/lab2.jpg` : `${localUrl}/lab2.jpg`,
+        process.env.MONGODB_URI ? `${serverUrl}/lab3.jpg` : `${localUrl}/lab3.jpg`
       ]
     },
     

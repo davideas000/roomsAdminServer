@@ -18,13 +18,16 @@ const fakeNotifications = [
   }
 ];
 
+const serverUrl = 'https://ra-server.herokuapp.com';
+const localUrl = 'http://localhost:3000';
+
 const user = new UserModel({
   name: "david az",
   displayName: "endrew",
   email: "david.edews@gmail.com",
   password: "dddddddd",
   role: "auth",
-  photoURL: 'http://localhost:3000/user-1.png'
+  photoURL: process.env.MONGODB_URI ? `${serverUrl}/user-1.png` : `${localUrl}/user-1.png`
 });
 
 user.notifications.push(fakeNotifications[0]);
