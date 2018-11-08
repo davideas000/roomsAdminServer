@@ -16,7 +16,7 @@ export class ReservationController {
   /////////////////////////////////////////////////
 
   static timeToDate(time: string): Date {
-    return new Date(`2018-01-01T${time}`);
+    return new Date(`2018-01-01T${time}+0000`);
   }
   
   getReservations(req: Request, res: Response) {
@@ -54,8 +54,8 @@ export class ReservationController {
   newReservation(req: Request, res: Response) {
     const temp = {
       reason: req.body.reason,
-      startDate: req.body.startDate + 'T00:00:00',
-      endDate: req.body.endDate + 'T00:00:00',
+      startDate: req.body.startDate + 'T00:00:00+0000',
+      endDate: req.body.endDate + 'T00:00:00+0000',
       startTime: ReservationController.timeToDate(req.body.startTime),
       endTime: ReservationController.timeToDate(req.body.endTime),
       code: req.body.code,
