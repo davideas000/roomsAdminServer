@@ -28,7 +28,7 @@ describe('DepartmentController', () => {
     instance = new DepartmentController();
   });
 
-  it('#getAcronyms() should return department acronyms', () => {
+  it('#getDeps() should return department acronyms', () => {
     const depsStub = [{acronym: 'IEG'}, {acronym: 'IOG'}, {acronym: 'IUG'}];
     DepartmentModel.find = jest.fn((query, projec, callback) => callback(null, depsStub));
     instance.getDeps(req, res);
@@ -36,10 +36,7 @@ describe('DepartmentController', () => {
     expect(DepartmentModel.find).toHaveBeenCalledTimes(1);
     expect(DepartmentModel.find).toHaveBeenCalledWith({}, 'name acronym', expect.any(Function));
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith(
-      {success: true,
-       result: depsStub}
-    );
+    expect(res.send).toHaveBeenCalledWith(depsStub);
   });
   
   it('#getAcronyms() should return a 500 status code on error', () => {
