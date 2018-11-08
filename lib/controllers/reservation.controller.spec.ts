@@ -99,10 +99,13 @@ describe("ReservationController", () => {
     expect(res.send).toHaveBeenCalledWith(resvsStub);
   });
 
-  it("#getReservations?status=pending should run", () => {
+  it("#getReservations() should search for removed reservs when status=removed", () => {
     let req = new Req();
     let res = new Res();
     req.query = {status: "removed"};
+    
+    const resvsStub = [{_id: 're01'}, {_id: 're02'}];
+    ReservationModel.exec = jest.fn((callback) => callback(null, resvsStub));
     
     instance.getReservations(req, res);
     
@@ -110,7 +113,7 @@ describe("ReservationController", () => {
     expect(ReservationModel.find).toHaveBeenCalledWith({user: "userid", status: "removed"});
                                     
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: true, result: {status: "pending"}});
+    expect(res.send).toHaveBeenCalledWith(resvsStub);
   });
 
   it("#deleteReservation#/:id should remove pending reservations from database", () => {
