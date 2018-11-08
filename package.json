@@ -2,6 +2,9 @@
   "name": "rooms-admin-server",
   "private": true,
   "version": "1.0.0",
+  "engines": {
+    "node": "10.x"
+  },
   "scripts": {
     "start": "node dist/server",
     "build": "tsc",
