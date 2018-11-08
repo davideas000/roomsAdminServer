@@ -207,8 +207,8 @@ describe('RoomController', () => {
     expect(RoomModel.populate).toHaveBeenCalledWith('department');
   });
 
-  // FIXME: english spell check
-  it('#findRoomsAndExclude() should not send rooms with id specified in the excludes array',
+  it('#findRoomsAndExclude() should not send rooms with the id specified ' +
+     'in the excludes array',
      () => {
        const roomsStub = [
          {_id: 'room01'},
@@ -219,11 +219,15 @@ describe('RoomController', () => {
        RoomModel.populate = jest.fn((m) => RoomModel);
        RoomModel.find = jest.fn((q) => RoomModel);
        
-       res.locals.excludes = ['room01', 'room03'];
+       res.locals = {
+         excludes: ['room01', 'room03']
+       }
+
+       req.query = {};
 
        instance.findRoomsAndExclude(req, res);
        expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({success: true, result: [roomsStub[1]]});
+       expect(res.send).toHaveBeenCalledWith([roomsStub[1]]);
        expect(RoomModel.populate).toHaveBeenCalledTimes(1);
        expect(RoomModel.populate).toHaveBeenCalledWith('department');
      });
