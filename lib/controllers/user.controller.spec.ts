@@ -37,18 +37,18 @@ describe("UserController", () => {
     expect(instance).toBeDefined();
   });
 
-  it("#getCurrentUser() should return current logged user", () => {
+  it("#getCurrentUser() should search for the currently logged in user", () => {
     const userStub = {name: "temp", email: "temp@example.com"};
     UserModel.findById = jest.fn((id, projec, callback) => {callback(null, userStub)});
     instance.getCurrentUser(req, res);
-
+    
     expect(UserModel.findById).toHaveBeenCalledTimes(1);
     expect(UserModel.findById).toHaveBeenCalledWith(
       (req as any).user.sub, "name displayName email photoURL role",
       expect.any(Function));
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: true, result: userStub});
+    expect(res.send).toHaveBeenCalledWith(userStub);
     
   });
   
