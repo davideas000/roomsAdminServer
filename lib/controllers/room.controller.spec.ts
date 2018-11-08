@@ -130,7 +130,7 @@ describe('RoomController', () => {
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: false, message: errorStub.message});
+    expect(res.send).toHaveBeenCalledWith({message: errorStub.message});
     expect(res.locals.excludes).toBeUndefined();
   });
 
