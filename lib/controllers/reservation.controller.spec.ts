@@ -143,13 +143,26 @@ describe("ReservationController", () => {
 
     const newReservStubData: any = {
       reason: "alguma coisa",
-      startDate: new Date(),
-      endDate: new Date(),
-      startTime: new Date(),
-      endTime: new Date(),
+      startDate: '2018-11-01',
+      endDate: '2018-11-11',
+      startTime: '08:00',
+      endTime: '12:00',
       code: 22,
       sequence: 1,
       room: "roomId01"
+    };
+
+    const newReservStubExpected: any = {
+      reason: 'alguma coisa',
+      startDate: '2018-11-01T00:00:00+0000',
+      endDate: '2018-11-11T00:00:00+0000',
+      startTime: ReservationController.timeToDate('08:00'),
+      endTime: ReservationController.timeToDate('12:00'),
+      code: 22,
+      sequence: 1,
+      room: 'roomId01',
+      status: 'pending',
+      user: (req as any).user.sub
     };
     
     req.body = newReservStubData;
@@ -175,7 +188,7 @@ describe("ReservationController", () => {
     newReservStubData.status = "pending";
     
     expect(ReservationModel).toHaveBeenCalledTimes(1);
-    expect(ReservationModel).toHaveBeenCalledWith(newReservStubData);
+    expect(ReservationModel).toHaveBeenCalledWith(newReservStubExpected);
     expect(mockFindOverlappingReservation).toHaveBeenCalledTimes(1);
     expect(mockFindOverlappingReservation).toHaveBeenCalledWith(expect.any(Function));
 
@@ -183,7 +196,7 @@ describe("ReservationController", () => {
     expect(mockSave).toHaveBeenCalledWith(expect.any(Function));
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: true, item: newReservStubData});
+    expect(res.send).toHaveBeenCalledWith(newReservStubData);
   });
 
   it(
