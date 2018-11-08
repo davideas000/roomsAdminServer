@@ -199,20 +199,38 @@ describe("ReservationController", () => {
     expect(res.send).toHaveBeenCalledWith(newReservStubData);
   });
 
-  it(
-    "#newReservation() should not create a new reservation if it conflits with another reservation",
-    () => {
+  it('#newReservation() should not create a new reservation '
+     + 'if it conflits with an existing reservation', () => {
 
       let req = new Req();
       let res = new Res();
 
-      const newReservStubData: any = {
-        startDate: new Date(),
-        endDate: new Date(),
-        startTime: new Date(),
-        endTime: new Date(),
-        room: "roomId01"
-      };
+       res.status = jest.fn();
+       (res.status as any).mockReturnValue(res);
+
+       const newReservStubData: any = {
+         reason: "blud",
+         code: '0',
+         sequence: '0',
+         startDate: '2018-11-02',
+         endDate: '2018-11-02',
+         startTime: '01:00',
+         endTime: '04:00',
+         room: "roomId01"
+       };
+
+       const newReservStubExpected: any = {
+         reason: "blud",
+         code: '0',
+         sequence: '0',
+         startDate: '2018-11-02T00:00:00+0000',
+         endDate: '2018-11-02T00:00:00+0000',
+         startTime: ReservationController.timeToDate('01:00'),
+         endTime: ReservationController.timeToDate('04:00'),
+         room: "roomId01",
+         user: (req as any).user.sub,
+         status: 'pending'
+       };
       
       req.body = newReservStubData;
 
@@ -233,16 +251,13 @@ describe("ReservationController", () => {
       
       instance.newReservation(req, res);
 
-      newReservStubData.user = (req as any).user.sub;
-      newReservStubData.status = "pending";
-      
       expect(ReservationModel).toHaveBeenCalledTimes(1);
-      expect(ReservationModel).toHaveBeenCalledWith(newReservStubData);
+      expect(ReservationModel).toHaveBeenCalledWith(newReservStubExpected);
       expect(mockFindOverlappingReservation).toHaveBeenCalledTimes(1);
       expect(mockFindOverlappingReservation).toHaveBeenCalledWith(expect.any(Function));
 
       expect(res.send).toHaveBeenCalledTimes(1);
-      expect(res.send).toHaveBeenCalledWith({success: false, message: "overlapping-reservation"});
+      expect(res.send).toHaveBeenCalledWith({message: "overlapping-reservation"});
     }
   );
   
