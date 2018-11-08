@@ -37,16 +37,16 @@ describe('RoomController', () => {
   });
 
   it('#getTypes() should return room types', () => {
-    const resultStub = [{type: 'room'}, {type: 'lab'}];
+    const resultStub = [{type: 'room'}, {type: 'lab'},
+                        {type: 'room'}, {type: 'lab'}];
     RoomModel.find = jest.fn((q, p, callback) => callback(null, resultStub));
     instance.getTypes(req, res);
     expect(RoomModel.find).toHaveBeenCalledTimes(1);
     expect(RoomModel.find).toHaveBeenCalledWith({}, 'type', expect.any(Function));
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({
-      success: true,
-      result: [resultStub[0].type, resultStub[1].type]
-    });
+    expect(res.send).toHaveBeenCalledWith(
+      [resultStub[0].type, resultStub[1].type]
+    );
   });
 
   // FIXME: spell check
