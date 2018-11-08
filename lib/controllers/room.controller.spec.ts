@@ -151,9 +151,8 @@ describe('RoomController', () => {
          });
      });
 
-  // FIXME: english spell check
   it('#findRoomsAndExclude() without any query parameters '
-     + 'and with excludes array empty should send all rooms', () => {
+     + 'and with the excludes array empty should return all the rooms', () => {
        const roomsStub = [
          {_id: 'room01'},
          {_id: 'room02'},
@@ -163,6 +162,8 @@ describe('RoomController', () => {
        RoomModel.populate = jest.fn((m) => RoomModel);
        RoomModel.find = jest.fn((q) => RoomModel);
 
+       req.query = {};          // without any query parameters
+       res.locals = {};         // without excludes
        instance.findRoomsAndExclude(req, res);
        expect(RoomModel.find).toHaveBeenCalledTimes(1);
        expect(RoomModel.find).toHaveBeenCalledWith(
@@ -175,7 +176,7 @@ describe('RoomController', () => {
        expect(RoomModel.populate).toHaveBeenCalledWith('department');
 
        expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({success: true, result: roomsStub});
+       expect(res.send).toHaveBeenCalledWith(roomsStub);
      });
 
   // FIXME: english spell check
