@@ -39,7 +39,7 @@ describe('DepartmentController', () => {
     expect(res.send).toHaveBeenCalledWith(depsStub);
   });
   
-  it('#getAcronyms() should return a 500 status code on error', () => {
+  it('#getDeps() should return a 500 status code on error', () => {
     const errorStub = {message: 'server error'};
     DepartmentModel.find = jest.fn((query, projec, callback) => callback(errorStub, null));
     instance.getDeps(req, res);
@@ -47,7 +47,7 @@ describe('DepartmentController', () => {
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: false, message: errorStub.message});
+    expect(res.send).toHaveBeenCalledWith({message: errorStub.message});
   });
   
 });
