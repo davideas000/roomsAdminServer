@@ -414,7 +414,7 @@ describe("ReservationController", () => {
     expect(res.status).toHaveBeenCalledWith(401);
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: false, message: "invalid status: pending"});
+    expect(res.send).toHaveBeenCalledWith({message: "invalid status: pending"});
   });
 
   it("#validateUpdate() should let a user of the auth type remove " + 
