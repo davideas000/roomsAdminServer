@@ -392,7 +392,7 @@ describe("ReservationController", () => {
     expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
     
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({success: true, message: "reservation modified"});
+    expect(res.send).toHaveBeenCalledWith({message: "reservation modified"});
   });
 
   it("#validateUpdate() should not accept invalid status", () => {
