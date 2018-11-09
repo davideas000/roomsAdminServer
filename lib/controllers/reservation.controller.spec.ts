@@ -475,7 +475,7 @@ describe("ReservationController", () => {
        expect(mockNext).toHaveBeenCalledTimes(0);
        expect(res.status).toHaveBeenCalledTimes(1);
        expect(res.status).toHaveBeenCalledWith(401);
-       expect(res.send).toHaveBeenCalledWith({success: false, message: "user not authorized"});
+       expect(res.send).toHaveBeenCalledWith({message: "user not authorized"});
      });
 
   it("#validateUpdate() should let a user of the responsible type remove an approved " +
