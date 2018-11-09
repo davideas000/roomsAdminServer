@@ -650,7 +650,7 @@ describe("ReservationController", () => {
        expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
 
        expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({success: true, message: "reservation modified"});
+       expect(res.send).toHaveBeenCalledWith({message: "reservation modified"});
 
        // removing a reservation with a reason
        req.body.reason = "Motivo da remoção";
