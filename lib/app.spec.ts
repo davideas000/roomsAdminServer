@@ -370,15 +370,15 @@ describe("app", () => {
         .send(temp);
 
       expect(res.statusCode).toBe(422);
-      expect(res.body.errors[0].param).toEqual("reason");
-      expect(res.body.errors[1].param).toEqual("startDate");
-      expect(res.body.errors[2].param).toEqual("endDate");
-      expect(res.body.errors[3].param).toEqual("startTime");
-      expect(res.body.errors[4].param).toEqual("endTime");
-      expect(res.body.errors[5].param).toEqual("code");
-      expect(res.body.errors[6].param).toEqual("sequence");
-      expect(res.body.errors[7].param).toEqual("room");
-      expect(res.body.errors[7].msg).toEqual(
+      expect(res.body[0].param).toEqual("reason");
+      expect(res.body[1].param).toEqual("startDate");
+      expect(res.body[2].param).toEqual("endDate");
+      expect(res.body[3].param).toEqual("startTime");
+      expect(res.body[4].param).toEqual("endTime");
+      expect(res.body[5].param).toEqual("code");
+      expect(res.body[6].param).toEqual("sequence");
+      expect(res.body[7].param).toEqual("room");
+      expect(res.body[7].msg).toEqual(
         "Cast to ObjectId failed for value \"rrfldças\" at path \"_id\" for model \"Room\"");
 
       delete temp.room;
@@ -386,8 +386,8 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
-      expect(res.body.errors[7].param).toEqual("room");
-      expect(res.body.errors[7].msg).toEqual("Invalid value");
+      expect(res.body[7].param).toEqual("room");
+      expect(res.body[7].msg).toEqual("Invalid value");
     });
 
     it(
