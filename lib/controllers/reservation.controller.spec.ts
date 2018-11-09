@@ -746,9 +746,9 @@ describe("ReservationController", () => {
        
      });
 
-  it('#formatTime() should return a date with the specified time', () => {
+  it('#timeToDate() should return a date with the specified time', () => {
     const result = ReservationController.timeToDate('12:00');
-    expect(result).toEqual(new Date('2018-01-01T12:00'));
+    expect(result).toEqual(new Date('2018-01-01T12:00:00+0000'));
   });
   
 });
