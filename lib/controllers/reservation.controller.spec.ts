@@ -695,7 +695,7 @@ describe("ReservationController", () => {
        expect(UserModel.findById).toHaveBeenCalledTimes(0);
 
        expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({success: true, message: "reservation modified"});
+       expect(res.send).toHaveBeenCalledWith({message: "reservation modified"});
 
        expect(userStub.notifications.length).toBe(0);
        expect(userStub.save).toHaveBeenCalledTimes(0);
