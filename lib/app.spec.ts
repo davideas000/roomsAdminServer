@@ -256,9 +256,8 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(0);
-         expect(res.body.result).toEqual([]);
+         expect(res.body.length).toBe(0);
+         expect(res.body).toEqual([]);
        });
 
     it("GET ?status=approved, should return list of approved reservations of the current user", async () => {
