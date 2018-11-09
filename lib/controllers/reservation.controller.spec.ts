@@ -261,7 +261,7 @@ describe("ReservationController", () => {
     }
   );
   
-  it("#validateNewReservation() should validate incoming reservation data", () => {
+  it("#validateNew() should validate incoming reservation data", () => {
     
     const stubData = {
       req: {
@@ -282,7 +282,8 @@ describe("ReservationController", () => {
     const mockIsInt = jest.fn();
     const mockOptional = jest.fn(() => {return{isString: mockIsString, isInt: mockIsInt}});
     const mockIsISO8601 = jest.fn();
-    const mockBody = jest.fn(() => {return {optional: mockOptional, isISO8601: mockIsISO8601, isString: mockIsString}});
+    const mockMatches = jest.fn();
+    const mockBody = jest.fn(() => {return {optional: mockOptional, isISO8601: mockIsISO8601, isString: mockIsString, matches: mockMatches}});
     (validator as any).body = mockBody;
     instance.validateNew();
 
@@ -305,7 +306,8 @@ describe("ReservationController", () => {
     expect(mockIsEmpty).toHaveBeenCalledTimes(1);
     expect(mockTrim).toHaveBeenCalledTimes(1);
     expect(mockEscape).toHaveBeenCalledTimes(1);
-    expect(mockIsISO8601).toHaveBeenCalledTimes(4);
+    expect(mockIsISO8601).toHaveBeenCalledTimes(2);
+    expect(mockMatches).toHaveBeenCalledTimes(2);
     expect(mockIsInt).toHaveBeenCalledTimes(2);
     expect(mockIsInt).toHaveBeenCalledWith({min: 0});
     expect(mockCustom).toHaveBeenCalledTimes(1);
