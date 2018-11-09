@@ -265,9 +265,9 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.result.length).toBe(1);
+      expect(res.body.length).toBe(1);
       
-      for(let v of res.body.result) {
+      for(let v of res.body) {
         expect(v.user).toBe(userProfile._id);
         expect(v.status).toBe("approved");
         expect(v.room._id).toBeDefined();
@@ -288,9 +288,9 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.result.length).toBe(1);
+      expect(res.body.length).toBe(1);
       
-      for(let v of res.body.result) {
+      for(let v of res.body) {
         expect(v.user).toBe(userProfile._id);
         expect(v.status).toBe("pending");
         expect(v.room._id).toBeDefined();
@@ -304,7 +304,7 @@ describe("app", () => {
         expect(v.room.department.updatedAt).toBeDefined();
       }
 
-      expect(res.body.result[0].room._id).toBe(roomsSamples[2]._id.toString());
+      expect(res.body[0].room._id).toBe(roomsSamples[2]._id.toString());
     });
 
     it("GET ?status=removed, should return list of removed reservations of the current user", async () => {
@@ -313,9 +313,9 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.result.length).toBe(1);
+      expect(res.body.length).toBe(1);
       
-      for(let v of res.body.result) {
+      for(let v of res.body) {
         expect(v.user).toBe(userProfile._id);
         expect(v.status).toBe("removed");
         expect(v.room._id).toBeDefined();
@@ -329,7 +329,7 @@ describe("app", () => {
         expect(v.room.department.updatedAt).toBeDefined();
       }
 
-      expect(res.body.result[0].room._id).toBe(roomsSamples[1]._id.toString());
+      expect(res.body[0].room._id).toBe(roomsSamples[1]._id.toString());
     });
 
   });
@@ -425,7 +425,6 @@ describe("app", () => {
           .send(temp);
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("overlapping-reservation");
 
         // second test
@@ -441,7 +440,6 @@ describe("app", () => {
           .send(temp);
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("overlapping-reservation");
 
         // third test
@@ -457,7 +455,6 @@ describe("app", () => {
           .send(temp);
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("overlapping-reservation");
       });
 
@@ -482,7 +479,6 @@ describe("app", () => {
       let r = res.body.item;
 
       expect(res.status).toBe(200)
-      expect(res.body.success).toBe(true);
       expect(r.reason).toBe(temp.reason);
       expect(new Date(r.startDate)).toEqual(temp.startDate);
       expect(new Date(r.endDate)).toEqual(temp.endDate);
@@ -514,7 +510,6 @@ describe("app", () => {
       r = res.body.item;
 
       expect(res.status).toBe(200)
-      expect(res.body.success).toBe(true);
       expect(r.reason).toBeUndefined();
       expect(new Date(r.startDate)).toEqual(temp.startDate);
       expect(new Date(r.endDate)).toEqual(temp.endDate);
@@ -546,7 +541,6 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(false);
         expect(res.body.message).toBe(
           "Cast to ObjectId failed for value \"fkldjsfç\" at path \"_id\" for model \"Reservation\"");
       });
@@ -558,7 +552,6 @@ describe("app", () => {
              .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
 
            expect(res.statusCode).toBe(401);
-           expect(res.body.success).toBe(false);
            expect(res.body.message).toBe("user not authorized");
          });
       
@@ -580,14 +573,12 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "approvedp"});
 
-        expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("invalid status: approvedp");
 
         res = await request(app).put(`/reservation/${reservSamples[4]._id}`)
           .set("Authorization", `Bearer ${authToken}`)
           .send({status: "removid"});
 
-        expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("invalid status: removid");
       });
 
@@ -602,7 +593,6 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "approved"});
 
-        expect(res.body.success).toBe(true);
         expect(res.body.message).toBe("reservation modified");
       });
 
@@ -615,7 +605,6 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "removed"});
 
-        expect(res.body.success).toBe(true);
         expect(res.body.message).toBe("reservation modified");
 
         // a user can mark as removed an approved reservation that belongs to himself
@@ -623,7 +612,6 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "removed"});
 
-        expect(res.body.success).toBe(true);
         expect(res.body.message).toBe("reservation modified");
         
       });
@@ -638,7 +626,6 @@ describe("app", () => {
             .set("Authorization", `Bearer ${authTokenResponsible}`)
             .send({status: "approved"});
 
-          expect(res.body.success).toBe(false);
           expect(res.body.message).toBe("user not authorized");
         });
       
@@ -648,7 +635,6 @@ describe("app", () => {
              .set("Authorization", `Bearer ${authTokenResponsible}`)
              .send({status: "removed"});
 
-           expect(res.body.success).toBe(false);
            expect(res.body.message).toBe("reservation already removed");
 
            // it should not be possible to approve a removed reservation
@@ -656,14 +642,12 @@ describe("app", () => {
              .set("Authorization", `Bearer ${authTokenResponsible}`)
              .send({status: "approved"});
 
-           expect(res.body.success).toBe(false);
            expect(res.body.message).toBe("reservation already removed");
 
            res = await request(app).put(`/reservation/${reservSamples[0]._id}`)
              .set("Authorization", `Bearer ${authTokenResponsible}`)
              .send({status: "approved"});
            
-           expect(res.body.success).toBe(false);
            expect(res.body.message).toBe("reservation already approved");
 
          });
@@ -673,7 +657,6 @@ describe("app", () => {
            let res = await request(app).put(`/reservation/${reservSamples[1]._id}`)
              .set("Authorization", `Bearer ${authTokenResponsible}`)
              .send({status: "removed"});
-           expect(res.body.success).toBe(false);
            expect(res.body.message).toBe("cannot remove a pending reservation");
          });
 
@@ -687,7 +670,6 @@ describe("app", () => {
            let userTemp = await UserModel.findById(userProfile._id);
            
            expect(res.statusCode).toBe(200);
-           expect(res.body.success).toBe(true);
            expect(res.body.message).toBe("reservation modified");
 
            const roomName = "laboratorio 102";
@@ -710,7 +692,6 @@ describe("app", () => {
            
            expect(res.statusCode).toBe(200);
            expect(res.body.message).toBe("reservation modified");
-           expect(res.body.success).toBe(true);
 
            const roomName = "laboratorio 102";
            expect(userTemp.notifications[0].message).toBe(
@@ -733,7 +714,6 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`)
           .send({status: "removed"});
         expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(true);
         expect(res.body.message).toBe("reservation modified");
       });
       
@@ -742,7 +722,6 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`)
           .send({status: "approved"});
         expect(res.statusCode).toBe(401);
-        expect(res.body.success).toBe(false);
         expect(res.body.message).toBe("user not authorized");
       });
       
@@ -753,7 +732,6 @@ describe("app", () => {
         
         expect(res.body.message).toBe("reservation already removed");
         expect(res.statusCode).toBe(401);
-        expect(res.body.success).toBe(false);
       });
 
       it("should not let a user of the auth type modify others reservations", async () => {
@@ -763,7 +741,6 @@ describe("app", () => {
         
         expect(res.body.message).toBe("user not authorized");
         expect(res.statusCode).toBe(401);
-        expect(res.body.success).toBe(false);
 
       });
 
@@ -776,7 +753,6 @@ describe("app", () => {
 
            let userTemp = await UserModel.findById(userProfileResponsible._id);
            expect(res.statusCode).toBe(200);
-           expect(res.body.success).toBe(true);
            expect(res.body.message).toBe("reservation modified");
 
            expect(userTemp.notifications.length).toBe(0)
@@ -846,10 +822,9 @@ describe("app", () => {
         res = await request(app).get("/notifications")
           .set("Authorization", `Bearer ${authToken}`);
         
-        let notifications = res.body.result;
+        let notifications = res.body;
         
         expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(true);
         expect(notifications.length).toBe(2);
         expect(notifications[0].message).toBe("Reserva no espaço 'laboratorio 102' aprovada.");
         expect(notifications[0].status).toBe("unread");
@@ -864,11 +839,10 @@ describe("app", () => {
         res = await request(app).get("/notifications")
           .set("Authorization", `Bearer ${authTokenResponsible}`);
 
-        notifications = res.body.result;
+        notifications = res.body;
         const notifis = await UserModel.findById(userProfileResponsible._id, "notifications");
         
         expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(true);
         expect(notifications[0].message).toBe("Reserva no espaço 'laboratorio 102' aprovada.");
         expect(notifications[0].status).toBe("unread");
       });
@@ -890,7 +864,6 @@ describe("app", () => {
       const res = await request(app).put("/notifim")
         .set("Authorization", `Bearer ${authToken}`);
       expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
       expect(res.body.message).toBe("notifications modified");
       
       userTemp = await UserModel.findById(userProfile._id, "notifications");
@@ -908,9 +881,8 @@ describe("app", () => {
       const res = await request(app).get("/profile")
         .set("Authorization", `Bearer ${authToken}`);
 
-      expect(res.body.result).toEqual(userProfile);
+      expect(res.body).toEqual(userProfile);
       expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
     });
     
   });
@@ -921,9 +893,8 @@ describe("app", () => {
 
     let rtypes: any[] = await RoomModel.find({}, 'type');
     rtypes = rtypes.map((r) => r.type);
-    expect(res.body.result).toEqual(rtypes);
+    expect(res.body).toEqual(rtypes);
     expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
   });
 
   it('GET /dacronym should return department acronyms', async() => {
@@ -932,11 +903,10 @@ describe("app", () => {
 
     let deps: any[] = await DepartmentModel.find({}, 'name acronym');
     expect(res.statusCode).toBe(200);
-    expect(res.body.success).toBe(true);
     for(let i = 0; i < deps.length; i++) {
-      expect(res.body.result[i]._id).toBe(deps[i]._id.toString());
-      expect(res.body.result[i].acronym).toBe(deps[i].acronym);
-      expect(res.body.result[i].name).toBe(deps[i].name);
+      expect(res.body[i]._id).toBe(deps[i]._id.toString());
+      expect(res.body[i].acronym).toBe(deps[i].acronym);
+      expect(res.body[i].name).toBe(deps[i].name);
     }
   });
 
@@ -947,12 +917,11 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
       // this is the total of rooms in the tests database
-      expect(res.body.result.length).toBe(3);
-      expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
-      expect(res.body.result[1]._id).toBe(roomsSamples[1]._id.toString());
-      expect(res.body.result[2]._id).toBe(roomsSamples[2]._id.toString());  
+      expect(res.body.length).toBe(3);
+      expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
+      expect(res.body[1]._id).toBe(roomsSamples[1]._id.toString());
+      expect(res.body[2]._id).toBe(roomsSamples[2]._id.toString());  
     });
     
     it('?capacity=value should filter by room capacity', async() => {
@@ -961,10 +930,9 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`);
 
       expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.result.length).toBe(2);
-      expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
-      expect(res.body.result[1]._id).toBe(roomsSamples[2]._id.toString());
+      expect(res.body.length).toBe(2);
+      expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
+      expect(res.body[1]._id).toBe(roomsSamples[2]._id.toString());
     });
     
     it('?capacity=value&width=value should filter by room capacity '
@@ -974,9 +942,8 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+         expect(res.body.length).toBe(1);
+         expect(res.body[0]._id).toBe(roomsSamples[2]._id.toString());
        });
 
     it('?capacity=value&width=value should filter by room width ' +
@@ -986,10 +953,9 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(2);
-         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
-         expect(res.body.result[1]._id).toBe(roomsSamples[2]._id.toString());
+         expect(res.body.length).toBe(2);
+         expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body[1]._id).toBe(roomsSamples[2]._id.toString());
        });
     
     it('?length=value&department=depId should filter by room length ' +
@@ -999,9 +965,8 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body.length).toBe(1);
+         expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
        });
 
     it('?type=roomType&department=depId should filter by room type ' +
@@ -1012,9 +977,8 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[1]._id.toString());
+         expect(res.body.length).toBe(1);
+         expect(res.body[0]._id).toBe(roomsSamples[1]._id.toString());
        });
 
     // FIXME: english
@@ -1035,9 +999,8 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body.length).toBe(1);
+         expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
        });
 
     // FIXME: english
@@ -1058,9 +1021,8 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body.length).toBe(1);
+         expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
        });
 
     // FIXME: english
@@ -1079,9 +1041,8 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
          
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(1);
-         expect(res.body.result[0]._id).toBe(roomsSamples[2]._id.toString());
+         expect(res.body.length).toBe(1);
+         expect(res.body[0]._id).toBe(roomsSamples[2]._id.toString());
        });
 
     it('should not consider reservations marked as removed when searching for '
@@ -1098,10 +1059,9 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.success).toBe(true);
-         expect(res.body.result.length).toBe(2);
-         expect(res.body.result[0]._id).toBe(roomsSamples[0]._id.toString());
-         expect(res.body.result[1]._id).toBe(roomsSamples[1]._id.toString());
+         expect(res.body.length).toBe(2);
+         expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body[1]._id).toBe(roomsSamples[1]._id.toString());
        });
     
   });
