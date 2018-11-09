@@ -91,8 +91,8 @@ export class ReservationController {
       body("reason").optional().isString().not().isEmpty().trim().escape(),
       body("startDate").isISO8601(),
       body("endDate").isISO8601(),
-      // body("startTime").isISO8601(), // FIXME
-      // body("endTime").isISO8601(),   // FIXME
+      body("startTime").matches(/^\d{2}:\d{2}$/),
+      body("endTime").matches(/^\d{2}:\d{2}$/),
       body("code").optional().isInt({min: 0}),
       body("sequence").optional().isInt({min: 0}),
       body("room").isString().custom(this.checkRoomExistence),
