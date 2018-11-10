@@ -18,15 +18,20 @@ const reservationSchema = new Schema({
 }, {timestamps: true});
 
 reservationSchema.methods.findOverlappingReservations = function (callback) {
+  const query: any =  {
+    startDate: {$lte: this.endDate},
+    endDate: {$gte: this.startDate},
+    startTime: {$lt: this.endTime},
+    endTime: {$gt: this.startTime},
+    status: {$ne: "removed"}
+  };
+
+  if (this.room) {
+    query.room = this.room;
+  }
+  
   return this.model("Reservation").find(
-    {
-      room: this.room,
-      startDate: {$lte: this.endDate},
-      endDate: {$gte: this.startDate},
-      startTime: {$lt: this.endTime},
-      endTime: {$gt: this.startTime},
-      status: {$ne: "removed"}
-    },
+    query,
     callback
   );
 }
