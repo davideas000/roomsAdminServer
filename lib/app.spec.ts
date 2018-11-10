@@ -397,11 +397,11 @@ describe("app", () => {
           reason: "     aula de alguma coisa<scrip src=\"https://algumnaoids.com/js.js\"</script>",
           code: 3,
           sequence: 4,
-          startDate: new Date("2018-07-23T00:00:00"),
-          endDate: new Date("2018-11-30T00:00:00"),
-          startTime: new Date("2018-01-01T11:00:00"),
-          endTime: new Date("2018-01-01T18:00:00"),
-          room: roomsSamples[0]._id
+          startDate: "2018-07-23",
+          endDate: "2018-11-30",
+          startTime: "11:00",
+          endTime: "18:00",
+          room: roomsSamples[2]._id
         };
 
         // first test
@@ -429,10 +429,10 @@ describe("app", () => {
 
         // second test
         
-        temp.startDate = new Date("2018-08-23T00:00:00");
-        temp.endDate = new Date("2018-08-30T00:00:00");
-        temp.startTime = new Date("2018-01-01T17:00:00");
-        temp.endTime = new Date("2018-01-01T18:00:00");
+        temp.startDate = "2018-08-23";
+        temp.endDate = "2018-08-30";
+        temp.startTime = "17:00";
+        temp.endTime = "18:00";
         temp.room = roomsSamples[2]._id;
 
         res = await request(app).post("/reservation")
@@ -444,11 +444,11 @@ describe("app", () => {
 
         // third test
 
-        temp.startDate = new Date("2018-09-30T00:00:00");
-        temp.endDate = new Date("2018-10-30T00:00:00");
-        temp.startTime = new Date("2018-01-01T17:30:00");
-        temp.endTime = new Date("2018-01-01T20:30:00");
-        temp.room = roomsSamples[0]._id;
+        temp.startDate = "2019-09-30";
+        temp.endDate = "2019-12-30";
+        temp.startTime = "17:30";
+        temp.endTime = "20:30";
+        temp.room = roomsSamples[1]._id;
 
         res = await request(app).post("/reservation")
           .set("Authorization", `Bearer ${authToken}`)
@@ -464,10 +464,10 @@ describe("app", () => {
         reason: "aula de alguma coisa",
         code: 3,
         sequence: 4,
-        startDate: new Date("2018-08-23T00:00:00"),
-        endDate: new Date("2018-09-30T00:00:00"),
-        startTime: new Date("2018-01-01T18:00:00"),
-        endTime: new Date("2018-01-01T22:00:00"),
+        startDate: "2018-08-23",
+        endDate: "2018-09-30",
+        startTime: "18:00",
+        endTime: "22:00",
         room: roomsSamples[1]._id
       };
 
@@ -480,10 +480,10 @@ describe("app", () => {
 
       expect(res.status).toBe(200)
       expect(r.reason).toBe(temp.reason);
-      expect(new Date(r.startDate)).toEqual(temp.startDate);
-      expect(new Date(r.endDate)).toEqual(temp.endDate);
-      expect(new Date(r.startTime)).toEqual(temp.startTime);
-      expect(new Date(r.endTime)).toEqual(temp.endTime);
+      expect(new Date(r.startDate)).toEqual(new Date(temp.startDate + 'T00:00:00+0000'));
+      expect(new Date(r.endDate)).toEqual(new Date(temp.endDate + 'T00:00:00+0000'));
+      expect(new Date(r.startTime)).toEqual(ReservationController.timeToDate(temp.startTime));
+      expect(new Date(r.endTime)).toEqual(ReservationController.timeToDate(temp.endTime));
       expect(r.code).toBe(temp.code);
       expect(r.sequence).toBe(temp.sequence);
       expect(r.status).toBe("pending");
@@ -498,10 +498,10 @@ describe("app", () => {
       delete temp.reason;
       temp.room = roomsSamples[2]._id;
 
-      temp.startDate = new Date("2019-01-12T00:00:00");
-      temp.endDate = new Date("2018-05-30T00:00:00");
-      temp.startTime = new Date("2018-01-01T14:00:00");
-      temp.endTime = new Date("2018-01-01T15:30:00");
+      temp.startDate = "2019-01-12";
+      temp.endDate = "2018-05-30";
+      temp.startTime = "14:00";
+      temp.endTime = "15:30";
       
       res = await request(app).post("/reservation")
         .set("Authorization", `Bearer ${authToken}`)
@@ -511,10 +511,10 @@ describe("app", () => {
 
       expect(res.status).toBe(200)
       expect(r.reason).toBeUndefined();
-      expect(new Date(r.startDate)).toEqual(temp.startDate);
-      expect(new Date(r.endDate)).toEqual(temp.endDate);
-      expect(new Date(r.startTime)).toEqual(temp.startTime);
-      expect(new Date(r.endTime)).toEqual(temp.endTime);
+      expect(new Date(r.startDate)).toEqual(new Date(temp.startDate + 'T00:00:00+0000'));
+      expect(new Date(r.endDate)).toEqual(new Date(temp.endDate + 'T00:00:00+0000'));
+      expect(new Date(r.startTime)).toEqual(ReservationController.timeToDate(temp.startTime));
+      expect(new Date(r.endTime)).toEqual(ReservationController.timeToDate(temp.endTime));
       expect(r.code).toBeUndefined();
       expect(r.sequence).toBeUndefined();
       expect(r.status).toBe("pending");
