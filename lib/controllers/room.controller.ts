@@ -35,8 +35,8 @@ export class RoomController {
     if (startDate && endDate && startTime && endTime) {
       const tempreserv = new ReservationModel(
         {
-          startDate: startDate,
-          endDate: endDate,
+          startDate: startDate + 'T00:00:00+0000',
+          endDate: endDate + 'T00:00:00+0000',
           startTime: ReservationController.timeToDate(startTime),
           endTime: ReservationController.timeToDate(endTime),
         }
