@@ -124,10 +124,10 @@ describe("app", () => {
       
       { // 0
         reason: "por alguma coisa razão",
-        startDate: new Date("2018-08-23T00:00:00"),
-        endDate: new Date("2018-08-30T00:00:00"),
-        startTime: new Date("2018-01-01T08:15:00"),
-        endTime: new Date("2018-01-01T12:00:00"),
+        startDate: new Date("2018-08-23T00:00:00+0000"),
+        endDate: new Date("2018-08-30T00:00:00+0000"),
+        startTime: new Date("2018-01-01T08:15:00+0000"),
+        endTime: new Date("2018-01-01T12:00:00+0000"),
         code: 10,
         sequence: 1,
         status: 'approved',
@@ -136,10 +136,10 @@ describe("app", () => {
       },
       
       { // 1
-        startDate: new Date("2018-08-23T00:00:00"),
-        endDate: new Date("2018-09-30T00:00:00"),
-        startTime: new Date("2018-01-01T12:00:00"),
-        endTime: new Date("2018-01-01T18:00:00"),
+        startDate: new Date("2018-08-23T00:00:00+0000"),
+        endDate: new Date("2018-09-30T00:00:00+0000"),
+        startTime: new Date("2018-01-01T12:00:00+0000"),
+        endTime: new Date("2018-01-01T18:00:00+0000"),
         code: 19,
         status: 'pending',
         user: user._id,
@@ -148,10 +148,10 @@ describe("app", () => {
       
       { // 2
         reason: "por alguma outra coisa razão razão",
-        startDate: new Date("2018-08-27T00:00:00"),
-        endDate: new Date("2018-08-31T00:00:00"),
-        startTime: new Date("2018-01-01T08:00:00"),
-        endTime: new Date("2018-01-01T18:00:00"),
+        startDate: new Date("2018-08-27T00:00:00+0000"),
+        endDate: new Date("2018-08-31T00:00:00+0000"),
+        startTime: new Date("2018-01-01T08:00:00+0000"),
+        endTime: new Date("2018-01-01T18:00:00+0000"),
         sequence: 4,
         status: 'removed',
         user: user._id,
@@ -160,10 +160,10 @@ describe("app", () => {
       
       { // 3
         reason: "por alguma coisa razão. razão etc. etc.",
-        startDate: new Date("2018-08-27T00:00:00"),
-        endDate: new Date("2018-08-31T00:00:00"),
-        startTime: new Date("2018-01-01T08:00:00"),
-        endTime: new Date("2018-01-01T12:00:00"),
+        startDate: new Date("2018-08-27T00:00:00+0000"),
+        endDate: new Date("2018-08-31T00:00:00+0000"),
+        startTime: new Date("2018-01-01T08:00:00+0000"),
+        endTime: new Date("2018-01-01T12:00:00+0000"),
         code: 10,
         sequence: 1,
         status: 'pending',
@@ -173,10 +173,10 @@ describe("app", () => {
       
       { // 4
         reason: "por alguma outra coisa razão. balu, balu",
-        startDate: new Date("2018-09-01T00:00:00"),
-        endDate: new Date("2018-09-30T00:00:00"),
-        startTime: new Date("2018-01-01T08:00:00"),
-        endTime: new Date("2018-01-01T18:00:00"),
+        startDate: new Date("2018-09-01T00:00:00+0000"),
+        endDate: new Date("2018-09-30T00:00:00+0000"),
+        startTime: new Date("2018-01-01T08:00:00+0000"),
+        endTime: new Date("2018-01-01T18:00:00+0000"),
         code: 19,
         sequence: 2,
         status: 'removed',
@@ -186,10 +186,10 @@ describe("app", () => {
       
       { // 5
         reason: "por alguma outra coisa razão razão. etc sabe como é",
-        startDate: new Date("2019-11-01T00:00:00"),
-        endDate: new Date("2019-11-30T00:00:00"),
-        startTime: new Date("2018-01-01T08:00:00"),
-        endTime: new Date("2018-01-01T18:00:00"),
+        startDate: new Date("2019-11-01T00:00:00+0000"),
+        endDate: new Date("2019-11-30T00:00:00+0000"),
+        startTime: new Date("2018-01-01T08:00:00+0000"),
+        endTime: new Date("2018-01-01T18:00:00+0000"),
         code: 9,
         sequence: 4,
         status: 'approved',
@@ -199,10 +199,10 @@ describe("app", () => {
 
       { // 6
         reason: "por alguma outra coisa razão razão. etc sabe como é",
-        startDate: new Date("2019-10-01T00:00:00"),
-        endDate: new Date("2019-10-30T00:00:00"),
-        startTime: new Date("2018-01-01T08:00:00"),
-        endTime: new Date("2018-01-01T18:00:00"),
+        startDate: new Date("2019-10-01T00:00:00+0000"),
+        endDate: new Date("2019-10-30T00:00:00+0000"),
+        startTime: new Date("2018-01-01T08:00:00+0000"),
+        endTime: new Date("2018-01-01T18:00:00+0000"),
         code: 9,
         sequence: 4,
         status: 'pending',
