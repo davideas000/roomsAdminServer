@@ -424,7 +424,7 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`)
           .send(temp);
 
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe("overlapping-reservation");
 
         // second test
@@ -439,7 +439,7 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`)
           .send(temp);
 
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe("overlapping-reservation");
 
         // third test
@@ -454,7 +454,7 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`)
           .send(temp);
 
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(422);
         expect(res.body.message).toBe("overlapping-reservation");
       });
 
