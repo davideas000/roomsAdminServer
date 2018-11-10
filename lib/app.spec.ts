@@ -476,7 +476,7 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
-      let r = res.body.item;
+      let r = res.body;
 
       expect(res.status).toBe(200)
       expect(r.reason).toBe(temp.reason);
@@ -507,7 +507,7 @@ describe("app", () => {
         .set("Authorization", `Bearer ${authToken}`)
         .send(temp);
 
-      r = res.body.item;
+      r = res.body;
 
       expect(res.status).toBe(200)
       expect(r.reason).toBeUndefined();
@@ -560,8 +560,8 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
 
         expect(res.statusCode).toBe(200);
-        expect(res.body.item._id).toBe(reservSamples[1]._id.toString());
-        expect(res.body.item.status).toBe("pending");
+        expect(res.body._id).toBe(reservSamples[1]._id.toString());
+        expect(res.body.status).toBe("pending");
       });
       
     });
