@@ -540,7 +540,7 @@ describe("app", () => {
         const res = await request(app).delete(`/reservation/fkldjsfç`)
           .set("Authorization", `Bearer ${authToken}`).set("Accept", "application/json");
 
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(500);
         expect(res.body.message).toBe(
           "Cast to ObjectId failed for value \"fkldjsfç\" at path \"_id\" for model \"Reservation\"");
       });
