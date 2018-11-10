@@ -984,8 +984,8 @@ describe("app", () => {
     // FIXME: english
     it('should return only rooms that are not reserved in the specified date',
        async() => {
-         const startDate = new Date("2018-08-23T00:00:00");
-         const endDate = new Date("2018-08-30T00:00:00");
+         const startDate = "2018-08-23";
+         const endDate = "2018-08-30";
          const startTime = "08:15";
          const endTime = "12:00";
          
