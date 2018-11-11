@@ -58,8 +58,7 @@ describe("user", () => {
     expect(e.errors.email.message).toBe("Invalid email");
   });
 
-  // FIXME
-  xit("#photoURL should not accept a invalid url", async () => {
+  it("#photoURL should not accept a invalid url", async () => {
     const temp = {
       name: "david endrew",
       email: "davide@email.com",
@@ -73,7 +72,7 @@ describe("user", () => {
     expect(e.errors.photoURL).toBeTruthy();
     expect(e.errors.photoURL.message).toBe("Invalid url");
 
-    temp.photoURL = "https://example.com/img.png";
+    temp.photoURL = "https://www.example.com/img.png";
     user = new UserModel(temp);
     e = user.validateSync();
     expect(e).toBeFalsy();

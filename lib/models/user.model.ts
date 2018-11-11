@@ -17,10 +17,10 @@ const userSchema = new Schema({
   password: {type: String, required: true},
   photoURL: {
     type: String,
-    // match: [ FIXME
-    //   /^http?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
-    //   'Invalid url'
-    // ]
+    match: [ 
+      /^https*:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
+      'Invalid url'
+    ]
   },
   role: {
     type: String,
