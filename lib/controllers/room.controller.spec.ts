@@ -91,6 +91,8 @@ describe('RoomController', () => {
     expect(ReservationModel).toHaveBeenCalledTimes(1);
 
     const expecResult = req.query;
+    expecResult.startDate += 'T00:00:00+0000';
+    expecResult.endDate += 'T00:00:00+0000';
     expecResult.startTime = ReservationController.timeToDate(expecResult.startTime);
     expecResult.endTime = ReservationController.timeToDate(expecResult.endTime);
     expect(ReservationModel).toHaveBeenCalledWith(expecResult);
