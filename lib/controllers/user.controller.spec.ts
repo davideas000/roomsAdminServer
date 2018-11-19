@@ -103,5 +103,25 @@ describe("UserController", () => {
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({success: false, message: 'wrong-password'});
   });
+
+  // internal error
+  it('#login() should return an error when checkPassword() goes wrong', () => {
+    const userStub = {checkPassword: jest.fn(
+      (pass, callback) => callback({message: 'internal-error'}))};
+    UserModel.findOne = jest.fn((query, callback) => callback(null, userStub));
+    req.body = {email: 'email@email', password: 'pass'};
+    instance.login(req, res);
+
+    expect(UserModel.findOne).toHaveBeenCalledTimes(1);
+    expect(UserModel.findOne).toHaveBeenCalledWith(
+      {email: req.body.email}, expect.any(Function));
+    expect(userStub.checkPassword).toHaveBeenCalledTimes(1);
+    expect(userStub.checkPassword).toHaveBeenCalledWith(
+      req.body.password, expect.any(Function));
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send).toHaveBeenCalledWith({success: false, message: 'internal-error'});
+  });
   
 });
