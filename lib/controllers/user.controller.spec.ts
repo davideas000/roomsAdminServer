@@ -51,5 +51,15 @@ describe("UserController", () => {
     expect(res.send).toHaveBeenCalledWith(userStub);
     
   });
+
+  it('#login() should return a error if there is no email', () => {
+    req.body = {password: 'pass'};
+    instance.login(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send).toHaveBeenCalledWith({success: false, message: 'missing-email'});
+  });
   
 });
