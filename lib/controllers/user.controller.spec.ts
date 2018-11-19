@@ -1,6 +1,11 @@
 import { UserController } from "./user.controller";
 import { Request, Response } from "express";
 import { UserModel } from "../models/user.model";
+import * as jwt from 'jsonwebtoken';
+
+jest.mock('jsonwebtoken', () => {
+  return jest.fn();
+});
 
 jest.mock("../models/user.model", () => {
   return {
@@ -122,6 +127,40 @@ describe("UserController", () => {
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({success: false, message: 'internal-error'});
+  });
+
+  it('#login() should return a token when login goes well', () => {
+    const tokenStub = "token001";
+    jwt.sign = jest.fn(() => tokenStub);
+    const checkPassword = jest.fn(
+      (pass, callback) => callback(true));
+
+    const userStub = {
+      _id: 'userid001',
+      name: 'username',
+      displayName: 'displayname',
+      email: 'useremail',
+      photoURL: 'userphotourl',
+      role: 'userrole',
+      checkPassword: checkPassword
+    };
+    UserModel.findOne = jest.fn((query, callback) => callback(null, userStub));
+
+    req.body = {email: 'email@email', password: 'pass'};
+    instance.login(req, res);
+
+    delete userStub.checkPassword;
+
+    expect(UserModel.findOne).toHaveBeenCalledTimes(1);
+    expect(UserModel.findOne).toHaveBeenCalledWith(
+      {email: req.body.email}, expect.any(Function));
+    expect(checkPassword).toHaveBeenCalledTimes(1);
+    expect(checkPassword).toHaveBeenCalledWith(
+      req.body.password, expect.any(Function));
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send).toHaveBeenCalledWith(
+      {success: true, token: tokenStub, profile: userStub, expiresIn: 600000}
+    );
   });
   
 });
