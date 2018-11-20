@@ -18,6 +18,16 @@ export class ReservationController {
   static timeToDate(time: string): Date {
     return new Date(`2018-01-01T${time}+0000`);
   }
+
+  static countRvs(res: Response, cond: any) {
+    ReservationModel.countDocuments(cond)
+      .exec((err, count: number) => {
+        if (err) {
+          return res.status(500).send({message: err.message});
+        }
+        res.send({result: count});
+      });
+  }
   
   getReservations(req: Request, res: Response) {
     const status = req.query.status;
@@ -26,13 +36,7 @@ export class ReservationController {
     if (op) {
       switch(op) {
         case 'count':
-          ReservationModel.countDocuments({user: (req as any).user.sub, status: status})
-            .exec((err, count: number) => {
-              if (err) {
-                return res.status(500).send({message: err.message});
-              }
-              res.send({result: count});
-            });
+          ReservationController.countRvs(res, {user: (req as any).user.sub, status: status});
           break
       }
     } else {
