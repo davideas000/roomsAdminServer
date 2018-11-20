@@ -54,23 +54,11 @@ describe("app", () => {
 
     await userResponsible.save();
 
-    let res = await request(app).post("/login")
-      .send({email: "test@email.com", password: "super secret password"})
-      .set("Accept", "application/json");
-    authToken = res.body.token;
-    userProfile = res.body.profile;
-
-    res = await request(app).post("/login")
-      .send({email: "responsible@email.com", password: "super secret password2"})
-      .set("Accept", "application/json");
-    authTokenResponsible = res.body.token;
-    userProfileResponsible = res.body.profile;
-
     const depsStub: any[] = [
       {
         name: "Institutite of stuffs",
         acronym: "IEG",
-        user: userProfileResponsible._id
+        user: userResponsible._id
       },
       {
         name: "Institutite of other",
@@ -167,7 +155,7 @@ describe("app", () => {
         code: 10,
         sequence: 1,
         status: 'pending',
-        user: userProfileResponsible._id,
+        user: userResponsible._id,
         room: roomsSamples[1]._id
       },
       
@@ -180,7 +168,7 @@ describe("app", () => {
         code: 19,
         sequence: 2,
         status: 'removed',
-        user: userProfileResponsible._id,
+        user: userResponsible._id,
         room: roomsSamples[0]._id
       },
       
@@ -193,7 +181,7 @@ describe("app", () => {
         code: 9,
         sequence: 4,
         status: 'approved',
-        user: userProfileResponsible._id,
+        user: userResponsible._id,
         room: roomsSamples[1]._id
       },
 
@@ -206,13 +194,25 @@ describe("app", () => {
         code: 9,
         sequence: 4,
         status: 'pending',
-        user: userProfileResponsible._id,
+        user: userResponsible._id,
         room: roomsSamples[2]._id
       }
       
     ];
 
     reservSamples = await ReservationModel.insertMany(reservationsStub);
+
+    let res = await request(app).post("/login")
+      .send({email: "test@email.com", password: "super secret password"})
+      .set("Accept", "application/json");
+    authToken = res.body.token;
+    userProfile = res.body.profile;
+
+    res = await request(app).post("/login")
+      .send({email: "responsible@email.com", password: "super secret password2"})
+      .set("Accept", "application/json");
+    authTokenResponsible = res.body.token;
+    userProfileResponsible = res.body.profile;
   });
 
   afterEach((done) => {
