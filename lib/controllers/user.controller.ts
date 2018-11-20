@@ -41,9 +41,6 @@ export class UserController {
           if (result === true) {
             const EXPIRES_IN = 600000;
             const tokenBody = {expiresIn: EXPIRES_IN, subject: user._id.toString()};
-            // if (user.type === 'responsible') {
-            //   tokenBody.dep = user.
-            // }
             const token = jwt.sign({role: user.role}, config.secret, tokenBody);
 
             const tempUser = {
