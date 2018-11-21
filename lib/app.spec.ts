@@ -103,7 +103,22 @@ describe("app", () => {
         capacity: 300,
         type: "laboratorio",
         department: depsSamples[0]._id
-      }
+      },
+
+      { // 3
+        name: "sala 101",
+        description: "sala do dep 0",
+        width: 2,
+        length: 2,
+        capacity: 2,
+        location: {
+          lat: 10,
+          long: 30
+        },
+        type: "sala",
+        department: depsSamples[0]._id,
+        photos: ["./storage/silo.png", "./storage/silo.png"]
+      },
     ];
     
     roomsSamples = await RoomModel.insertMany(roomsStbub);
@@ -196,6 +211,19 @@ describe("app", () => {
         status: 'pending',
         user: userResponsible._id,
         room: roomsSamples[2]._id
+      },
+
+      { // 7
+        reason: "por alguma outra coisa razão razão. etc sabe como é",
+        startDate: new Date("2020-10-01T00:00:00+0000"),
+        endDate: new Date("2020-10-30T00:00:00+0000"),
+        startTime: new Date("2018-01-01T08:00:00+0000"),
+        endTime: new Date("2018-01-01T18:00:00+0000"),
+        code: 99,
+        sequence: 4,
+        status: 'approved',
+        user: user._id,
+        room: roomsSamples[3]._id
       }
       
     ];
@@ -264,8 +292,11 @@ describe("app", () => {
       const res = await request(app).get('/reservations?status=approved')
         .set("Authorization", `Bearer ${authToken}`);
 
+      const n = await ReservationModel.countDocuments(
+        {user: userProfile._id, status: 'approved'}
+      );
       expect(res.statusCode).toBe(200);
-      expect(res.body.length).toBe(1);
+      expect(res.body.length).toBe(n);
       
       for(let v of res.body) {
         expect(v.user).toBe(userProfile._id);
@@ -891,8 +922,7 @@ describe("app", () => {
     const res = await request(app).get("/rtypes")
       .set("Authorization", `Bearer ${authToken}`);
 
-    let rtypes: any[] = await RoomModel.find({}, 'type');
-    rtypes = rtypes.map((r) => r.type);
+    let rtypes: any[] = await RoomModel.distinct('type');
     expect(res.body).toEqual(rtypes);
     expect(res.statusCode).toBe(200);
   });
@@ -918,7 +948,7 @@ describe("app", () => {
 
       expect(res.statusCode).toBe(200);
       // this is the total of rooms in the tests database
-      expect(res.body.length).toBe(3);
+      expect(res.body.length).toBe(roomsSamples.length);
       expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
       expect(res.body[1]._id).toBe(roomsSamples[1]._id.toString());
       expect(res.body[2]._id).toBe(roomsSamples[2]._id.toString());  
@@ -999,8 +1029,9 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.length).toBe(1);
+         expect(res.body.length).toBe(2);
          expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
+         expect(res.body[1]._id).toBe(roomsSamples[3]._id.toString());
        });
 
     // FIXME: english
@@ -1019,7 +1050,6 @@ describe("app", () => {
 
          const res = await request(app).get("/rsearch" + query)
            .set("Authorization", `Bearer ${authToken}`);
-
          expect(res.statusCode).toBe(200);
          expect(res.body.length).toBe(1);
          expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
@@ -1041,8 +1071,9 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
          
          expect(res.statusCode).toBe(200);
-         expect(res.body.length).toBe(1);
+         expect(res.body.length).toBe(2);
          expect(res.body[0]._id).toBe(roomsSamples[2]._id.toString());
+         expect(res.body[1]._id).toBe(roomsSamples[3]._id.toString());
        });
 
     it('should not consider reservations marked as removed when searching for '
@@ -1059,9 +1090,10 @@ describe("app", () => {
            .set("Authorization", `Bearer ${authToken}`);
 
          expect(res.statusCode).toBe(200);
-         expect(res.body.length).toBe(2);
+         expect(res.body.length).toBe(3);
          expect(res.body[0]._id).toBe(roomsSamples[0]._id.toString());
          expect(res.body[1]._id).toBe(roomsSamples[1]._id.toString());
+         expect(res.body[2]._id).toBe(roomsSamples[3]._id.toString());
        });
     
   });
