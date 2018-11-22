@@ -338,6 +338,22 @@ describe("app", () => {
       expect(res.body[0].room._id).toBe(roomsSamples[2]._id.toString());
     });
 
+    it('GET ?status=pending&op=countdep, should return the number of pending reservations '
+       + 'by department when the user\'s role is responsble', async () => {
+         const res = await request(app).get('/reservations?status=pending&op=countdep')
+           .set("Authorization", `Bearer ${authTokenResponsible}`);
+         expect(res.statusCode).toBe(200);
+         expect(res.body.result).toBe(2);
+       });
+
+    it('GET ?status=approved&op=countdep, should return the number of approved reservations '
+       + 'by department when the user\'s role is responsble', async () => {
+         const res = await request(app).get('/reservations?status=approved&op=countdep')
+           .set("Authorization", `Bearer ${authTokenResponsible}`);
+         expect(res.statusCode).toBe(200);
+         expect(res.body.result).toBe(2);
+       });
+
     it("GET ?status=removed, should return list of removed reservations of the current user", async () => {
       const res = await request(app).get('/reservations?status=removed')
         .set('Accept', 'application/json')
