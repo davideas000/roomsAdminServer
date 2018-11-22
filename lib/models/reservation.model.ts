@@ -19,7 +19,6 @@ const reservationSchema = new Schema({
 }, {timestamps: true});
 
 reservationSchema.query.countByStatusAndDep = function(status, dep) {
-  console.error("bydep and status", dep, status);
   return RoomModel.aggregate([
     {$match: {department: Types.ObjectId(dep)}},
     {$project: {_id: 1}},
