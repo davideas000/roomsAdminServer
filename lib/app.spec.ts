@@ -354,6 +354,15 @@ describe("app", () => {
          expect(res.body.result).toBe(2);
        });
 
+    it('GET ?status=pending&op=countdep, should return a 401 status code for a '
+       + 'user of the auth type', async () => {
+         const res = await request(app).get('/reservations?status=pending&op=countdep')
+           .set("Authorization", `Bearer ${authToken}`);
+
+         expect(res.statusCode).toBe(401);
+         expect(res.body.message).toBe('user-not-authorized');
+       });
+
     it("GET ?status=removed, should return list of removed reservations of the current user", async () => {
       const res = await request(app).get('/reservations?status=removed')
         .set('Accept', 'application/json')

@@ -27,7 +27,9 @@ export class Routes {
     app.post('/login', this.userController.login);
     
     app.route('/reservations')
-      .get(this.userController.authGuard, this.reservationController.getReservations);
+      .get(this.userController.authGuard,
+           this.reservationController.getGuard,
+           this.reservationController.getReservations);
 
     app.post(
       '/reservation',

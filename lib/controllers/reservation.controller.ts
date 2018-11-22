@@ -19,6 +19,14 @@ export class ReservationController {
     return new Date(`2018-01-01T${time}+0000`);
   }
 
+  getGuard(req: Request, res: Response, next: NextFunction) {
+    const op = req.query.op;
+    if (op && op === 'countdep' && !(req as any).user.dep) {
+      return res.status(401).send({message: 'user-not-authorized'});
+    }
+    next();
+  }
+
   static countRvs(res: Response, cond: any) {
     const callback = (err, count: any) => {
       if (err) {
