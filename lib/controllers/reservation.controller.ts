@@ -20,13 +20,28 @@ export class ReservationController {
   }
 
   static countRvs(res: Response, cond: any) {
-    ReservationModel.countDocuments(cond)
-      .exec((err, count: number) => {
-        if (err) {
-          return res.status(500).send({message: err.message});
-        }
-        res.send({result: count});
-      });
+    const callback = (err, count: any) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send({message: err.message});
+      }
+      let result;
+      if (typeof count === 'number') {
+        result = count;
+      } else {
+        result = count[0] && count[0].n || 0;
+      }
+      res.send({result: result});
+    };
+
+    if (cond.dep) {
+      ReservationModel.countDocuments().countByStatusAndDep(
+        cond.status, cond.dep
+      ).exec(callback);
+    } else {
+      ReservationModel.countDocuments(cond)
+        .exec(callback);
+    }
   }
   
   getReservations(req: Request, res: Response) {
@@ -38,6 +53,11 @@ export class ReservationController {
         case 'count':
           ReservationController.countRvs(res, {user: (req as any).user.sub, status: status});
           break
+        case 'countdep':
+          ReservationController.countRvs(
+            res, {status: status, dep: (req as any).user.dep}
+          );
+          break;
       }
     } else {
       ReservationModel.find({user: (req as any).user.sub, status: status})
