@@ -1,6 +1,7 @@
 import { UserController } from "./user.controller";
 import { Request, Response } from "express";
 import { UserModel } from "../models/user.model";
+import { DepartmentModel } from "../models/department.model";
 import * as jwt from 'jsonwebtoken';
 
 jest.mock('jsonwebtoken', () => {
@@ -10,6 +11,12 @@ jest.mock('jsonwebtoken', () => {
 jest.mock("../models/user.model", () => {
   return {
     UserModel: jest.fn()
+  }
+});
+
+jest.mock("../models/department.model", () => {
+  return {
+    DepartmentModel: jest.fn()
   }
 });
 
@@ -162,5 +169,59 @@ describe("UserController", () => {
       {success: true, token: tokenStub, profile: userStub, expiresIn: 600000}
     );
   });
+
+  it('#login() should add the dep field to the token when the user role '
+     + 'is \'responsble\'', () => {
+       const tokenStub = "token001";
+       jwt.sign = jest.fn(() => tokenStub);
+       const checkPassword = jest.fn(
+         (pass, callback) => callback(true));
+
+       const userStub = {
+         _id: 'userid001',
+         name: 'username',
+         displayName: 'displayname',
+         email: 'useremail',
+         photoURL: 'userphotourl',
+         role: 'responsible',
+         checkPassword: checkPassword
+       };
+       UserModel.findOne = jest.fn((query, callback) => callback(null, userStub));
+
+       const depStub = {
+         _id: 'userid001',
+         name: 'username',
+         displayName: 'displayname',
+         email: 'useremail',
+         photoURL: 'userphotourl',
+         role: 'responsible',
+         checkPassword: checkPassword
+       };
+       DepartmentModel.findOne = jest.fn((query, callback) => callback(null, depStub));
+
+       req.body = {email: 'email@email', password: 'pass'};
+       instance.login(req, res);
+
+       delete userStub.checkPassword;
+
+       expect(UserModel.findOne).toHaveBeenCalledTimes(1);
+       expect(UserModel.findOne).toHaveBeenCalledWith(
+         {email: req.body.email}, expect.any(Function));
+       expect(checkPassword).toHaveBeenCalledTimes(1);
+       expect(checkPassword).toHaveBeenCalledWith(
+         req.body.password, expect.any(Function));
+       expect(DepartmentModel.findOne).toHaveBeenCalledTimes(1);
+       expect(DepartmentModel.findOne).toHaveBeenCalledWith(
+         {user: userStub._id}, expect.any(Function));
+       expect(jwt.sign).toHaveBeenCalledTimes(1);
+       expect(jwt.sign).toHaveBeenCalledWith(
+         {role: userStub.role, dep: depStub._id}, // should add dep field to the token
+         expect.any(String), expect.any(Object)
+       );
+       expect(res.send).toHaveBeenCalledTimes(1);
+       expect(res.send).toHaveBeenCalledWith(
+         {success: true, token: tokenStub, profile: userStub, expiresIn: 600000}
+       );
+     });
   
 });
