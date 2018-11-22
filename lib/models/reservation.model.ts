@@ -1,4 +1,5 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
+import { RoomModel } from './room.model';
 
 const reservationSchema = new Schema({
   reason: String,
@@ -16,6 +17,33 @@ const reservationSchema = new Schema({
   user: {type: Schema.Types.ObjectId, ref: "User", required: true},
   room: {type: Schema.Types.ObjectId, ref: "Room", required: true}
 }, {timestamps: true});
+
+reservationSchema.query.countByStatusAndDep = function(status, dep) {
+  console.error("bydep and status", dep, status);
+  return RoomModel.aggregate([
+    {$match: {department: Types.ObjectId(dep)}},
+    {$project: {_id: 1}},
+    {$lookup: {
+      from: 'reservations',
+      let: {pid: "$_id"},
+      pipeline: [{
+        $match: {
+          $expr: {
+            $and: [
+              {$eq: ["$room", "$$pid"]},
+              {$eq: ["$status", status]}
+            ]
+          }
+        }
+      }],
+      as: 'reservations'
+    }},
+    {$project: {reservations: 1}},
+    {$unwind: '$reservations'},
+    {$replaceRoot: {newRoot: '$reservations'}},
+    {$count: 'n'}
+  ]);
+}
 
 reservationSchema.methods.findOverlappingReservations = function (callback) {
   const query: any =  {
