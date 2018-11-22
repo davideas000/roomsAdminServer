@@ -99,6 +99,48 @@ describe("ReservationController", () => {
     expect(res.send).toHaveBeenCalledWith(resvsStub);
   });
 
+  it('#getReservations() -- req.query = {status: \'pending\', op: \'count\'} -- '
+     + 'should return the number of pending reservations of the current user', () => {
+       let req = new Req();
+       let res = new Res();
+       req.query = {status: "pending", op: 'count'};
+
+       const countStub = 3;
+       ReservationModel.countDocuments = jest.fn(() => ReservationModel);
+       ReservationModel.exec = jest.fn((callback) => callback(null, countStub));
+       instance.getReservations(req, res);
+
+       expect(ReservationModel.countDocuments).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.countDocuments).toHaveBeenCalledWith({user: "userid", status: "pending"});
+
+       expect(res.send).toHaveBeenCalledTimes(1);
+       expect(res.send).toHaveBeenCalledWith({result: countStub});
+     });
+
+  it('#getReservations() -- req.query = {status: \'pending\', op: \'countdep\'} -- '
+     + '\nshould return the number of pending reservations by department', () => {
+       let req = new Req();
+       let res = new Res();
+       req.query = {status: "pending", op: 'countdep'};
+       (req as any).user.dep = 'dep001';
+
+       const countStub = [{n: 3}];
+       ReservationModel.countDocuments = jest.fn(() => ReservationModel);
+       ReservationModel.countByStatusAndDep = jest.fn(() => ReservationModel);
+       ReservationModel.exec = jest.fn((callback) => callback(null, countStub));
+       instance.getReservations(req, res);
+
+       expect(ReservationModel.countDocuments).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.countDocuments).toHaveBeenCalledWith();
+
+       expect(ReservationModel.countByStatusAndDep).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.countByStatusAndDep).toHaveBeenCalledWith(
+         req.query.status, (req as any).user.dep);
+
+       expect(res.send).toHaveBeenCalledTimes(1);
+       expect(res.send).toHaveBeenCalledWith({result: countStub[0].n});
+     });
+
   it("#getReservations() should search for removed reservs when status=removed", () => {
     let req = new Req();
     let res = new Res();
