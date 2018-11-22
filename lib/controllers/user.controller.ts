@@ -41,7 +41,6 @@ export class UserController {
         user.checkPassword(password, function(result) {
           if (result === true) {
             const EXPIRES_IN = 600000;
-            const tokenBody: any = {expiresIn: EXPIRES_IN, subject: user._id.toString()};
             const tempUser = {
               _id: user._id,
               name: user.name,
@@ -51,17 +50,20 @@ export class UserController {
               role: user.role
             };
 
-            if (user.type === 'responsible') {
+            if (user.role === 'responsible') {
               DepartmentModel.findOne({user: user._id}, (err, dep) => {
                 if (err) {
                   return res.status(500).send({message: err.message});
                 }
-                tokenBody.dep = dep._id.toString();
-                const token = jwt.sign({role: user.role}, config.secret, tokenBody);
+                const token = jwt.sign(
+                  {role: user.role, dep: dep._id.toString()}, config.secret,
+                  {expiresIn: EXPIRES_IN, subject: user._id.toString()}
+                );
                 return res.send({success: true, token: token, profile: tempUser, expiresIn: EXPIRES_IN});
               });
             } else {
-              const token = jwt.sign({role: user.role}, config.secret, tokenBody);
+              const token = jwt.sign({role: user.role}, config.secret,
+                                     {expiresIn: EXPIRES_IN, subject: user._id.toString()});
               return res.send({success: true, token: token, profile: tempUser, expiresIn: EXPIRES_IN});
             }
           }
