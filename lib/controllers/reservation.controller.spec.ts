@@ -99,6 +99,28 @@ describe("ReservationController", () => {
     expect(res.send).toHaveBeenCalledWith(resvsStub);
   });
 
+  it('#getReservations() should return a list of pending reservations by department '
+     + 'when req.query.by === "dep"', () => {
+       let req = new Req();
+       let res = new Res();
+       req.query = {status: "pending", by: 'dep'};
+       (req as any).user.dep = 'dep001';
+
+       const resvsStub = [{_id: 're01'}, {_id: 're02'}];
+       ReservationModel.exec = jest.fn((callback) => callback(null, resvsStub));
+       ReservationModel.byStatusAndDep = jest.fn(() => ReservationModel);
+
+       instance.getReservations(req, res);
+
+       expect(ReservationModel.find).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.find).toHaveBeenCalledWith();
+       expect(ReservationModel.byStatusAndDep).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.byStatusAndDep).toHaveBeenCalledWith(
+         req.query.status, (req as any).user.dep);
+       expect(res.send).toHaveBeenCalledTimes(1);
+       expect(res.send).toHaveBeenCalledWith(resvsStub);
+     });
+
   it('#getReservations() -- req.query = {status: \'pending\', op: \'count\'} -- '
      + 'should return the number of pending reservations of the current user', () => {
        let req = new Req();

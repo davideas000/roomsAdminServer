@@ -51,10 +51,31 @@ export class ReservationController {
         .exec(callback);
     }
   }
+
+  static findRvs(res: Response,
+                 cond: {status: string, user?: string, dep?: string}) {
+    const callback = (err, reservations: any[]) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send({message: err.message});
+      }
+      return res.send(reservations);
+    }
+
+    if (cond.dep) {
+      ReservationModel.find().byStatusAndDep(cond.status, cond.dep)
+        .exec(callback);
+    } else {
+      ReservationModel.find({user: cond.user, status: cond.status})
+        .populate({path: "room", populate: {path: "department"}})
+        .exec(callback);
+    }
+  }
   
   getReservations(req: Request, res: Response) {
     const status = req.query.status;
     const op = req.query.op;
+    const by = req.query.by;
     
     if (op) {
       switch(op) {
@@ -68,14 +89,14 @@ export class ReservationController {
           break;
       }
     } else {
-      ReservationModel.find({user: (req as any).user.sub, status: status})
-        .populate({path: "room", populate: {path: "department"}})
-        .exec((err, reservations: any[]) => {
-          if (err) {
-            return res.status(500).send({message: err.message});
-          }
-          res.send(reservations);
-        });
+      switch(by) {
+        case 'dep':
+          ReservationController.findRvs(res, {dep: (req as any).user.dep, status: status});
+          break;
+        default:
+          ReservationController.findRvs(res, {user: (req as any).user.sub, status: status});
+          break;
+      }
     }
   }
 

@@ -338,6 +338,23 @@ describe("app", () => {
       expect(res.body[0].room._id).toBe(roomsSamples[2]._id.toString());
     });
 
+    it('GET ?status=pending&by=dep, should return a list of pending reservations '
+       + 'by departement', async () => {
+         const res = await request(app).get('/reservations?status=pending&by=dep')
+           .set("Authorization", `Bearer ${authTokenResponsible}`);
+         const depTemp = await DepartmentModel.findOne({user: userProfileResponsible._id});
+
+         expect(res.statusCode).toBe(200);
+         expect(res.body.length).toBe(2);
+
+         for(let v of res.body) {
+           expect(v.room.department.acronym).toBe(depTemp.acronym);
+           expect(v.status).toBe('pending');
+           // ensure that the user'password isn't being sent with the reservations
+           expect(v.user.password).toBeUndefined();
+         }
+       });
+
     it('GET ?status=pending&op=countdep, should return the number of pending reservations '
        + 'by department when the user\'s role is responsble', async () => {
          const res = await request(app).get('/reservations?status=pending&op=countdep')
