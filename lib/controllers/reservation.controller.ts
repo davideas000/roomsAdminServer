@@ -296,7 +296,7 @@ export class ReservationController {
       }
       
       if (!reserv) {
-        return res.send({message: "reservation not found"});
+        return res.status(401).send({message: "reservation-not-found"});
       }
       
       if (reserv.status === "pending") {
