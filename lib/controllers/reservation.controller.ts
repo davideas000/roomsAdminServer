@@ -184,13 +184,15 @@ export class ReservationController {
     const newStatus = req.body.status;
     const reserv = (req as any).reserv;
 
-    ReservationModel.updateOne({_id: reserv._id}, {status: newStatus}, (err, result) => {
+    const callback = (err, result) => {
       if (err) {
         return res.status(500).send({message: err.message});
       }
-      if (result.nModified === 1) {
-        if (newStatus === "approved" || reserv.user.toString() !== (req as any).user.sub) {
 
+      if (result) {
+        // should not add a notification when the user (all) is updating
+        // a reservation that belongs to himself
+        if (newStatus === "approved" || reserv.user.toString() !== (req as any).user.sub) {
           RoomModel.findById(reserv.room, "name", (err, room) => {
             if (err) {
               return res.status(500).send({message: err.message})
@@ -212,15 +214,17 @@ export class ReservationController {
                 if (err) {
                   return res.status(500).send({message: err.message})
                 }
-                return res.send({message: "reservation modified"});
+                return res.send(result);
               })
             });
           });
         } else {
-          return res.send({message: "reservation modified"});
+          return res.send(result);
         }
       }
-    });
+    };
+
+    ReservationModel.findByIdAndUpdate({_id: reserv._id}, {status: newStatus}, {new: true}, callback);
   }
 
   validateUpdate(req: Request, res: Response, next: NextFunction) {

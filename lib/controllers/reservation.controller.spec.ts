@@ -426,10 +426,12 @@ describe("ReservationController", () => {
     let req = new Req();
     let res = new Res();
 
-    ReservationModel.updateOne = jest.fn((arg1, arg2, callback) => callback(null, {nModified: 1}));
     req.body = {status: "approved"};
     const reservStub = {_id: "reservid", user: "userId001"};
     (req as any).reserv = reservStub;
+    ReservationModel.findByIdAndUpdate = jest.fn(
+      (arg1, arg2, options, callback) => callback(null, reservStub)
+    );
 
     const mockSave = jest.fn((callback) => callback(null));
     const userStub = {notifications: [], save: mockSave};
@@ -443,9 +445,9 @@ describe("ReservationController", () => {
     
     instance.updateReservation(req, res);
 
-    expect(ReservationModel.updateOne).toHaveBeenCalledTimes(1);
-    expect(ReservationModel.updateOne).toHaveBeenCalledWith(
-      {_id: "reservid"}, {status: "approved"}, expect.any(Function));
+    expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+    expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      {_id: "reservid"}, {status: "approved"}, {new: true}, expect.any(Function));
     
     expect(UserModel.findById).toHaveBeenCalledTimes(1);
     expect(UserModel.findById).toHaveBeenCalledWith(reservStub.user, expect.any(Function));
@@ -456,7 +458,7 @@ describe("ReservationController", () => {
     expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
     
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({message: "reservation modified"});
+    expect(res.send).toHaveBeenCalledWith(reservStub);
   });
 
   it("#validateUpdate() should not accept invalid status", () => {
@@ -686,8 +688,8 @@ describe("ReservationController", () => {
 
        (req as any).user = {sub: "user001"};
 
-       ReservationModel.updateOne = jest.fn(
-         (query, newData, callback) => callback(null, {nModified: 1}));
+       ReservationModel.findByIdAndUpdate = jest.fn(
+         (query, newData, option, callback) => callback(null, reservStub));
 
        const userStub = {
          notifications: [],
@@ -701,9 +703,9 @@ describe("ReservationController", () => {
          (query, projection, callback) => callback(null, roomStub));
        
        instance.updateReservation(req, res);
-       expect(ReservationModel.updateOne).toHaveBeenCalledTimes(1);
-       expect(ReservationModel.updateOne).toHaveBeenCalledWith(
-         {_id: reservStub._id}, {status: incomingStatus}, expect.any(Function));
+       expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledWith(
+         {_id: reservStub._id}, {status: incomingStatus}, {new: true}, expect.any(Function));
 
        expect(UserModel.findById).toHaveBeenCalledTimes(1);
        expect(UserModel.findById).toHaveBeenCalledWith(reservStub.user, expect.any(Function));
@@ -714,7 +716,7 @@ describe("ReservationController", () => {
        expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
 
        expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({message: "reservation modified"});
+       expect(res.send).toHaveBeenCalledWith(reservStub);
 
        // removing a reservation with a reason
        req.body.reason = "Motivo da remoção";
@@ -741,8 +743,8 @@ describe("ReservationController", () => {
 
        (req as any).user = {sub: "user000"};
 
-       ReservationModel.updateOne = jest.fn(
-         (query, newData, callback) => callback(null, {nModified: 1}));
+       ReservationModel.findByIdAndUpdate = jest.fn(
+         (query, newData, option, callback) => callback(null, reservStub));
 
        const userStub = {
          notifications: [],
@@ -752,14 +754,14 @@ describe("ReservationController", () => {
        UserModel.findById = jest.fn((id, callback) => callback(null, userStub));
        
        instance.updateReservation(req, res);
-       expect(ReservationModel.updateOne).toHaveBeenCalledTimes(1);
-       expect(ReservationModel.updateOne).toHaveBeenCalledWith(
-         {_id: reservStub._id}, {status: incomingStatus}, expect.any(Function));
+       expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledWith(
+         {_id: reservStub._id}, {status: incomingStatus}, {new: true}, expect.any(Function));
 
        expect(UserModel.findById).toHaveBeenCalledTimes(0);
 
        expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({message: "reservation modified"});
+       expect(res.send).toHaveBeenCalledWith(reservStub);
 
        expect(userStub.notifications.length).toBe(0);
        expect(userStub.save).toHaveBeenCalledTimes(0);
@@ -778,8 +780,8 @@ describe("ReservationController", () => {
 
        (req as any).user = {sub: "user001"};
 
-       ReservationModel.updateOne = jest.fn(
-         (query, newData, callback) => callback(null, {nModified: 1}));
+       ReservationModel.findByIdAndUpdate = jest.fn(
+         (query, newData, option, callback) => callback(null, reservStub));
 
        const userStub = {
          notifications: [],
@@ -793,9 +795,9 @@ describe("ReservationController", () => {
          (query, projection, callback) => callback(null, roomStub));
        
        instance.updateReservation(req, res);
-       expect(ReservationModel.updateOne).toHaveBeenCalledTimes(1);
-       expect(ReservationModel.updateOne).toHaveBeenCalledWith(
-         {_id: reservStub._id}, {status: incomingStatus}, expect.any(Function));
+       expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+       expect(ReservationModel.findByIdAndUpdate).toHaveBeenCalledWith(
+         {_id: reservStub._id}, {status: incomingStatus}, {new: true}, expect.any(Function));
 
        expect(UserModel.findById).toHaveBeenCalledTimes(1);
        expect(UserModel.findById).toHaveBeenCalledWith(reservStub.user, expect.any(Function));
@@ -806,7 +808,7 @@ describe("ReservationController", () => {
        expect(userStub.save).toHaveBeenCalledWith(expect.any(Function));
 
        expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({message: "reservation modified"});
+       expect(res.send).toHaveBeenCalledWith(reservStub);
        
      });
 

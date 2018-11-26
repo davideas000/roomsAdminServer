@@ -666,7 +666,8 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "approved"});
 
-        expect(res.body.message).toBe("reservation modified");
+        expect(res.body._id).toBe(reservSamples[1]._id.toString());
+        expect(res.body.status).toBe('approved');
       });
 
       // A user of the responsible type can only remove a approved reservation
@@ -678,14 +679,16 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "removed"});
 
-        expect(res.body.message).toBe("reservation modified");
+        expect(res.body.status).toBe('removed');
+        expect(res.body._id).toBe(reservSamples[0]._id.toString());
 
         // a user can mark as removed an approved reservation that belongs to himself
         res = await request(app).put(`/reservation/${reservSamples[5]._id}`) // approved reservation
           .set("Authorization", `Bearer ${authTokenResponsible}`)
           .send({status: "removed"});
 
-        expect(res.body.message).toBe("reservation modified");
+        expect(res.body.status).toBe('removed');
+        expect(res.body._id).toBe(reservSamples[5]._id.toString());
         
       });
       
@@ -743,7 +746,8 @@ describe("app", () => {
            let userTemp = await UserModel.findById(userProfile._id);
            
            expect(res.statusCode).toBe(200);
-           expect(res.body.message).toBe("reservation modified");
+           expect(res.body._id).toBe(reservSamples[0]._id.toString());
+           expect(res.body.status).toBe('removed');
 
            const roomName = "laboratorio 102";
            expect(userTemp.notifications[0].message).toBe(
@@ -764,7 +768,7 @@ describe("app", () => {
            let userTemp = await UserModel.findById(userProfile._id);
            
            expect(res.statusCode).toBe(200);
-           expect(res.body.message).toBe("reservation modified");
+           expect(res.body._id).toBe(reservSamples[1]._id.toString());
 
            const roomName = "laboratorio 102";
            expect(userTemp.notifications[0].message).toBe(
@@ -787,7 +791,8 @@ describe("app", () => {
           .set("Authorization", `Bearer ${authToken}`)
           .send({status: "removed"});
         expect(res.statusCode).toBe(200);
-        expect(res.body.message).toBe("reservation modified");
+        expect(res.body._id).toBe(reservSamples[0]._id.toString());
+        expect(res.body.status).toBe('removed');
       });
       
       it("should not let a user of auth type approve a reservation", async () => {
@@ -826,7 +831,8 @@ describe("app", () => {
 
            let userTemp = await UserModel.findById(userProfileResponsible._id);
            expect(res.statusCode).toBe(200);
-           expect(res.body.message).toBe("reservation modified");
+           expect(res.body._id).toBe(reservSamples[5]._id.toString());
+           expect(res.body.status).toBe('removed');
 
            expect(userTemp.notifications.length).toBe(0)
          });
