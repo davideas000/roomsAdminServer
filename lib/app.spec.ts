@@ -670,10 +670,10 @@ describe("app", () => {
         expect(res.body.status).toBe('approved');
       });
 
-      // A user of the responsible type can only remove a approved reservation
+      // A user of responsible type can remove an approved reservation
       // belonging to the department for which he is responsible
       // or that belongs to himself.
-      it("should let a user of type responsible 'remove' a approved reservation", async () => {
+      it("should let a user of responsible type remove an approved reservation", async () => {
 
         let res = await request(app).put(`/reservation/${reservSamples[0]._id}`)
           .set("Authorization", `Bearer ${authTokenResponsible}`)
@@ -781,7 +781,7 @@ describe("app", () => {
           expect(res.body.message).toBe("user not authorized");
         });
       
-      it("should not let a user of the responsible type approve/remove a approved/removed reservation",
+      it("should not let a user of type responsible approve/remove a removed reservation",
          async () => {
            let res = await request(app).put(`/reservation/${reservSamples[2]._id}`)
              .set("Authorization", `Bearer ${authTokenResponsible}`)
@@ -804,8 +804,8 @@ describe("app", () => {
 
          });
       
-      it("should add a notification when a user of the responsible type\n"
-         + "is removing a reservation that does not belong to himself",
+      it("should add a notification when a user of type responsible\n"
+         + "is removing an approved reservation that does not belong to himself",
          async () => {
            let res = await request(app).put(`/reservation/${reservSamples[0]._id}`)
              .set("Authorization", `Bearer ${authTokenResponsible}`)
@@ -881,7 +881,7 @@ describe("app", () => {
         expect(res.statusCode).toBe(401);
       });
 
-      it("should not let a user of the auth type modify others reservations", async () => {
+      it("should not let a user of type auth to modify other users' reservations", async () => {
         let res = await request(app).put(`/reservation/${reservSamples[5]._id}`)
           .set("Authorization", `Bearer ${authToken}`)
           .send({status: "removed"});
