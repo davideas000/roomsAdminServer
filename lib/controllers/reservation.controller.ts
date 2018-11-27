@@ -192,14 +192,26 @@ export class ReservationController {
       if (result) {
         // should not add a notification when the user (all) is updating
         // a reservation that belongs to himself
-        if (newStatus === "approved" || reserv.user.toString() !== (req as any).user.sub) {
+        if (reserv.user.toString() !== (req as any).user.sub) {
           RoomModel.findById(reserv.room, "name", (err, room) => {
             if (err) {
               return res.status(500).send({message: err.message})
             }
 
             // create a notification
-            const temp = newStatus === "approved" ? "aprovada" : "removida";
+            let temp: string;
+            switch(result.status) {
+              case 'approved':
+                temp = 'aprovada';
+                break;
+              case 'removed':
+                temp = 'removida';
+                break;
+              default:
+                temp = 'rejeitada';
+                break;
+            }
+
             const reasonTemp = req.body.reason ? `Motivo: ${req.body.reason}.` : null;
             const msg = `Reserva no espaço '${room.name}' ${temp}.${reasonTemp ? " " + reasonTemp : ""}`;
 
@@ -223,6 +235,10 @@ export class ReservationController {
         }
       }
     };
+
+    if (reserv.status === 'pending' && newStatus === 'removed') {
+      return ReservationModel.findByIdAndDelete(reserv._id, callback);
+    }
 
     ReservationModel.findByIdAndUpdate({_id: reserv._id}, {status: newStatus}, {new: true}, callback);
   }
@@ -248,7 +264,7 @@ export class ReservationController {
       (req as any).reserv = reserv;
       
       if (reserv.user.toString() === user.sub
-          && reserv.status === "approved"
+          && (reserv.status === "approved" || reserv.status === "pending")
           && newStatus === "removed") {
         return next();
       }
@@ -260,11 +276,7 @@ export class ReservationController {
       if (reserv.status === "approved" && newStatus === "approved") {
         return res.send({message: "reservation already approved"});
       }
-      
-      if (reserv.status === "pending" && newStatus === "removed") {
-        return res.send({message: "cannot remove a pending reservation"});
-      }
-      
+
       RoomModel.findById(reserv.room, "department", (err, room) => {
         if (err) {
           return res.status(500).send({message: err.message});

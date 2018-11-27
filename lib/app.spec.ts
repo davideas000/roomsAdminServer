@@ -691,6 +691,82 @@ describe("app", () => {
         expect(res.body._id).toBe(reservSamples[5]._id.toString());
         
       });
+
+      // A user of responsible type can only remove a pending reservation
+      // belonging to the department for which he is responsible
+      // or that belongs to himself.
+      // NOTE: the removal of a pending reservation by a user of the responsible
+      // type is the same as the rejection of that reservation
+      it('should let a user of type "responsible" to remove a "pending" reservation'
+         + " belonging to the departemnt for which he is responsible", async () => {
+
+           let res = await request(app).put(`/reservation/${reservSamples[1]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed"});
+
+           expect(res.body._id).toBe(reservSamples[1]._id.toString());
+
+           // pending reservations that are removed should be deleted from
+           // database
+           const deletedReserv = await ReservationModel.findById(reservSamples[1]._id);
+           expect(deletedReserv).toBe(null);
+         });
+
+      // A user of the responsible type can only remove a pending reservation
+      // belonging to the department for which he is responsible
+      // or that belongs to himself.
+      it('should let a user of type "responsible" to remove a "pending" reservation'
+         + " that belongs to himself", async () => {
+
+           let res = await request(app).put(`/reservation/${reservSamples[3]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed"});
+
+           expect(res.body._id).toBe(reservSamples[3]._id.toString());
+
+           // pending reservations that are removed should be deleted from
+           // database
+           const deletedReserv = await ReservationModel.findById(reservSamples[3]._id);
+           expect(deletedReserv).toBe(null);
+         });
+
+      it('should add a notitication when a user of type "responsible" removes '
+         + 'a "pending" reservation belonging to the departement for which he is '
+         + ' responsible or doesn\'t belong to himself', async () => {
+
+           let res = await request(app).put(`/reservation/${reservSamples[1]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed"});
+
+           expect(res.body._id).toBe(reservSamples[1]._id.toString());
+
+           // pending reservations that are marked as "removed" should be deleted from
+           // database
+           const deletedReserv = await ReservationModel.findById(reservSamples[1]._id);
+           expect(deletedReserv).toBe(null);
+
+           const user = await UserModel.findById(reservSamples[1].user, 'notifications');
+           const userNotifis = user.notifications;
+           expect(userNotifis[0].message).toBe('Reserva no espaço \'laboratorio 102\' rejeitada.')
+         });
+
+      it('should not add a notitication when a user of type "responsible" removes '
+         + 'a "pending" reservation belonging to himself', async () => {
+
+           let res = await request(app).put(`/reservation/${reservSamples[3]._id}`)
+             .set("Authorization", `Bearer ${authTokenResponsible}`)
+             .send({status: "removed"});
+
+           expect(res.body._id).toBe(reservSamples[3]._id.toString());
+
+           // ensure reservation was deleted from database
+           const deletedReserv = await ReservationModel.findById(reservSamples[3]._id);
+           expect(deletedReserv).toBe(null);
+
+           const user = await UserModel.findById(reservSamples[3].user, 'notifications');
+           const userNotifis = user.notifications;
+           expect(userNotifis.length).toBe(0);
+         });
       
       // A user of the responsible type can only approve a pending reservation
       // belonging to the department for which he is responsible.
@@ -728,14 +804,6 @@ describe("app", () => {
 
          });
       
-      it("should not let a user of responsible type mark as removed a pending reservation",
-         async () => {
-           let res = await request(app).put(`/reservation/${reservSamples[1]._id}`)
-             .set("Authorization", `Bearer ${authTokenResponsible}`)
-             .send({status: "removed"});
-           expect(res.body.message).toBe("cannot remove a pending reservation");
-         });
-
       it("should add a notification when a user of the responsible type\n"
          + "is removing a reservation that does not belong to himself",
          async () => {
@@ -769,6 +837,7 @@ describe("app", () => {
            
            expect(res.statusCode).toBe(200);
            expect(res.body._id).toBe(reservSamples[1]._id.toString());
+           expect(res.body.status).toBe('approved');
 
            const roomName = "laboratorio 102";
            expect(userTemp.notifications[0].message).toBe(
@@ -909,21 +978,6 @@ describe("app", () => {
         expect(notifications[0].status).toBe("unread");
         expect(notifications[1].message).toBe("Reserva no espaço 'laboratorio 102' removida.");
         expect(notifications[1].status).toBe("unread");
-
-        // user 2
-        res = await request(app).put(`/reservation/${reservSamples[6]._id}`)
-          .set("Authorization", `Bearer ${authTokenResponsible}`)
-          .send({status: "approved"});
-        
-        res = await request(app).get("/notifications")
-          .set("Authorization", `Bearer ${authTokenResponsible}`);
-
-        notifications = res.body;
-        const notifis = await UserModel.findById(userProfileResponsible._id, "notifications");
-        
-        expect(res.statusCode).toBe(200);
-        expect(notifications[0].message).toBe("Reserva no espaço 'laboratorio 102' aprovada.");
-        expect(notifications[0].status).toBe("unread");
       });
     });
     

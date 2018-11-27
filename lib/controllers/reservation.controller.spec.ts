@@ -427,7 +427,7 @@ describe("ReservationController", () => {
     let res = new Res();
 
     req.body = {status: "approved"};
-    const reservStub = {_id: "reservid", user: "userId001"};
+    const reservStub = {_id: "reservid", user: "userId001", status: "approved"};
     (req as any).reserv = reservStub;
     ReservationModel.findByIdAndUpdate = jest.fn(
       (arg1, arg2, options, callback) => callback(null, reservStub)
@@ -683,7 +683,7 @@ describe("ReservationController", () => {
        const incomingStatus = "removed";
        req.body = {status: incomingStatus};
        
-       const reservStub = {_id: "reservid001", user: "user000"};
+       const reservStub = {_id: "reservid001", user: "user000", status: "removed"};
        (req as any).reserv = reservStub;
 
        (req as any).user = {sub: "user001"};
@@ -775,7 +775,7 @@ describe("ReservationController", () => {
        const incomingStatus = "approved";
        req.body = {status: incomingStatus};
        
-       const reservStub = {_id: "reservid001", user: "user000"};
+       const reservStub = {_id: "reservid001", user: "user000", status: "approved"};
        (req as any).reserv = reservStub;
 
        (req as any).user = {sub: "user001"};
