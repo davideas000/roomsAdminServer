@@ -1018,6 +1018,23 @@ describe("app", () => {
       expect(res.statusCode).toBe(200);
     });
     
+    it('should return the acronym of the department when '
+       + 'user\'s role is `responsible`', async () => {
+         const res = await request(app).get("/profile")
+           .set("Authorization", `Bearer ${authTokenResponsible}`);
+
+         const dep = await DepartmentModel.findOne(
+           {user: userProfileResponsible._id}, 'acronym'
+         );
+         let expectedResult: any = {department: dep.acronym};
+
+         for(let p in userProfileResponsible) {
+           expectedResult[p] = userProfileResponsible[p];
+         }
+
+         expect(res.body).toEqual(expectedResult);
+         expect(res.statusCode).toBe(200);
+       });
   });
 
   it('GET /rtypes should return room types', async() => {

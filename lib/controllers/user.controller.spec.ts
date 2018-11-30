@@ -64,6 +64,35 @@ describe("UserController", () => {
     
   });
 
+  it('#getCurrentUser() should return the acronym of the department for '
+     + 'which the user is responsible | the user type is `responsible`', () => {
+       (req as any).user.dep = 'dep001';
+       const userStub: any = {
+         name: "temp",
+         displayName: 'userdisplayname',
+         email: "temp@example.com",
+         photoURL: 'photo',
+         role: 'responsible'
+       };
+       UserModel.findById = jest.fn((id, projec, callback) => {callback(null, userStub)});
+       const depStub = {name: "temp", acronym: 'IOGO'};
+       DepartmentModel.findById = jest.fn((id, projec, callback) => {callback(null, depStub)});
+       instance.getCurrentUser(req, res);
+
+       expect(UserModel.findById).toHaveBeenCalledTimes(1);
+       expect(UserModel.findById).toHaveBeenCalledWith(
+         (req as any).user.sub, "name displayName email photoURL role",
+         expect.any(Function));
+
+       expect(DepartmentModel.findById).toHaveBeenCalledTimes(1);
+       expect(DepartmentModel.findById).toHaveBeenCalledWith(
+         (req as any).user.dep, "acronym",
+         expect.any(Function));
+       expect(res.send).toHaveBeenCalledTimes(1);
+       userStub.department = depStub.acronym;
+       expect(res.send).toHaveBeenCalledWith(userStub);
+     });
+
   it('#login() should return a error if there is no email', () => {
     req.body = {password: 'pass'};
     instance.login(req, res);

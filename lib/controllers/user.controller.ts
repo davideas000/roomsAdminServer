@@ -86,6 +86,23 @@ export class UserController {
       if (err) {
         return res.status(500).send({message: err.message});
       }
+      if (reqUser.dep) {
+        return DepartmentModel.findById(reqUser.dep, 'acronym', (err, dep) => {
+          if (err) {
+            return res.status(500).send({message: err.message});
+          }
+          const temp = {
+            _id: user._id,
+            name: user.name,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            role: user.role,
+            department: dep.acronym
+          }
+          return res.send(temp);
+        });
+      }
       res.send(user);
     });
   }
