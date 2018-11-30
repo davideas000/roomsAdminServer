@@ -272,13 +272,13 @@ describe("app", () => {
 
   describe("/reservations", () => {
     
-    it("GET, sould return '401 authorized' for not logged user", async () => {
+    it("GET, should return a 401 status code for a not logged in user", async () => {
       const res = await request(app).get('/reservations').set('Accept', 'application/json');
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('No authorization token was found');
     });
 
-    it("GET, should return an empty array when not find reservation with the passed status",
+    it("GET, should return an empty array when the query parameter is invalid",
        async () => {
          const res = await request(app).get('/reservations?sukitos=kkkd')
            .set("Authorization", `Bearer ${authToken}`);
@@ -350,7 +350,7 @@ describe("app", () => {
          for(let v of res.body) {
            expect(v.room.department.acronym).toBe(depTemp.acronym);
            expect(v.status).toBe('pending');
-           // ensure that the user'password isn't being sent with the reservations
+           // ensure that the user's password isn't being sent with the reservations
            expect(v.user.password).toBeUndefined();
          }
        });
