@@ -21,7 +21,8 @@ export class ReservationController {
 
   getGuard(req: Request, res: Response, next: NextFunction) {
     const op = req.query.op;
-    if (op && op === 'countdep' && !(req as any).user.dep) {
+    const by = req.query.by;
+    if ((op && op === 'countdep' || by === 'dep') && !(req as any).user.dep) {
       return res.status(401).send({message: 'user-not-authorized'});
     }
     next();

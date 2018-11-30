@@ -355,6 +355,16 @@ describe("app", () => {
          }
        });
 
+    it('GET ?status=pending&by=dep, should return a 401 status code '
+       + 'for a user of type `auth`', async () => {
+         const res = await request(app).get('/reservations?status=pending&by=dep')
+           .set("Authorization", `Bearer ${authToken}`);
+         const depTemp = await DepartmentModel.findOne({user: userProfileResponsible._id});
+
+         expect(res.statusCode).toBe(401);
+         expect(res.body.message).toBe('user-not-authorized');
+       });
+
     it('GET ?status=pending&op=countdep, should return the number of pending reservations '
        + 'by department when the user\'s role is responsble', async () => {
          const res = await request(app).get('/reservations?status=pending&op=countdep')
