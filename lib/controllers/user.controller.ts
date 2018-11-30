@@ -81,8 +81,8 @@ export class UserController {
   }
 
   getCurrentUser(req: Request, res: Response) {
-    let user = (req as any).user;
-    UserModel.findById(user.sub, "name displayName email photoURL role", (err, user) => {
+    let reqUser = (req as any).user;
+    UserModel.findById(reqUser.sub, "name displayName email photoURL role", (err, user) => {
       if (err) {
         return res.status(500).send({message: err.message});
       }
