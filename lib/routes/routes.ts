@@ -46,7 +46,9 @@ export class Routes {
     app.get('/notifications', this.userController.authGuard, this.notificationController.getCurrentUserNotifications);
     app.put('/notifim', this.userController.authGuard, this.notificationController.markNotificationsAsRead);
 
-    app.get('/profile', this.userController.authGuard, this.userController.getCurrentUser);
+    app.route('/profile')
+      .get(this.userController.authGuard, this.userController.getCurrentUser)
+      .put(this.userController.authGuard, this.userController.updateProfile());
 
     app.get('/rtypes', this.userController.authGuard, this.roomController.getTypes);
 

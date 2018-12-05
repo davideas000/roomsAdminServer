@@ -27,9 +27,6 @@ describe("Routes", () => {
     expect(appMock.get).toHaveBeenCalledWith(
       "/notifications",
       expect.any(Function), expect.any(Function));
-    expect(appMock.get).toHaveBeenCalledWith(
-      "/profile",
-      expect.any(Function), expect.any(Function));
 
     expect(appMock.get).toHaveBeenCalledWith(
       "/rtypes",
@@ -50,14 +47,15 @@ describe("Routes", () => {
       '/reservation', expect.any(Function), expect.any(Array), expect.any(Function)
     );
 
-    expect(appMock.route).toHaveBeenCalledTimes(2);
+    expect(appMock.route).toHaveBeenCalledTimes(3);
     expect(appMock.route).toHaveBeenCalledWith('/reservations');
     expect(appMock.route).toHaveBeenCalledWith('/reservation/:id');
+    expect(appMock.route).toHaveBeenCalledWith('/profile');
     
     expect(appMock.use).toHaveBeenCalledTimes(2);
     expect(appMock.use).toHaveBeenCalledWith(expect.any(Function));
     
-    expect(appMock.put).toHaveBeenCalledTimes(2);
+    expect(appMock.put).toHaveBeenCalledTimes(3);
     expect(appMock.put).toHaveBeenCalledWith(
       expect.any(Function), expect.any(Function), expect.any(Function),
       expect.any(Function));

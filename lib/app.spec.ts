@@ -1047,6 +1047,55 @@ describe("app", () => {
        });
   });
 
+  it('PUT /profile should update user profile', async () => {
+    const newData = {name: 'blud bla', displayName: 'blan', email: 'emsil@email.com'}
+    const res = await request(app).put("/profile").send(newData)
+      .set("Authorization", `Bearer ${authToken}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body._id).toEqual(userProfile._id);
+    expect(res.body.name).toBe(newData.name);
+    expect(res.body.displayName).toBe(newData.displayName);
+    expect(res.body.email).toBe(newData.email);
+    expect(res.body.password).toBeUndefined();
+    expect(res.body.role).toBe(userProfile.role);
+  });
+
+  it("PUT /profile should return a 401 status code when user is nonexistent", async () => {
+    await mongoose.connection.dropCollection('users');
+    const newData = {name: 'blud bli', displayName: 'blank', email: 'emsil@email.com'}
+    const res = await request(app).put("/profile").send(newData)
+      .set("Authorization", `Bearer ${authToken}`);
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.message).toBe('user-not-found');
+  });
+
+  it('PUT /profile should return a 422 status code when the input data is invalid', async () => {
+    let newData = {name: '       a', displayName: '     ', email: 'emsil'}
+    let res = await request(app).put("/profile").send(newData)
+      .set("Authorization", `Bearer ${authToken}`);
+
+    expect(res.statusCode).toBe(422);
+    expect(res.body.length).toBe(3);
+    expect(res.body[0].param).toEqual('email');
+    expect(res.body[0].msg).toEqual('not a valid email');
+    expect(res.body[1].param).toEqual('name');
+    expect(res.body[1].msg).toEqual('must be at least 5 chars long');
+    expect(res.body[2].param).toEqual('displayName');
+    expect(res.body[2].msg).toEqual('must not be empty');
+
+    newData = {name: 'aaa', displayName: 'blublu', email: ''}
+    res = await request(app).put("/profile").send(newData)
+      .set("Authorization", `Bearer ${authToken}`);
+    expect(res.statusCode).toBe(422);
+    expect(res.body.length).toBe(2);
+    expect(res.body[0].param).toEqual('email');
+    expect(res.body[0].msg).toEqual('not a valid email');
+    expect(res.body[1].param).toEqual('name');
+    expect(res.body[1].msg).toEqual('must be at least 5 chars long');
+  });
+
   it('GET /rtypes should return room types', async() => {
     const res = await request(app).get("/rtypes")
       .set("Authorization", `Bearer ${authToken}`);

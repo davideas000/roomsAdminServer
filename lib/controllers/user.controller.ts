@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { UserModel } from "../models/user.model";
 import { config } from './../config/config';
 import * as jwt from 'jsonwebtoken';
 import * as expressJwt from 'express-jwt';
 import { DepartmentModel } from "../models/department.model";
+import { body, validationResult, Result } from 'express-validator/check';
 
 export class UserController {
   
@@ -106,5 +107,56 @@ export class UserController {
       res.send(user);
     });
   }
+
+  //////////////////////////////////////////////
+  //////////// UPDATE PROFILE /////////////////
+  //////////////////////////////////////////////
+  updateProfile() {
+    return [
+      body('email').isEmail().withMessage('not a valid email'),
+      body('name').trim()
+        .isLength({min: 5}).withMessage('must be at least 5 chars long')
+        .escape(),
+      body('displayName').not().isEmpty().withMessage('must not be empty')
+        .trim().escape(),
+      this.checkValidationErrors,
+      this._updateProfile
+    ];
+  }
+
+  private checkValidationErrors(req: Request, res: Response, next: NextFunction) {
+    const errors: Result = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).send(errors.array());
+    }
+    next();
+  }
   
+  private _updateProfile(req: Request, res: Response, next: NextFunction) {
+    const userId = (req as any).user.sub;
+    const updateData = {
+      name: req.body.name,
+      displayName: req.body.displayName,
+      email: req.body.email
+    };
+    UserModel.findByIdAndUpdate(
+      userId, updateData, {new: true}, (err, updatedUser) => {
+        if (err) {
+          console.error("ERROR", err.message);
+          return res.status(500).send({message: 'internal server error'});
+        }
+        if (!updatedUser) {
+          return res.status(401).send({message: 'user-not-found'});
+        }
+        const userTemp = {
+          _id: updatedUser._id,
+          name: updatedUser.name,
+          displayName: updatedUser.displayName,
+          email: updatedUser.email,
+          photoURL: updatedUser.photoURL,
+          role: updatedUser.role
+        };
+        res.send(userTemp);
+      });
+  }
 }

@@ -253,4 +253,29 @@ describe("UserController", () => {
        );
      });
   
+  it('#_updateProfile() should update user profile ', () => {
+    const newDataStub = {
+      name: 'newname',
+      displayName: 'newdisplayname',
+      email: 'newemail'
+    };
+    req.body = newDataStub;
+    const updatedUserStub = {
+      _id: '0002',
+      name: 'updatedname',
+      displayName: 'updateddisplayname',
+      email: 'updatedemail',
+      role: 'userrole'
+    };
+    UserModel.findByIdAndUpdate = jest.fn(
+      (userid, newdata, options, callback) => callback(null, updatedUserStub));
+    const next = jest.fn();
+    const fns = instance.updateProfile();
+    fns[4](req, res, next);
+    expect(UserModel.findByIdAndUpdate).toHaveBeenCalledTimes(1);
+    expect(UserModel.findByIdAndUpdate).toHaveBeenCalledWith(
+      'user0001', newDataStub, {new: true}, expect.any(Function));
+    expect(res.send).toHaveBeenCalledTimes(1);
+    expect(res.send).toHaveBeenCalledWith(updatedUserStub);
+  });
 });
