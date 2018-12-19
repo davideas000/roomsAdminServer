@@ -58,26 +58,6 @@ describe("user", () => {
     expect(e.errors.email.message).toBe("Invalid email");
   });
 
-  it("#photoURL should not accept a invalid url", async () => {
-    const temp = {
-      name: "david endrew",
-      email: "davide@email.com",
-      password: "dddddd",
-      role: "responsible",
-      photoURL: "dddd.coll"
-    };
-
-    let user = new UserModel(temp);
-    let e = user.validateSync();
-    expect(e.errors.photoURL).toBeTruthy();
-    expect(e.errors.photoURL.message).toBe("Invalid url");
-
-    temp.photoURL = "https://www.example.com/img.png";
-    user = new UserModel(temp);
-    e = user.validateSync();
-    expect(e).toBeFalsy();
-  });
-
   it("#checkPassword() with the correct password should return true", (done) => {
     const temp = {
       name: "david endrew",
