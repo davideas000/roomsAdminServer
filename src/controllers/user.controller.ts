@@ -174,4 +174,16 @@ export class UserController {
     }
     next();
   }
+
+  aList(req: Request, res: Response) {
+    UserModel.find(
+      {role: {$ne: 'admin'}}, 'name displayName email photoURL role',
+      (err, usrs) => {
+        if (err) {
+          console.log("ERROR:", err);
+          return res.status(500).send({message: 'Interanl server error'});
+        }
+        res.send(usrs);
+      });
+  }
 }

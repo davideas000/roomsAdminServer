@@ -12,6 +12,9 @@ export class AdminRouter {
 
   private config() {
     this.router.use(this.usrController.adminGuard);
+
+    this.router.route('/users')
+      .get(this.usrController.aList);
   }
 
   get routes() {

@@ -272,6 +272,32 @@ describe("app", () => {
     mongodb.stop();
   });
 
-  it('', () => {});
+  it('GET /admin/users, should return a 401 status code for'
+     + 'a not logged in user', async() => {
+       const resp = await request(app).get('/admin/users');
+       expect(resp.statusCode).toBe(401)
+       expect(resp.body.message).toBe('No authorization token was found');
+     });
+
+  it('GET /admin/users, should return a 401 status code for'
+     + 'a not admin user', async() => {
+       const resp = await request(app).get('/admin/users')
+         .set('Authorization', `Bearer ${authToken}`);
+       expect(resp.statusCode).toBe(401)
+       expect(resp.body.message).toBe('User not authorized');
+     });
+
+  it('GET /admin/users, should return all the users', async() => {
+    // it doesn't return the admin user
+    const resp = await request(app).get('/admin/users')
+      .set('Authorization', `Bearer ${authTokenAdmin}`);
+    expect(resp.statusCode).toBe(200);
+    expect(resp.body.length).toBe(2);
+    expect(resp.body[0]._id).toBe(userProfile._id);
+    expect(resp.body[0].password).toBeFalsy();
+    expect(resp.body[0].role).toBe(userProfile.role);
+    expect(resp.body[1].role).toBe(userProfileResponsible.role);
+    expect(resp.body[1].password).toBeFalsy();
+  });
 });
 
