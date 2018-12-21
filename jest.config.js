@@ -1,6 +1,6 @@
 module.exports = {
   roots: [
-    "<rootDir>/lib"
+    "<rootDir>/src"
   ],
   clearMocks: true,
   coverageDirectory: "coverage",
@@ -25,10 +25,10 @@ module.exports = {
 
   testMatch: [
     // "**/__tests__/*.+(ts|tsx|js)"
-    "**/lib/**/*.spec.ts"
+    "**/src/**/*.spec.ts"
   ],
   testPathIgnorePatterns: [
-    "lib/extra-tests/email-uniquiness.spec.ts",
-    "lib/admin.app.spec.ts"
+    "src/extra-tests/email-uniquiness.spec.ts",
+    "src/admin.app.spec.ts"
   ]
 };
