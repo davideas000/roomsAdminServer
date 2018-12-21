@@ -10,6 +10,8 @@ import { UserController } from '../controllers/user.controller';
 import { RoomController } from '../controllers/room.controller';
 import { DepartmentController } from '../controllers/department.controller';
 
+import { AdminRouter } from './admin-router';
+
 export class Routes {
 
   private reservationController = new ReservationController();
@@ -17,6 +19,8 @@ export class Routes {
   private userController = new UserController();
   private roomController = new RoomController();
   private departmentController = new DepartmentController();
+
+  private adminRouter = new AdminRouter();
   
   routes(app: Application): void {
     
@@ -65,6 +69,8 @@ export class Routes {
     app.get('/rsearch', this.userController.authGuard,
             this.roomController.getExcludes,
             this.roomController.findRoomsAndExclude);
+
+    app.use('/admin', this.userController.authGuard, this.adminRouter.routes);
     
     app.use((err: Error , req: Request, res: Response, next: NextFunction) => {
       if (err.name === 'UnauthorizedError') {
