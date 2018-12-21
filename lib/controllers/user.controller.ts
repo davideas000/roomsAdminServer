@@ -161,4 +161,17 @@ export class UserController {
         res.send(userTemp);
       });
   }
+
+  ///////////////////////////////////////
+  /////////////// ADMIN /////////////////
+  ///////////////////////////////////////
+
+  adminGuard(req: Request, res: Response, next: NextFunction) {
+    const user = (req as any).user;
+    if (user.role !== 'admin') {
+      const error = {name: 'UnauthorizedError', message: 'User not authorized'};
+      return next(error);
+    }
+    next();
+  }
 }
