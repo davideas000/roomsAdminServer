@@ -27,4 +27,7 @@ module.exports = {
     // "**/__tests__/*.+(ts|tsx|js)"
     "**/lib/**/*.spec.ts"
   ],
+  testPathIgnorePatterns: [
+    "lib/extra-tests/email-uniquiness.spec.ts"
+  ]
 };

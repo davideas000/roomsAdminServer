@@ -142,7 +142,9 @@ export class UserController {
     UserModel.findByIdAndUpdate(
       userId, updateData, {new: true}, (err, updatedUser) => {
         if (err) {
-          console.error("ERROR", err.message);
+          if (err.code && err.code === 11000) {
+            return res.status(401).send({message: 'duplicate-email'});
+          }
           return res.status(500).send({message: 'internal server error'});
         }
         if (!updatedUser) {
