@@ -22,9 +22,9 @@ const serverUrl = 'https://ra-server.herokuapp.com';
 const localUrl = 'http://localhost:3000';
 
 const user = new UserModel({
-  name: "david az",
-  displayName: "endrew",
-  email: "david.edews@gmail.com",
+  name: "normal user",
+  displayName: "nuser",
+  email: "normal@email.com",
   password: "dddddddd",
   role: "auth",
   photoURL: process.env.MONGODB_URI ? `${serverUrl}/user-1.png` : `${localUrl}/user-1.png`
@@ -37,9 +37,9 @@ user.save().then( () => console.log("user saved"));
 
 // fake user of type responsible
 const resp1 = new UserModel({
-  name: "saber art",
-  displayName: "saber",
-  email: "saber@example.com",
+  name: "responsible user",
+  displayName: "ruser",
+  email: "resp@email.com",
   password: "kkkkkkkk",
   role: "responsible",
 });
@@ -48,9 +48,9 @@ resp1.save().then( () => console.log("user saved"));
 
 // fake user of type responsible 2
 const resp2 = new UserModel({
-  name: "marsh shielder",
-  displayName: "mash",
-  email: "marsh@example.com",
+  name: "resp 2",
+  displayName: "ruser2",
+  email: "resp2@email.com",
   password: "gggggggg",
   role: "responsible",
 });

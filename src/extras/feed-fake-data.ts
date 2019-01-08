@@ -21,8 +21,8 @@ async function initializeDB () {
   await dropCollection('rooms');
   await dropCollection('reservations');
   
-  const resp1 = await UserModel.findOne({email: 'saber@example.com'});
-  const resp2 = await UserModel.findOne({email: 'marsh@example.com'});
+  const resp1 = await UserModel.findOne({email: 'resp@email.com'});
+  const resp2 = await UserModel.findOne({email: 'resp2@email.com'});
   
   const depsTest = [
     {
@@ -94,7 +94,7 @@ async function initializeDB () {
 
   const rooms = await RoomModel.insertMany(roomsTest);
 
-  const user = await UserModel.findOne({email: 'david.edews@gmail.com'});
+  const user = await UserModel.findOne({email: 'normal@email.com'});
   const reservationTest = [
     
     { // 0
