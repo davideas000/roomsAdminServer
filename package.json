@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node dist/server",
     "build": "tsc",
-    "dev": "NODE_ENV=dev ts-node lib/server",
+    "dev": "NODE_ENV=dev ts-node src/server",
     "test": "jest",
     "lint": "tslint",
     "postinstall": "tsc"
