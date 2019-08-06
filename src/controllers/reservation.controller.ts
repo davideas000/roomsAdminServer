@@ -40,7 +40,7 @@ export class ReservationController {
       } else {
         result = count[0] && count[0].n || 0;
       }
-      res.send({result: result});
+      res.json(result);
     };
 
     if (cond.dep) {

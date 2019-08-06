@@ -370,7 +370,7 @@ describe("app", () => {
          const res = await request(app).get('/reservations?status=pending&op=countdep')
            .set("Authorization", `Bearer ${authTokenResponsible}`);
          expect(res.statusCode).toBe(200);
-         expect(res.body.result).toBe(2);
+         expect(res.body).toBe(2);
        });
 
     it('GET ?status=approved&op=countdep, should return the number of approved reservations '
@@ -378,7 +378,7 @@ describe("app", () => {
          const res = await request(app).get('/reservations?status=approved&op=countdep')
            .set("Authorization", `Bearer ${authTokenResponsible}`);
          expect(res.statusCode).toBe(200);
-         expect(res.body.result).toBe(2);
+         expect(res.body).toBe(2);
        });
 
     it('GET ?status=pending&op=countdep, should return a 401 status code for a '

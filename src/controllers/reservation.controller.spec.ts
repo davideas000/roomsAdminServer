@@ -126,6 +126,7 @@ describe("ReservationController", () => {
        let req = new Req();
        let res = new Res();
        req.query = {status: "pending", op: 'count'};
+       res.json = jest.fn();
 
        const countStub = 3;
        ReservationModel.countDocuments = jest.fn(() => ReservationModel);
@@ -135,8 +136,8 @@ describe("ReservationController", () => {
        expect(ReservationModel.countDocuments).toHaveBeenCalledTimes(1);
        expect(ReservationModel.countDocuments).toHaveBeenCalledWith({user: "userid", status: "pending"});
 
-       expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({result: countStub});
+       expect(res.json).toHaveBeenCalledTimes(1);
+       expect(res.json).toHaveBeenCalledWith(countStub);
      });
 
   it('#getReservations() -- req.query = {status: \'pending\', op: \'countdep\'} -- '
@@ -144,6 +145,7 @@ describe("ReservationController", () => {
        let req = new Req();
        let res = new Res();
        req.query = {status: "pending", op: 'countdep'};
+       res.json = jest.fn();
        (req as any).user.dep = 'dep001';
 
        const countStub = [{n: 3}];
@@ -159,8 +161,8 @@ describe("ReservationController", () => {
        expect(ReservationModel.countByStatusAndDep).toHaveBeenCalledWith(
          req.query.status, (req as any).user.dep);
 
-       expect(res.send).toHaveBeenCalledTimes(1);
-       expect(res.send).toHaveBeenCalledWith({result: countStub[0].n});
+       expect(res.json).toHaveBeenCalledTimes(1);
+       expect(res.json).toHaveBeenCalledWith(countStub[0].n);
      });
 
   it("#getReservations() should search for removed reservs when status=removed", () => {
